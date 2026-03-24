@@ -4,11 +4,13 @@ GET  /api/test/models            → list all configured models (Bedrock + Verte
 POST /api/test/model/{short_id}  → call one model directly
 POST /api/test/all               → call every model, return pass/fail summary
 POST /api/test/vertex            → call only Vertex AI (Gemini) models
+POST /api/test/debug/{short_id}  → raw response body for debugging token parsing
 """
 
 import time
+import json
 from fastapi import APIRouter
-from services.bedrock import BEDROCK_MODELS, _call_single_model
+from services.bedrock import BEDROCK_MODELS, _call_single_model, _build_body, bedrock
 from services.vertex import VERTEX_MODELS, _call_single_vertex_model
 
 router = APIRouter()
@@ -145,3 +147,35 @@ def test_vertex():
 
     passed = sum(1 for r in results if "PASS" in r["status"])
     return {"summary": f"{passed}/{len(results)} Vertex AI models passed", "results": results}
+
+
+# ─── Debug: raw response body for token investigation ────────
+
+@router.post("/debug/{short_id}")
+def debug_single(short_id: str, body: dict = None):
+    """Call a Bedrock model and return the FULL raw response body JSON for debugging."""
+    prompt = (body or {}).get("prompt", "Say hello in one sentence.")
+
+    bmodel = next((m for m in BEDROCK_MODELS if m["short_id"] == short_id), None)
+    if not bmodel:
+        return {"error": f"Unknown short_id: {short_id}"}
+
+    try:
+        req_body = _build_body(bmodel["fmt"], prompt)
+        start = time.time()
+        response = bedrock.invoke_model(modelId=bmodel["model_id"], body=req_body)
+        latency_ms = int((time.time() - start) * 1000)
+
+        raw_body = json.loads(response["body"].read())
+
+        return {
+            "status":      "ok",
+            "short_id":    short_id,
+            "fmt":         bmodel["fmt"],
+            "latency_ms":  latency_ms,
+            "raw_body":    raw_body,
+            "body_keys":   list(raw_body.keys()),
+            "usage":       raw_body.get("usage", "NOT_FOUND"),
+        }
+    except Exception as e:
+        return {"status": "error", "short_id": short_id, "error": str(e)}

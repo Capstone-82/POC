@@ -8,9 +8,8 @@ from io import StringIO
 
 from models.schemas import SinglePromptRequest, JobResponse
 from jobs.store import create_job, push_event, get_event, close_job
-from services.evaluator import evaluate_prompt, evaluate_all_responses
+from services.evaluator import evaluate_all_responses
 from services.bedrock import call_all_models
-from services.vertex import call_all_vertex_models
 from services.supabase_client import save_row
 
 router = APIRouter()
@@ -24,7 +23,11 @@ async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks
     create_job(job_id)
     background_tasks.add_task(
         process_prompts,
-        prompts=[req.prompt],
+        prompts=[{
+            "prompt": req.prompt,
+            "prompt_complexity": req.prompt_complexity,
+            "prompt_quality_score": req.prompt_quality_score,
+        }],
         evaluator_model=req.evaluator_model,
         job_id=job_id,
     )
@@ -37,6 +40,7 @@ async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks
 async def run_csv(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
+    prompt_complexity: str = Form("mid"),
     evaluator_model: str = Form("gemini-2.0-flash"),
 ):
     contents = await file.read()
@@ -45,7 +49,22 @@ async def run_csv(
     if "prompt" not in df.columns:
         raise HTTPException(status_code=400, detail="CSV must have a 'prompt' column")
 
-    prompts = df["prompt"].dropna().tolist()
+    has_accuracy = "accuracy" in df.columns
+
+    prompts = []
+    for _, row in df.iterrows():
+        p = row.get("prompt")
+        if pd.isna(p) or str(p).strip() == "":
+            continue
+        prompts.append({
+            "prompt": str(p).strip(),
+            "prompt_complexity": prompt_complexity,
+            "prompt_quality_score": int(row["accuracy"]) if has_accuracy and not pd.isna(row.get("accuracy")) else 50,
+        })
+
+    if not prompts:
+        raise HTTPException(status_code=400, detail="No valid prompts found in CSV")
+
     job_id = str(uuid.uuid4())
     create_job(job_id)
 
@@ -81,75 +100,137 @@ async def stream(job_id: str):
     )
 
 
-# ─── CORE PROCESSING LOGIC ──────────────────────────────────
+# ─── PROCESS A SINGLE PROMPT (called in parallel) ───────────
 
-async def process_prompts(prompts: list[str], evaluator_model: str, job_id: str):
+async def _process_one_prompt(
+    prompt_data: dict,
+    prompt_index: int,
+    total: int,
+    evaluator_model: str,
+    job_id: str,
+):
+    """
+    Process one prompt end-to-end:
+      1. Fire ALL models in parallel (Bedrock + Vertex)
+      2. Filter null responses
+      3. Evaluate all successful responses in parallel (with rate limiting)
+      4. Save to DB + push SSE events
+    """
+    prompt = prompt_data["prompt"]
+    prompt_complexity = prompt_data["prompt_complexity"]
+    prompt_quality_score = prompt_data["prompt_quality_score"]
+
+    # ── STEP 1: Fire ALL Bedrock models in parallel ──────────────────
+    model_results = await call_all_models(prompt)
+
+    # ── STEP 2: Separate successful vs failed ────────────────────────────
+    successful_results = []
+    failed_results = []
+    for r in model_results:
+        if not r["response"] or str(r["response"]).strip() == "":
+            failed_results.append(r)
+        else:
+            successful_results.append(r)
+
+    # ── STEP 3: Evaluate ALL successful responses in parallel ────────────
+    # (rate-limited by semaphore + retry in evaluator.py)
+    score_map = {}
+    if successful_results:
+        response_payload = [
+            {"model_id": r["model_id"], "response": r["response"]}
+            for r in successful_results
+        ]
+        accuracy_scores = await evaluate_all_responses(
+            prompt=prompt,
+            responses=response_payload,
+            evaluator_model=evaluator_model,
+        )
+        score_map = {s["model_id"]: s["accuracy_score"] for s in accuracy_scores}
+
+    # ── STEP 4: Save to DB + push SSE events ─────────────────────────────
+    # Save all rows in parallel too
+    save_tasks = []
+    for result in successful_results:
+        accuracy = score_map.get(result["model_id"], 0)
+        row = {
+            "provider":             result["provider"],
+            "model_id":             result["model_id"],
+            "prompt":               prompt,
+            "prompt_complexity":    prompt_complexity,
+            "prompt_quality_score": prompt_quality_score,
+            "response":             result["response"],
+            "accuracy_score":       accuracy,
+            "cost":                 result["cost"],
+            "tokens":               result["tokens"],
+            "latency_ms":           result["latency_ms"],
+        }
+        save_tasks.append(save_row(row))
+
+    # Fire all DB saves in parallel
+    if save_tasks:
+        await asyncio.gather(*save_tasks)
+
+    # Push SSE events (sequential to maintain order for the frontend)
+    for result in successful_results:
+        accuracy = score_map.get(result["model_id"], 0)
+        await push_event(job_id, {
+            "type":                "progress",
+            "prompt_index":        prompt_index,
+            "total":               total,
+            "model_id":            result["model_id"],
+            "provider":            result["provider"],
+            "prompt_complexity":   prompt_complexity,
+            "prompt_quality_score": prompt_quality_score,
+            "accuracy_score":      accuracy,
+            "cost":                result["cost"],
+            "tokens":              result["tokens"],
+            "latency_ms":          result["latency_ms"],
+        })
+
+    # Flag failed responses
+    for result in failed_results:
+        await push_event(job_id, {
+            "type":                "model_failed",
+            "prompt_index":        prompt_index,
+            "total":               total,
+            "model_id":            result["model_id"],
+            "provider":            result["provider"],
+            "prompt_complexity":   prompt_complexity,
+            "prompt_quality_score": prompt_quality_score,
+            "accuracy_score":      0,
+            "cost":                0,
+            "tokens":              0,
+            "latency_ms":          result["latency_ms"],
+            "reason":              "Model returned null/empty response",
+        })
+
+
+# ─── CORE ORCHESTRATOR — ALL PROMPTS IN PARALLEL ────────────
+
+async def process_prompts(prompts: list[dict], evaluator_model: str, job_id: str):
+    """
+    FULL PARALLEL pipeline:
+      5 prompts × 18 models = 90 model calls fired simultaneously
+      → gather responses → evaluator calls with rate limiting → save to DB
+
+    Each prompt is processed by _process_one_prompt concurrently.
+    """
     total = len(prompts)
 
     try:
-        for i, prompt in enumerate(prompts, start=1):
-
-            # ── CALL 1: Evaluate the prompt (complexity + quality) ──────
-            prompt_eval = await evaluate_prompt(prompt, evaluator_model)
-            # Returns: { prompt_complexity, prompt_quality_score }
-
-            # ── CALL 2+3: Call ALL models in parallel (Bedrock + Vertex) ─
-            enriched_prompt = build_enriched_prompt(prompt, prompt_eval)
-            bedrock_results, vertex_results = await asyncio.gather(
-                call_all_models(enriched_prompt),
-                call_all_vertex_models(enriched_prompt),
-            )
-            model_results = bedrock_results + vertex_results
-            # Each item: { model_id, provider, response, cost, tokens, latency_ms }
-
-            # ── CALL 4: ONE batch evaluator call scores ALL responses ─────
-            # Build payload: [{model_id, response}, ...]
-            response_payload = [
-                {"model_id": r["model_id"], "response": r["response"]}
-                for r in model_results
-            ]
-            accuracy_scores = await evaluate_all_responses(
-                prompt=prompt,
-                responses=response_payload,
+        # Fire ALL prompts at once
+        tasks = [
+            _process_one_prompt(
+                prompt_data=prompt_data,
+                prompt_index=i,
+                total=total,
                 evaluator_model=evaluator_model,
+                job_id=job_id,
             )
-            # Returns: [{model_id, accuracy_score}, ...]
+            for i, prompt_data in enumerate(prompts, start=1)
+        ]
 
-            # Build a lookup dict for fast access
-            score_map = {s["model_id"]: s["accuracy_score"] for s in accuracy_scores}
-
-            # ── Save each row + stream SSE event ─────────────────────────
-            for result in model_results:
-                accuracy = score_map.get(result["model_id"], 0)
-
-                row = {
-                    "provider":            result["provider"],
-                    "model_id":            result["model_id"],
-                    "prompt":              prompt,
-                    "prompt_complexity":   prompt_eval["prompt_complexity"],
-                    "prompt_quality_score": prompt_eval["prompt_quality_score"],
-                    "response":            result["response"],
-                    "accuracy_score":      accuracy,
-                    "cost":                result["cost"],
-                    "tokens":              result["tokens"],
-                    "latency_ms":          result["latency_ms"],
-                }
-
-                await save_row(row)
-
-                await push_event(job_id, {
-                    "type":                "progress",
-                    "prompt_index":        i,
-                    "total":               total,
-                    "model_id":            result["model_id"],
-                    "provider":            result["provider"],
-                    "prompt_complexity":   prompt_eval["prompt_complexity"],
-                    "prompt_quality_score": prompt_eval["prompt_quality_score"],
-                    "accuracy_score":      accuracy,
-                    "cost":                result["cost"],
-                    "tokens":              result["tokens"],
-                    "latency_ms":          result["latency_ms"],
-                })
+        await asyncio.gather(*tasks)
 
         # All done
         await push_event(job_id, {"type": "done", "prompt_index": total, "total": total})
@@ -161,11 +242,3 @@ async def process_prompts(prompts: list[str], evaluator_model: str, job_id: str)
             "prompt_index":  0,
             "total":         total,
         })
-
-
-def build_enriched_prompt(prompt: str, prompt_eval: dict) -> str:
-    return (
-        f"{prompt}\n\n"
-        f"[Prompt complexity: {prompt_eval['prompt_complexity']} | "
-        f"Prompt quality: {prompt_eval['prompt_quality_score']}/100]"
-    )

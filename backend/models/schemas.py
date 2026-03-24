@@ -6,6 +6,8 @@ from typing import Optional
 
 class SinglePromptRequest(BaseModel):
     prompt: str
+    prompt_complexity: str = "mid"          # low | mid | high — chosen by user in frontend
+    prompt_quality_score: int = 50          # user-provided accuracy from frontend (0-100)
     evaluator_model: str = "gemini-2.0-flash"
 
 

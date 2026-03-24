@@ -2,8 +2,8 @@ import { ChevronDown, BrainCircuit } from 'lucide-react'
 
 const EVALUATORS = [
   { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Default)' },
-  { value: 'gpt-4o', label: 'GPT-4o (GCP)' },
-  { value: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
+  { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+  { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
 ]
 
 export default function EvaluatorDropdown({ value, onChange }) {
@@ -12,7 +12,7 @@ export default function EvaluatorDropdown({ value, onChange }) {
       <div className="flex items-center gap-2 mb-3">
         <BrainCircuit className="w-5 h-5 text-blue-500" />
         <label className="text-sm font-semibold text-gray-300">
-          AI Judge Evaluator
+          Response Judge Model
         </label>
       </div>
       
@@ -37,7 +37,7 @@ export default function EvaluatorDropdown({ value, onChange }) {
       
       <p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5 px-1">
         <span className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-        Used to score benchmark responses & classify prompts
+        Rates model response accuracy only — prompt complexity is set above
       </p>
     </div>
   )

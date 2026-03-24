@@ -84,7 +84,8 @@ export default function CSVUpload({ file, onFileChange }) {
                  {isDragActive ? "In-flight... Drop now" : "Drag & drop csv benchmark source"}
                </p>
                <p className="text-gray-500 text-xs leading-relaxed">
-                 CSV structure must include a column named <span className="font-mono text-blue-400 font-bold">"prompt"</span> to be parsed correctly.
+                 CSV must include <span className="font-mono text-blue-400 font-bold">"prompt"</span> column. 
+                 Optional <span className="font-mono text-blue-400 font-bold">"accuracy"</span> column for user-provided scores (0-100).
                </p>
              </div>
           </div>

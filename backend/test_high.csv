@@ -1,0 +1,3 @@
+prompt,accuracy
+"Design a distributed consensus algorithm that handles Byzantine fault tolerance for a 50-node cluster with sub-second finality guarantees, and explain the formal proof of its safety properties",35
+"Write a Python metaclass that implements automatic memoization with LRU eviction, thread-safe lazy evaluation, and compile-time type checking via __init_subclass__ hooks",55
