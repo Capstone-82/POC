@@ -16,6 +16,21 @@ router = APIRouter()
 
 # ─── List all configured models ──────────────────────────────
 
+@router.get("/available-ids")
+async def list_available_ids(provider: str = None):
+    """List all model IDs directly from AWS Bedrock for debugging."""
+    try:
+        params = {}
+        if provider:
+            params["byProvider"] = provider
+        
+        response = bedrock.list_foundation_models(**params)
+        ids = [m["modelId"] for m in response["modelSummaries"]]
+        return {"available_ids": ids}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.get("/models")
 def list_models():
     bedrock_list = [

@@ -28,7 +28,20 @@ def _meta_arn(model_short: str) -> str:
 #   "messages" → messages + max_tokens  (Mistral, DeepSeek, Anthropic)
 
 BEDROCK_MODELS = [
-    # ── Meta Llama ───────────────────────────────────────────
+    # ── Meta Llama 4 (MoE) ───────────────────────────────────
+    {
+        "model_id": _meta_arn("us.meta.llama4-scout-17b-instruct-v1:0"),
+        "provider": "Meta",
+        "short_id": "llama4-scout",
+        "fmt":      "meta",
+    },
+    {
+        "model_id": _meta_arn("us.meta.llama4-maverick-17b-instruct-v1:0"),
+        "provider": "Meta",
+        "short_id": "llama4-maverick",
+        "fmt":      "meta",
+    },
+    # ── Meta Llama 3 ─────────────────────────────────────────
     {
         "model_id": _meta_arn("us.meta.llama3-3-70b-instruct-v1:0"),
         "provider": "Meta",
@@ -66,7 +79,61 @@ BEDROCK_MODELS = [
         "short_id": "nova-premier",
         "fmt":      "nova",
     },
-    # ── Mistral ──────────────────────────────────────────────
+    # ── Mistral AI (March 2026 Catalog) ──────────────────────
+    {
+        "model_id": "mistral.mistral-large-3-instruct",
+        "provider": "Mistral AI",
+        "short_id": "mistral-large-3",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.devstral-2-123b",
+        "provider": "Mistral AI",
+        "short_id": "devstral-2",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.ministral-3-8b-instruct",
+        "provider": "Mistral AI",
+        "short_id": "ministral-3-8b",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.ministral-3-3b-instruct",
+        "provider": "Mistral AI",
+        "short_id": "ministral-3b",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.ministral-14b-3-0",
+        "provider": "Mistral AI",
+        "short_id": "ministral-14b",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.magistral-small-2509",
+        "provider": "Mistral AI",
+        "short_id": "magistral-small",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.voxtral-mini-3b-2507",
+        "provider": "Mistral AI",
+        "short_id": "voxtral-mini-3b",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "mistral.voxtral-small-24b-2507",
+        "provider": "Mistral AI",
+        "short_id": "voxtral-small-24b",
+        "fmt":      "messages",
+    },
+    {
+        "model_id": "us.mistral.pixtral-large-2502-v1:0",
+        "provider": "Mistral AI",
+        "short_id": "pixtral-large-2",
+        "fmt":      "messages",
+    },
     {
         "model_id": "mistral.mistral-large-2402-v1:0",
         "provider": "Mistral AI",
@@ -79,12 +146,6 @@ BEDROCK_MODELS = [
         "short_id": "mistral-small",
         "fmt":      "messages",
     },
-    {
-        "model_id": "us.mistral.pixtral-large-2502-v1:0",
-        "provider": "Mistral AI",
-        "short_id": "pixtral-large",
-        "fmt":      "messages",
-    },
     # ── DeepSeek ─────────────────────────────────────────────
     {
         "model_id": "us.deepseek.r1-v1:0",
@@ -92,29 +153,71 @@ BEDROCK_MODELS = [
         "short_id": "deepseek-r1",
         "fmt":      "messages",
     },
-    # ── Anthropic Claude via Bedrock ─────────────────────────
+    # ── Anthropic Claude 4.x (Future/Enterprise) ─────────────
+    {
+        "model_id": "us.anthropic.claude-opus-4-6-v1",
+        "provider": "Anthropic",
+        "short_id": "claude-4-6-opus",
+        "fmt":      "anthropic",
+    },
+    {
+        "model_id": "us.anthropic.claude-sonnet-4-6",
+        "provider": "Anthropic",
+        "short_id": "claude-4-6-sonnet",
+        "fmt":      "anthropic",
+    },
+    {
+        "model_id": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        "provider": "Anthropic",
+        "short_id": "claude-4-5-sonnet",
+        "fmt":      "anthropic",
+    },
+    {
+        "model_id": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "provider": "Anthropic",
+        "short_id": "claude-4-5-haiku",
+        "fmt":      "anthropic",
+    },
+    # ── Anthropic Claude 3.5 ─────────────────────────────────
     {
         "model_id": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
         "provider": "Anthropic",
         "short_id": "claude-3-5-sonnet",
-        "fmt":      "messages",
+        "fmt":      "anthropic",
     },
     {
         "model_id": "us.anthropic.claude-3-haiku-20240307-v1:0",
         "provider": "Anthropic",
         "short_id": "claude-3-haiku",
-        "fmt":      "messages",
+        "fmt":      "anthropic",
     },
 ]
 
 # ─── Per-model pricing (USD per 1K tokens) ───────────────────
 MODEL_PRICING = {
+    "claude-4-6-opus":   {"input": 0.015,   "output": 0.075},
+    "claude-4-6-sonnet": {"input": 0.003,   "output": 0.015},
+    "claude-4-5-sonnet": {"input": 0.003,   "output": 0.015},
+    "claude-4-5-haiku":  {"input": 0.00025, "output": 0.00125},
+    "claude-3-5-sonnet": {"input": 0.003,   "output": 0.015},
+    "claude-3-haiku":    {"input": 0.00025, "output": 0.00125},
+    "llama4-scout":      {"input": 0.00015, "output": 0.00065},
+    "llama4-maverick":   {"input": 0.00030, "output": 0.00090},
     "llama3-3-70b":      {"input": 0.00072, "output": 0.00072},
     "llama3-2-90b":      {"input": 0.00072, "output": 0.00072},
     "llama3-1-70b":      {"input": 0.00072, "output": 0.00072},
     "nova-lite":         {"input": 0.00006, "output": 0.00024},
     "nova-pro":          {"input": 0.0008,  "output": 0.0032},
     "nova-premier":      {"input": 0.0025,  "output": 0.0125},
+    "mistral-large-3":   {"input": 0.002,   "output": 0.006},
+    "devstral-2":        {"input": 0.001,   "output": 0.003},
+    "ministral-3-8b":    {"input": 0.0001,  "output": 0.0003},
+    "ministral-3b":      {"input": 0.00005, "output": 0.00015},
+    "ministral-14b":     {"input": 0.0002,  "output": 0.0006},
+    "magistral-small":   {"input": 0.0005,  "output": 0.0015},
+    "voxtral-mini-3b":   {"input": 0.00005, "output": 0.00015},
+    "voxtral-small-24b": {"input": 0.0003,  "output": 0.0009},
+    "pixtral-large-2":   {"input": 0.002,   "output": 0.006},
     "mistral-large":     {"input": 0.004,   "output": 0.012},
     "mistral-small":     {"input": 0.001,   "output": 0.003},
     "pixtral-large":     {"input": 0.002,   "output": 0.006},
@@ -134,8 +237,14 @@ def _build_body(fmt: str, prompt: str) -> str:
             "messages": [{"role": "user", "content": [{"text": prompt}]}],
             "inferenceConfig": {"maxTokens": 1024},
         })
+    elif fmt == "anthropic":
+        return json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1024,
+        })
     else:
-        # Anthropic / Mistral / DeepSeek
+        # Mistral / DeepSeek
         return json.dumps({
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 1024,
@@ -155,12 +264,12 @@ def _extract_text(fmt: str, body_json: dict) -> str:
                      .get("text", "")
         )
     else:
-        # Anthropic / Mistral: content[0].text
-        # DeepSeek: choices[0].message.content
+        # Anthropic / Mistral / DeepSeek
+        # Check 'content' (Messages API), 'choices' (OpenAI), or 'outputs' (Old Mistral)
         return (
             body_json.get("content", [{}])[0].get("text", "")
-            or body_json.get("choices", [{}])[0]
-                        .get("message", {}).get("content", "")
+            or body_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+            or body_json.get("outputs", [{}])[0].get("text", "")
             or ""
         )
 

@@ -17,6 +17,16 @@ client = genai.Client(
 # ─── Vertex AI Model Registry ─────────────────────────────────
 VERTEX_MODELS = [
     {
+        "model_id": "gemini-3.1-pro-preview",
+        "provider": "Google",
+        "short_id": "gemini-3-1-pro",
+    },
+    {
+        "model_id": "gemini-3.1-flash-lite-preview",
+        "provider": "Google",
+        "short_id": "gemini-3-1-flash-lite",
+    },
+    {
         "model_id": "gemini-2.5-pro",
         "provider": "Google",
         "short_id": "gemini-2-5-pro",
@@ -40,6 +50,8 @@ VERTEX_MODELS = [
 
 # ─── Pricing (USD per 1K tokens) ─────────────────────────────
 VERTEX_PRICING = {
+    "gemini-3-1-pro":       {"input": 0.00125, "output": 0.010},
+    "gemini-3-1-flash-lite":{"input": 0.000075,"output": 0.00030},
     "gemini-2-5-pro":       {"input": 0.00125, "output": 0.010},
     "gemini-2-5-flash":     {"input": 0.00015, "output": 0.00060},
     "gemini-2-0-flash":     {"input": 0.00010, "output": 0.00040},
