@@ -6,11 +6,13 @@ from fastapi.responses import StreamingResponse
 import pandas as pd
 from io import StringIO
 
-from models.schemas import SinglePromptRequest, JobResponse
+from models.schemas import SinglePromptRequest, JobResponse, ClarityLevel, UseCase, PromptComplexity
 from jobs.store import create_job, push_event, get_event, close_job
 from services.evaluator import evaluate_all_responses
 from services.bedrock import call_all_models
-from services.supabase_client import save_row
+from services.vertex import call_all_vertex_models
+from services.supabase_client import save_row, save_prompt_log
+from services.model_registry import get_model_ids_for_use_case
 
 router = APIRouter()
 
@@ -25,10 +27,10 @@ async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks
         process_prompts,
         prompts=[{
             "prompt": req.prompt,
-            "prompt_complexity": req.prompt_complexity,
-            "prompt_quality_score": req.prompt_quality_score,
+            "prompt_complexity": req.prompt_complexity.value,
+            "use_case": req.use_case.value,
+            "clarity": req.clarity.value,
         }],
-        evaluator_model=req.evaluator_model,
         job_id=job_id,
     )
     return {"job_id": job_id}
@@ -36,30 +38,61 @@ async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks
 
 # ─── CSV UPLOAD ──────────────────────────────────────────────
 
+VALID_CLARITY = {"CLEAR", "PARTIAL", "UNCLEAR"}
+
 @router.post("/upload", response_model=JobResponse)
 async def run_csv(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     prompt_complexity: str = Form("mid"),
-    evaluator_model: str = Form("gemini-2.0-flash"),
+    use_case: str = Form("text-generation"),
 ):
+    # Validate prompt_complexity
+    try:
+        complexity_enum = PromptComplexity(prompt_complexity)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid prompt_complexity '{prompt_complexity}'. Must be one of: low, mid, high",
+        )
+
+    # Validate use_case
+    try:
+        use_case_enum = UseCase(use_case)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid use_case '{use_case}'. Must be one of: text-generation, reasoning, code-generation",
+        )
+
     contents = await file.read()
     df = pd.read_csv(StringIO(contents.decode("utf-8")))
 
+    # Validate required columns
     if "prompt" not in df.columns:
         raise HTTPException(status_code=400, detail="CSV must have a 'prompt' column")
-
-    has_accuracy = "accuracy" in df.columns
+    if "clarity" not in df.columns:
+        raise HTTPException(status_code=400, detail="CSV must have a 'clarity' column")
 
     prompts = []
     for _, row in df.iterrows():
         p = row.get("prompt")
         if pd.isna(p) or str(p).strip() == "":
             continue
+
+        # Validate clarity value
+        clarity_val = str(row.get("clarity", "CLEAR")).strip().upper()
+        if clarity_val not in VALID_CLARITY:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid clarity value '{clarity_val}'. Must be one of: CLEAR, PARTIAL, UNCLEAR",
+            )
+
         prompts.append({
             "prompt": str(p).strip(),
-            "prompt_complexity": prompt_complexity,
-            "prompt_quality_score": int(row["accuracy"]) if has_accuracy and not pd.isna(row.get("accuracy")) else 50,
+            "prompt_complexity": complexity_enum.value,
+            "use_case": use_case_enum.value,
+            "clarity": clarity_val,
         })
 
     if not prompts:
@@ -71,7 +104,6 @@ async def run_csv(
     background_tasks.add_task(
         process_prompts,
         prompts=prompts,
-        evaluator_model=evaluator_model,
         job_id=job_id,
     )
     return {"job_id": job_id}
@@ -106,24 +138,40 @@ async def _process_one_prompt(
     prompt_data: dict,
     prompt_index: int,
     total: int,
-    evaluator_model: str,
     job_id: str,
 ):
     """
     Process one prompt end-to-end:
-      1. Fire ALL models in parallel (Bedrock + Vertex)
-      2. Filter null responses
-      3. Evaluate all successful responses in parallel (with rate limiting)
-      4. Save to DB + push SSE events
+      1. Log prompt to prompt_logs table in Supabase
+      2. Fire ALL models in parallel (Bedrock + Vertex)
+      3. Filter null responses
+      4. Evaluate all successful responses in parallel (with rate limiting)
+      5. Save to DB + push SSE events
     """
     prompt = prompt_data["prompt"]
     prompt_complexity = prompt_data["prompt_complexity"]
-    prompt_quality_score = prompt_data["prompt_quality_score"]
+    use_case = prompt_data["use_case"]
+    clarity = prompt_data["clarity"]
 
-    # ── STEP 1: Fire ALL Bedrock models in parallel ──────────────────
-    model_results = await call_all_models(prompt)
+    # ── STEP 1: Log prompt to prompt_logs table ──────────────────
+    try:
+        await save_prompt_log({
+            "prompt": prompt,
+            "use_case": use_case,
+            "clarity": clarity,
+        })
+    except Exception as e:
+        print(f"[PROMPT_LOG ERROR] Failed to log prompt: {e}")
 
-    # ── STEP 2: Separate successful vs failed ────────────────────────────
+    # ── STEP 2: Fire use-case-specific models in parallel ────────
+    allowed_ids = get_model_ids_for_use_case(use_case)
+    bedrock_results, vertex_results = await asyncio.gather(
+        call_all_models(prompt, allowed_short_ids=allowed_ids),
+        call_all_vertex_models(prompt, allowed_short_ids=allowed_ids),
+    )
+    model_results = bedrock_results + vertex_results
+
+    # ── STEP 3: Separate successful vs failed ────────────────────
     successful_results = []
     failed_results = []
     for r in model_results:
@@ -132,8 +180,7 @@ async def _process_one_prompt(
         else:
             successful_results.append(r)
 
-    # ── STEP 3: Evaluate ALL successful responses in parallel ────────────
-    # (rate-limited by semaphore + retry in evaluator.py)
+    # ── STEP 4: Evaluate ALL successful responses in parallel ────
     score_map = {}
     if successful_results:
         response_payload = [
@@ -143,12 +190,11 @@ async def _process_one_prompt(
         accuracy_scores = await evaluate_all_responses(
             prompt=prompt,
             responses=response_payload,
-            evaluator_model=evaluator_model,
+            use_case=use_case,
         )
         score_map = {s["model_id"]: s["accuracy_score"] for s in accuracy_scores}
 
-    # ── STEP 4: Save to DB + push SSE events ─────────────────────────────
-    # Save all rows in parallel too
+    # ── STEP 5: Save to DB + push SSE events ─────────────────────
     save_tasks = []
     for result in successful_results:
         accuracy = score_map.get(result["model_id"], 0)
@@ -157,7 +203,8 @@ async def _process_one_prompt(
             "model_id":             result["model_id"],
             "prompt":               prompt,
             "prompt_complexity":    prompt_complexity,
-            "prompt_quality_score": prompt_quality_score,
+            "use_case":             use_case,
+            "clarity":              clarity,
             "response":             result["response"],
             "accuracy_score":       accuracy,
             "cost":                 result["cost"],
@@ -180,7 +227,8 @@ async def _process_one_prompt(
             "model_id":            result["model_id"],
             "provider":            result["provider"],
             "prompt_complexity":   prompt_complexity,
-            "prompt_quality_score": prompt_quality_score,
+            "use_case":            use_case,
+            "clarity":             clarity,
             "accuracy_score":      accuracy,
             "cost":                result["cost"],
             "tokens":              result["tokens"],
@@ -196,7 +244,8 @@ async def _process_one_prompt(
             "model_id":            result["model_id"],
             "provider":            result["provider"],
             "prompt_complexity":   prompt_complexity,
-            "prompt_quality_score": prompt_quality_score,
+            "use_case":            use_case,
+            "clarity":             clarity,
             "accuracy_score":      0,
             "cost":                0,
             "tokens":              0,
@@ -207,11 +256,11 @@ async def _process_one_prompt(
 
 # ─── CORE ORCHESTRATOR — ALL PROMPTS IN PARALLEL ────────────
 
-async def process_prompts(prompts: list[dict], evaluator_model: str, job_id: str):
+async def process_prompts(prompts: list[dict], job_id: str):
     """
     FULL PARALLEL pipeline:
-      5 prompts × 18 models = 90 model calls fired simultaneously
-      → gather responses → evaluator calls with rate limiting → save to DB
+      N prompts × use-case-specific models = fired simultaneously
+      → gather responses → Gemini 2.5 Pro evaluates via 4 API keys → save to DB
 
     Each prompt is processed by _process_one_prompt concurrently.
     """
@@ -224,7 +273,6 @@ async def process_prompts(prompts: list[dict], evaluator_model: str, job_id: str
                 prompt_data=prompt_data,
                 prompt_index=i,
                 total=total,
-                evaluator_model=evaluator_model,
                 job_id=job_id,
             )
             for i, prompt_data in enumerate(prompts, start=1)

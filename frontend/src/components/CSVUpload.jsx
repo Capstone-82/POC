@@ -84,8 +84,8 @@ export default function CSVUpload({ file, onFileChange }) {
                  {isDragActive ? "In-flight... Drop now" : "Drag & drop csv benchmark source"}
                </p>
                <p className="text-gray-500 text-xs leading-relaxed">
-                 CSV must include <span className="font-mono text-blue-400 font-bold">"prompt"</span> column. 
-                 Optional <span className="font-mono text-blue-400 font-bold">"accuracy"</span> column for user-provided scores (0-100).
+                 CSV must include <span className="font-mono text-blue-400 font-bold">"prompt"</span> and{' '}
+                 <span className="font-mono text-blue-400 font-bold">"clarity"</span> columns (CLEAR, PARTIAL, UNCLEAR).
                </p>
              </div>
           </div>

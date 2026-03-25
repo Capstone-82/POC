@@ -96,10 +96,17 @@ def _call_single_vertex_model(model_id: str, provider: str, short_id: str, promp
     }
 
 
-async def call_all_vertex_models(prompt: str) -> list[dict]:
-    """Call all Vertex AI models in parallel."""
+async def call_all_vertex_models(prompt: str, allowed_short_ids: set[str] | None = None) -> list[dict]:
+    """Call Vertex AI models in parallel. If allowed_short_ids is provided, only call those models."""
+    models_to_call = VERTEX_MODELS
+    if allowed_short_ids is not None:
+        models_to_call = [m for m in VERTEX_MODELS if m["short_id"] in allowed_short_ids]
+
+    if not models_to_call:
+        return []
+
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=len(VERTEX_MODELS)) as executor:
+    with ThreadPoolExecutor(max_workers=len(models_to_call)) as executor:
         futures = [
             loop.run_in_executor(
                 executor,
@@ -109,14 +116,14 @@ async def call_all_vertex_models(prompt: str) -> list[dict]:
                 m["short_id"],
                 prompt,
             )
-            for m in VERTEX_MODELS
+            for m in models_to_call
         ]
         results = await asyncio.gather(*futures, return_exceptions=True)
 
     clean = []
     for i, r in enumerate(results):
         if isinstance(r, Exception):
-            print(f"[VERTEX ERROR] {VERTEX_MODELS[i]['short_id']}: {r}")
+            print(f"[VERTEX ERROR] {models_to_call[i]['short_id']}: {r}")
         else:
             clean.append(r)
     return clean

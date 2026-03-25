@@ -5,21 +5,21 @@ const api = axios.create({
   baseURL: 'http://localhost:8000/api',
 })
 
-export const startTrainingJob = async ({ prompt, prompt_complexity, prompt_quality_score, evaluator_model }) => {
+export const startTrainingJob = async ({ prompt, prompt_complexity, use_case, clarity }) => {
   const response = await api.post('/training/run', {
     prompt,
     prompt_complexity,
-    prompt_quality_score,
-    evaluator_model,
+    use_case,
+    clarity,
   })
   return response.data; // { job_id }
 }
 
-export const startCSVTrainingJob = async ({ file, prompt_complexity, evaluator_model }) => {
+export const startCSVTrainingJob = async ({ file, prompt_complexity, use_case }) => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('prompt_complexity', prompt_complexity);
-  formData.append('evaluator_model', evaluator_model);
+  formData.append('use_case', use_case);
   
   const response = await api.post('/training/upload', formData, {
     headers: {

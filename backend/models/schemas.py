@@ -1,14 +1,35 @@
 from pydantic import BaseModel
 from typing import Optional
+from enum import Enum
+
+
+# ─── Enums ───────────────────────────────────────────────────
+
+class ClarityLevel(str, Enum):
+    CLEAR = "CLEAR"
+    PARTIAL = "PARTIAL"
+    UNCLEAR = "UNCLEAR"
+
+
+class UseCase(str, Enum):
+    TEXT_GENERATION = "text-generation"
+    REASONING = "reasoning"
+    CODE_GENERATION = "code-generation"
+
+
+class PromptComplexity(str, Enum):
+    LOW = "low"
+    MID = "mid"
+    HIGH = "high"
 
 
 # ─── Training ────────────────────────────────────────────────
 
 class SinglePromptRequest(BaseModel):
     prompt: str
-    prompt_complexity: str = "mid"          # low | mid | high — chosen by user in frontend
-    prompt_quality_score: int = 50          # user-provided accuracy from frontend (0-100)
-    evaluator_model: str = "gemini-2.0-flash"
+    prompt_complexity: PromptComplexity = PromptComplexity.MID
+    use_case: UseCase = UseCase.TEXT_GENERATION
+    clarity: ClarityLevel = ClarityLevel.CLEAR
 
 
 class JobResponse(BaseModel):
@@ -23,7 +44,8 @@ class LogEvent(BaseModel):
     model_id: str
     provider: str
     prompt_complexity: str
-    prompt_quality_score: int
+    use_case: str
+    clarity: str
     accuracy_score: int
     cost: float
     tokens: int
@@ -34,7 +56,7 @@ class LogEvent(BaseModel):
 
 class InferenceRequest(BaseModel):
     prompt: str
-    use_case: str
+    use_case: UseCase
     current_model: str
 
 

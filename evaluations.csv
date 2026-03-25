@@ -1,0 +1,45 @@
+model_id,prompt,response,accuracy_score
+llama4-scout,Whats the captial of France?,The capital of France is Paris.,75
+llama4-maverick,Whats the captial of France?,The capital of France is Paris.,75
+llama3-3-70b,Whats the captial of France?,The capital of France is Paris.,75
+llama3-2-90b,Whats the captial of France?,The capital of France is Paris.,75
+llama3-1-70b,Whats the captial of France?,The capital of France is Paris.,75
+nova-lite,Whats the captial of France?,"The capital of France is Paris. It is not only the capital but also the largest city in the country, known for its rich history, culture, and landmarks such as the Eiffel Tower, Notre-Dame Cathedral, and the Louvre Museum. Paris is a global center for art, fashion, gastronomy, and politics, and it plays a significant role in various aspects of international affairs.",89
+nova-pro,Whats the captial of France?,"The capital of France is Paris. Paris is not only the capital but also the largest city in France, located in the northern central part of the country along the Seine River. It is renowned for its significant influence in the realms of culture, art, fashion, food, and design.
+
+### Key Points about Paris:
+1. **Historical Significance**:
+   - Paris has been a major settlement for over 2,000 years. It was originally a small town on an island in the Seine River called Lutetia, founded by a Celtic tribe known as the Parisii.
+   - It became an important center under the Roman Empire and later grew into a medieval city.
+
+2. **Cultural Hub**:
+   - Paris is home to numerous iconic landmarks such as the Eiffel Tower, Notre-Dame Cathedral, and the Louvre Museum, which houses thousands of works of art including the Mona Lisa.
+   - It is also famous for its cafés, theatres, and fashion houses.
+
+3. **Economic Center**:
+   - The city is a leading center of finance, commerce, industry, media, and tourism.
+   - The Paris Region (Île-de-France) generates a substantial portion of France's economic activity.
+
+4. **Education and Research**:
+   - Paris hosts some of the world’s top universities and research institutions, including Sorbonne University and Sciences Po.
+
+5. **Transportation**:
+   - Paris is a major transportation hub with an extensive public transportation system including the Paris Métro, buses, and RER (Réseau Express Régional).
+   - It is served by several airports, the largest being Charles de Gaulle Airport.
+
+6. **Population**:
+   - The city of Paris has a population of around 2.1 million within its administrative limits, with the metropolitan area (Île-de-France) having a population of over 12 million.
+
+Paris continues to be a global city, exerting a wide-ranging influence across various fields.",100
+nova-premier,Whats the captial of France?,"The capital city of France is Paris. It is situated along the Seine River in the northern-central part of the country. Paris is often referred to as ""The City of Light"" (La Ville Lumière) and is renowned for its art, fashion, gastronomy, and culture. It's home to numerous iconic landmarks such as the Eiffel Tower, the Louvre Museum, the Notre-Dame Cathedral, and the Arc de Triomphe. Paris is also a major center for international diplomacy and hosts many significant international organizations, including UNESCO. The city's history, architecture, and cultural life make it one of the most visited and beloved cities in the world.",90
+pixtral-large-2,Whats the captial of France?,"The capital of France is Paris. Known for iconic landmarks like the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral, Paris is also a major center for art, fashion, gastronomy, and culture. It's situated on the Seine River, in the northern part of the country.",88
+mistral-large,Whats the captial of France?,"The capital of France is Paris. It's known for its iconic landmarks like the Eiffel Tower, Louvre Museum, Notre-Dame Cathedral, and more. Would you like to know more about Paris or France in general?",86
+mistral-small,Whats the captial of France?,"The capital of France is Paris. It's a beautiful city known for its iconic landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral. Paris is also celebrated for its art, fashion, gastronomy, and intellectual pursuits.",87
+gemini-3-1-pro,Whats the captial of France?,The capital of France is Paris.,75
+gemini-3-1-flash-lite,Whats the captial of France?,The capital of France is **Paris**.,76
+gemini-2-5-pro,Whats the captial of France?,The capital of France is **Paris**.,76
+gemini-2-5-flash,Whats the captial of France?,The capital of France is **Paris**.,76
+gemini-2-0-flash,Whats the captial of France?,"The capital of France is **Paris**.
+",76
+gemini-2-0-flash-lite,Whats the captial of France?,"The capital of France is **Paris**.
+",76

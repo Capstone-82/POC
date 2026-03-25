@@ -104,18 +104,7 @@ BEDROCK_MODELS = [
         "short_id": "magistral-small",
         "fmt":      "messages",
     },
-    {
-        "model_id": "mistral.voxtral-mini-3b-2507",
-        "provider": "Mistral AI",
-        "short_id": "voxtral-mini-3b",
-        "fmt":      "messages",
-    },
-    {
-        "model_id": "mistral.voxtral-small-24b-2507",
-        "provider": "Mistral AI",
-        "short_id": "voxtral-small-24b",
-        "fmt":      "messages",
-    },
+
     {
         "model_id": "us.mistral.pixtral-large-2502-v1:0",
         "provider": "Mistral AI",
@@ -157,8 +146,7 @@ MODEL_PRICING = {
     "ministral-3-8b":    {"input": 0.0001,  "output": 0.0003},
     "ministral-3b":      {"input": 0.00005, "output": 0.00015},
     "magistral-small":   {"input": 0.0005,  "output": 0.0015},
-    "voxtral-mini-3b":   {"input": 0.00005, "output": 0.00015},
-    "voxtral-small-24b": {"input": 0.0003,  "output": 0.0009},
+
     "pixtral-large-2":   {"input": 0.002,   "output": 0.006},
     "mistral-large":     {"input": 0.004,   "output": 0.012},
     "mistral-small":     {"input": 0.001,   "output": 0.003},
@@ -306,9 +294,17 @@ def _call_single_model(model_id: str, provider: str, short_id: str, fmt: str, pr
 
 # ─── Parallel caller ─────────────────────────────────────────
 
-async def call_all_models(prompt: str) -> list[dict]:
+async def call_all_models(prompt: str, allowed_short_ids: set[str] | None = None) -> list[dict]:
+    """Call Bedrock models in parallel. If allowed_short_ids is provided, only call those models."""
+    models_to_call = BEDROCK_MODELS
+    if allowed_short_ids is not None:
+        models_to_call = [m for m in BEDROCK_MODELS if m["short_id"] in allowed_short_ids]
+
+    if not models_to_call:
+        return []
+
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=len(BEDROCK_MODELS)) as executor:
+    with ThreadPoolExecutor(max_workers=len(models_to_call)) as executor:
         futures = [
             loop.run_in_executor(
                 executor,
@@ -319,14 +315,14 @@ async def call_all_models(prompt: str) -> list[dict]:
                 m["fmt"],
                 prompt,
             )
-            for m in BEDROCK_MODELS
+            for m in models_to_call
         ]
         results = await asyncio.gather(*futures, return_exceptions=True)
 
     clean = []
     for i, r in enumerate(results):
         if isinstance(r, Exception):
-            print(f"[BEDROCK ERROR] {BEDROCK_MODELS[i]['short_id']}: {r}")
+            print(f"[BEDROCK ERROR] {models_to_call[i]['short_id']}: {r}")
         else:
             clean.append(r)
     return clean

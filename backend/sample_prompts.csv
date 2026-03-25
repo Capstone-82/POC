@@ -1,6 +1,6 @@
-prompt,accuracy
-What is the capital of France?,90
-Explain how photosynthesis works in simple terms.,70
-Write a Python function that reverses a string.,85
-What are the main differences between REST and GraphQL?,75
-Summarize the key causes of World War I in 3 bullet points.,80
+prompt,clarity
+What is the capital of France?,CLEAR
+Explain how photosynthesis works in simple terms.,CLEAR
+Write a Python function that reverses a string.,CLEAR
+What are the main differences between REST and GraphQL?,PARTIAL
+Summarize the key causes of World War I in 3 bullet points.,CLEAR

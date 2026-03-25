@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Square, CheckCircle2, AlertTriangle, Cpu, LayoutGrid, FileText, ChevronRight, Activity, Sparkles, Gauge, XCircle } from 'lucide-react'
-import EvaluatorDropdown from '../components/EvaluatorDropdown'
+import { Play, Square, CheckCircle2, AlertTriangle, Cpu, LayoutGrid, FileText, ChevronRight, Activity, Gauge, XCircle, Code2, Brain, MessageSquareText as TextIcon, Sparkles } from 'lucide-react'
 import PromptInput from '../components/PromptInput'
 import CSVUpload from '../components/CSVUpload'
 import LiveLog from '../components/LiveLog'
@@ -13,10 +12,22 @@ const COMPLEXITY_OPTIONS = [
   { value: 'high', label: 'High', desc: 'Expert, multi-constraint',   color: 'red' },
 ]
 
+const USE_CASE_OPTIONS = [
+  { value: 'text-generation', label: 'Text Generation', desc: 'Summarization, chat, content', icon: TextIcon, color: 'blue', models: 17 },
+  { value: 'code-generation', label: 'Code Generation', desc: 'HumanEval, SWE-bench tasks',   icon: Code2,    color: 'purple', models: 14 },
+  { value: 'reasoning',       label: 'Reasoning',       desc: 'AIME, GPQA, chain-of-thought', icon: Brain,    color: 'orange', models: 12 },
+]
+
+const CLARITY_OPTIONS = [
+  { value: 'CLEAR',   label: 'Clear',   desc: 'Well-defined, unambiguous', color: 'green' },
+  { value: 'PARTIAL', label: 'Partial', desc: 'Some ambiguity present',    color: 'yellow' },
+  { value: 'UNCLEAR', label: 'Unclear', desc: 'Vague or underspecified',   color: 'red' },
+]
+
 export default function Training() {
-  const [evaluatorModel, setEvaluatorModel] = useState('gemini-2.0-flash')
   const [promptComplexity, setPromptComplexity] = useState('mid')
-  const [promptQualityScore, setPromptQualityScore] = useState(50)
+  const [useCase, setUseCase] = useState('text-generation')
+  const [clarity, setClarity] = useState('CLEAR')
   const [inputMode, setInputMode] = useState('single') // 'single' | 'csv'
   const [prompt, setPrompt] = useState('')
   const [csvFile, setCsvFile] = useState(null)
@@ -27,6 +38,8 @@ export default function Training() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState(null)
   const sourceRef = useRef(null)
+
+  const selectedUseCase = USE_CASE_OPTIONS.find(u => u.value === useCase)
 
   const handleRun = async () => {
     setLogs([])
@@ -42,15 +55,15 @@ export default function Training() {
         const res = await startTrainingJob({
           prompt,
           prompt_complexity: promptComplexity,
-          prompt_quality_score: promptQualityScore,
-          evaluator_model: evaluatorModel,
+          use_case: useCase,
+          clarity,
         })
         jobId = res.job_id
       } else {
         const res = await startCSVTrainingJob({
           file: csvFile,
           prompt_complexity: promptComplexity,
-          evaluator_model: evaluatorModel,
+          use_case: useCase,
         })
         jobId = res.job_id
       }
@@ -101,7 +114,6 @@ export default function Training() {
   }
 
   const totalResults = logs.length
-  const complexityColor = promptComplexity === 'high' ? 'red' : promptComplexity === 'mid' ? 'yellow' : 'green'
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-12 space-y-12">
@@ -121,8 +133,8 @@ export default function Training() {
              Model <span className="gradient-text">Matrix</span> Benchmarks
            </h1>
            <p className="text-gray-400 font-medium leading-relaxed">
-             Orchestrate massive parallel evaluation across 16+ LLMs on AWS Bedrock and GCP Vertex. 
-             Choose your prompt complexity, upload prompts with accuracy scores, and let the AI Judge rate responses.
+             Orchestrate massive parallel evaluation across 22 LLMs on AWS Bedrock and GCP Vertex. 
+             Choose your use case and complexity, upload prompts with clarity labels, and let Gemini 2.5 Pro judge responses.
            </p>
         </div>
         
@@ -142,7 +154,56 @@ export default function Training() {
         transition={{ delay: 0.1 }}
         className="glass-card rounded-2xl p-8 border border-white/5 space-y-8"
       >
-        {/* Top Row: Complexity Selector + Evaluator Dropdown */}
+        {/* Row 1: Use Case Selector */}
+        <div className="space-y-3">
+           <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-blue-500" />
+              <label className="text-sm font-semibold text-gray-300">
+                Use Case
+              </label>
+           </div>
+           
+           <div className="grid grid-cols-3 gap-3">
+             {USE_CASE_OPTIONS.map(opt => {
+               const isSelected = useCase === opt.value
+               const Icon = opt.icon
+               const colorMap = {
+                 blue:   { bg: 'bg-blue-500/10',   border: 'border-blue-500/30',   text: 'text-blue-400',   activeBg: 'bg-blue-500/20',   ring: 'ring-blue-500/20' },
+                 purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', activeBg: 'bg-purple-500/20', ring: 'ring-purple-500/20' },
+                 orange: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', activeBg: 'bg-orange-500/20', ring: 'ring-orange-500/20' },
+               }
+               const c = colorMap[opt.color]
+               
+               return (
+                 <button
+                   key={opt.value}
+                   onClick={() => setUseCase(opt.value)}
+                   className={`relative flex flex-col items-center gap-2 px-4 py-5 rounded-xl border-2 transition-all duration-300 cursor-pointer
+                     ${isSelected 
+                       ? `${c.activeBg} ${c.border} ${c.text} ring-4 ${c.ring} shadow-lg` 
+                       : 'bg-gray-950/40 border-gray-800/80 text-gray-500 hover:border-gray-600/80 hover:bg-gray-900/40'
+                     }`}
+                 >
+                   {isSelected && (
+                     <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${opt.color === 'blue' ? 'bg-blue-500' : opt.color === 'purple' ? 'bg-purple-500' : 'bg-orange-500'} border-2 border-gray-950 animate-pulse`} />
+                   )}
+                   <Icon className={`w-5 h-5 ${isSelected ? c.text : 'text-gray-600'}`} />
+                   <span className={`text-sm font-black uppercase tracking-widest ${isSelected ? c.text : ''}`}>
+                     {opt.label}
+                   </span>
+                   <span className={`text-[10px] font-medium ${isSelected ? 'opacity-80' : 'text-gray-600'}`}>
+                     {opt.desc}
+                   </span>
+                   <span className={`text-[9px] font-mono font-bold ${isSelected ? 'opacity-70' : 'text-gray-700'}`}>
+                     {opt.models} models
+                   </span>
+                 </button>
+               )
+             })}
+           </div>
+        </div>
+
+        {/* Row 2: Complexity + Clarity */}
         <div className="flex flex-col lg:flex-row gap-8">
            
            {/* Prompt Complexity Selector */}
@@ -189,10 +250,51 @@ export default function Training() {
               </div>
            </div>
 
-           {/* Evaluator Dropdown */}
-           <div className="lg:w-1/2">
-              <EvaluatorDropdown value={evaluatorModel} onChange={setEvaluatorModel} />
-           </div>
+           {/* Clarity Selector (single mode only) */}
+           {inputMode === 'single' && (
+             <div className="lg:w-1/2 space-y-3">
+                <div className="flex items-center gap-2 mb-3">
+                   <Sparkles className="w-5 h-5 text-blue-500" />
+                   <label className="text-sm font-semibold text-gray-300">
+                     Prompt Clarity
+                   </label>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  {CLARITY_OPTIONS.map(opt => {
+                    const isSelected = clarity === opt.value
+                    const colorMap = {
+                      green:  { bg: 'bg-green-500/10',  border: 'border-green-500/30',  text: 'text-green-400',  activeBg: 'bg-green-500/20', ring: 'ring-green-500/20' },
+                      yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400', activeBg: 'bg-yellow-500/20', ring: 'ring-yellow-500/20' },
+                      red:    { bg: 'bg-red-500/10',    border: 'border-red-500/30',    text: 'text-red-400',    activeBg: 'bg-red-500/20', ring: 'ring-red-500/20' },
+                    }
+                    const c = colorMap[opt.color]
+                    
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setClarity(opt.value)}
+                        className={`relative flex flex-col items-center gap-1.5 px-4 py-4 rounded-xl border-2 transition-all duration-300 cursor-pointer
+                          ${isSelected 
+                            ? `${c.activeBg} ${c.border} ${c.text} ring-4 ${c.ring} shadow-lg` 
+                            : 'bg-gray-950/40 border-gray-800/80 text-gray-500 hover:border-gray-600/80 hover:bg-gray-900/40'
+                          }`}
+                      >
+                        {isSelected && (
+                          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${c.text === 'text-green-400' ? 'bg-green-500' : c.text === 'text-yellow-400' ? 'bg-yellow-500' : 'bg-red-500'} border-2 border-gray-950 animate-pulse`} />
+                        )}
+                        <span className={`text-sm font-black uppercase tracking-widest ${isSelected ? c.text : ''}`}>
+                          {opt.label}
+                        </span>
+                        <span className={`text-[10px] font-medium ${isSelected ? 'opacity-80' : 'text-gray-600'}`}>
+                          {opt.desc}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+             </div>
+           )}
         </div>
            
         {/* Input Strategy */}
@@ -233,29 +335,6 @@ export default function Training() {
                    className="space-y-4"
                  >
                    <PromptInput value={prompt} onChange={setPrompt} />
-                   
-                   {/* Quality Score Slider for single mode */}
-                   <div className="flex items-center gap-4 px-1">
-                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">
-                       Accuracy Score
-                     </label>
-                     <input
-                       type="range"
-                       min="0"
-                       max="100"
-                       value={promptQualityScore}
-                       onChange={e => setPromptQualityScore(parseInt(e.target.value))}
-                       className="flex-1 h-1.5 bg-gray-800 rounded-full appearance-none cursor-pointer
-                                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
-                                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 
-                                  [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-blue-900/50
-                                  [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-all
-                                  [&::-webkit-slider-thumb]:hover:scale-125"
-                     />
-                     <span className="text-blue-400 font-black text-sm tabular-nums w-10 text-right">
-                       {promptQualityScore}
-                     </span>
-                   </div>
                  </motion.div>
                ) : (
                  <motion.div
@@ -309,8 +388,8 @@ export default function Training() {
           
           <div className="hidden sm:flex items-center gap-6">
              <div className="flex flex-col items-end">
-                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Infrastructure</span>
-                <span className="text-gray-400 font-black text-xs tracking-tight">16 Models (Global)</span>
+                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Active Models</span>
+                <span className="text-gray-400 font-black text-xs tracking-tight">{selectedUseCase?.models || 0} Models ({selectedUseCase?.label})</span>
              </div>
           </div>
         </div>

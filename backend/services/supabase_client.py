@@ -12,6 +12,14 @@ async def save_row(row: dict):
     supabase.table("benchmark_results").insert(row).execute()
 
 
+async def save_prompt_log(log: dict):
+    """
+    Insert a prompt log into the prompt_logs table.
+    Columns: prompt, use_case, clarity
+    """
+    supabase.table("prompt_logs").insert(log).execute()
+
+
 async def get_benchmark_data(use_case: str = None, complexity: str = None) -> list[dict]:
     """Query benchmark results with optional filters."""
     query = supabase.table("benchmark_results").select("*")

@@ -1,39 +1,26 @@
 """
-Evaluator service — Gemini via Vertex AI (google-genai SDK).
+Evaluator service with Gemini round-robin client pool.
 
-Smart batching: groups responses dynamically by size to minimize API calls
-while keeping evaluator context manageable for accurate scoring.
-  - Short responses → batch 8-10 per call
-  - Medium responses → batch 3-4 per call
-  - Long responses → 1-2 per call
-Sequential calls with delay between batches to avoid 429s.
+The evaluator now uses the user-selected use case directly:
+  - text-generation
+  - code-generation
+  - reasoning
+
+It keeps the existing batching and parallel execution model, but applies a
+use-case-specific rubric so concise factual answers are not penalized for
+being appropriately brief.
 """
 
-import json
-import os
 import asyncio
-from google import genai
+import json
+from concurrent.futures import ThreadPoolExecutor
 
-# ─── Vertex AI Client ─────────────────────────────────────────
+from services.gemini_clients import get_client, get_client_count
 
-client = genai.Client(
-    vertexai=True,
-    api_key=os.getenv("GOOGLE_API_KEY"),
-)
-
-EVALUATOR_MODELS = {
-    "gemini-2.0-flash":      "gemini-2.0-flash",
-    "gemini-2.5-flash":      "gemini-2.5-flash",
-    "gemini-2.5-pro":        "gemini-2.5-pro",
-}
-
-DEFAULT_EVALUATOR = "gemini-2.0-flash"
-
-# ─── Config ───────────────────────────────────────────────────
-MAX_TOKENS_PER_BATCH = 3000   # ~3000 tokens of response text per batch
-DELAY_BETWEEN_BATCHES = 2.0   # seconds between evaluator calls
+MAX_TOKENS_PER_BATCH = 3000
 MAX_RETRIES = 3
-RETRY_BASE_DELAY = 4.0        # 4s → 8s → 16s
+RETRY_BASE_DELAY = 4.0
+DEFAULT_USE_CASE = "text-generation"
 
 
 def _clean_json(text: str) -> str:
@@ -51,8 +38,6 @@ def _estimate_tokens(text: str) -> int:
     return len(text) // 4
 
 
-# ─── Evaluate the prompt (kept for inference route) ──────────
-
 PROMPT_EVAL_SYSTEM = """
 You are an evaluator. Given a prompt, return a JSON object with exactly these fields:
 
@@ -65,19 +50,119 @@ Return ONLY the JSON object. No explanation, no markdown.
 """
 
 
-async def evaluate_prompt(prompt: str, evaluator_model: str = DEFAULT_EVALUATOR) -> dict:
-    model_name = EVALUATOR_MODELS.get(evaluator_model)
-    if not model_name:
-        raise ValueError(f"Unsupported evaluator: {evaluator_model}")
+BASE_EVAL_RULES = """You are an expert AI response evaluator.
 
-    response = client.models.generate_content(
-        model=model_name,
-        contents=f"{PROMPT_EVAL_SYSTEM}\n\nPrompt to evaluate:\n{prompt}",
-    )
-    return json.loads(_clean_json(response.text))
+You will be given:
+- the user-selected use case
+- the original prompt
+- one or more model responses
+
+Score EACH response independently for how well it satisfies the prompt for that use case.
+
+Before scoring, infer the EXPECTED ANSWER SCOPE from the prompt:
+- concise: short factual or direct-answer prompts
+- standard: normal explanatory prompts
+- comprehensive: prompts that explicitly ask for depth, breadth, comparison, step-by-step detail, or production-ready output
+
+Core evaluation principles:
+- Judge responses against what the prompt actually asked for, not against the longest possible answer.
+- A short correct answer can be the best answer for a concise prompt.
+- Do NOT reward extra detail unless it clearly improves fulfillment of the prompt.
+- Irrelevant detail, over-explaining, or scope drift should lower the score.
+- "Completeness" means fully answering the task at the right scope, not adding unrelated information.
+
+Scoring scale:
+  95-100 = Excellent for this prompt and use case; correct, appropriately scoped, and hard to improve
+  85-94  = Strong answer with only minor issues
+  75-84  = Good answer with some limitations or unnecessary detail
+  65-74  = Mixed quality; correct in core but with notable issues
+  50-64  = Weak; partially correct, incomplete, or poorly scoped
+  30-49  = Poor; significant errors or major mismatch to the task
+  10-29  = Very poor; mostly wrong, broken, or badly off-target
+  0-9    = No useful value
+
+Mandatory scoring rules:
+- Score EACH response on its own merits.
+- Do NOT give a higher score just because a response is longer.
+- Penalize irrelevant elaboration for concise prompts.
+- A concise, correct answer to a concise factual question should typically score 95+.
+- Incorrect factual content, broken code, invalid reasoning, or obvious hallucinations must be scored low.
+- If one response is clearly better than another, their scores should differ meaningfully.
+
+Return a JSON array with one object per response, in the SAME order as given:
+[{"model_id": "<model_id>", "accuracy_score": <integer 0-100>}, ...]
+
+Return ONLY the JSON array. No explanation, no markdown."""
 
 
-# ─── Smart batching logic ────────────────────────────────────
+USE_CASE_RUBRICS = {
+    "text-generation": """USE CASE: text-generation
+
+Apply this rubric for text-generation prompts:
+1. CORRECTNESS & RELEVANCE (55%): Is the answer factually correct and directly responsive?
+2. SCOPE FIT (25%): Is the answer appropriately concise or detailed for the prompt?
+3. COMPLETENESS (15%): Does it fully answer the asked question at the right scope?
+4. CLARITY (5%): Is it clear and easy to understand?
+
+Extra rules for text-generation:
+- For direct factual prompts, brevity is a strength.
+- Unnecessary trivia, background, or decorative detail should reduce the score.
+- Depth matters only when the prompt asks for explanation, comparison, nuance, or expansion.""",
+    "code-generation": """USE CASE: code-generation
+
+Apply this rubric for code-generation prompts:
+1. CORRECTNESS & EXECUTABILITY (45%): Is the code or technical answer correct, consistent, and likely to work?
+2. REQUIREMENT COVERAGE (25%): Does it satisfy the requested functionality and constraints?
+3. PRACTICAL USEFULNESS (20%): Is it actionable, runnable, and implementation-ready?
+4. CLARITY (10%): Is it organized and understandable?
+
+Extra rules for code-generation:
+- Working code that solves the prompt should score high even if concise.
+- Broken code, fake APIs, missing critical pieces, or unsafe hallucinated behavior should score low.
+- Extra explanation should help the solution; otherwise it should not improve the score.""",
+    "reasoning": """USE CASE: reasoning
+
+Apply this rubric for reasoning prompts:
+1. LOGICAL SOUNDNESS (40%): Are the reasoning steps valid and coherent?
+2. FINAL ANSWER CORRECTNESS (30%): Is the final answer right?
+3. COMPLETENESS OF REASONING (20%): Are the necessary steps covered without major gaps?
+4. CLARITY (10%): Is the reasoning understandable?
+
+Extra rules for reasoning:
+- Reward correct reasoning, not just confident wording.
+- Penalize invalid logic even if the answer sounds polished.
+- Do not reward unnecessary elaboration that does not strengthen the reasoning.""",
+}
+
+
+def _normalize_use_case(use_case: str | None) -> str:
+    normalized = (use_case or DEFAULT_USE_CASE).strip().lower()
+    if normalized not in USE_CASE_RUBRICS:
+        return DEFAULT_USE_CASE
+    return normalized
+
+
+def _build_batch_eval_system(use_case: str | None) -> str:
+    normalized = _normalize_use_case(use_case)
+    return f"{BASE_EVAL_RULES}\n\n{USE_CASE_RUBRICS[normalized]}"
+
+
+async def evaluate_prompt(prompt: str, evaluator_model: str = None) -> dict:
+    """Evaluate a prompt's complexity and quality for inference routing."""
+    pool_entry = get_client()
+    client = pool_entry["client"]
+    model = pool_entry["model"]
+
+    def _call():
+        response = client.models.generate_content(
+            model=model,
+            contents=f"{PROMPT_EVAL_SYSTEM}\n\nPrompt to evaluate:\n{prompt}",
+        )
+        return json.loads(_clean_json(response.text))
+
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, _call)
+
 
 def _create_batches(responses: list[dict]) -> list[list[dict]]:
     """
@@ -88,161 +173,171 @@ def _create_batches(responses: list[dict]) -> list[list[dict]]:
     current_batch = []
     current_tokens = 0
 
-    # Sort by response length (short first) so we pack efficiently
     sorted_responses = sorted(responses, key=lambda r: len(r["response"]))
 
-    for r in sorted_responses:
-        truncated = r["response"][:3000]
+    for response in sorted_responses:
+        truncated = response["response"][:3000]
         tokens = _estimate_tokens(truncated)
 
-        # If adding this response would exceed budget, start a new batch
         if current_batch and (current_tokens + tokens > MAX_TOKENS_PER_BATCH):
             batches.append(current_batch)
             current_batch = []
             current_tokens = 0
 
-        current_batch.append(r)
+        current_batch.append(response)
         current_tokens += tokens
 
-    # Don't forget the last batch
     if current_batch:
         batches.append(current_batch)
 
     return batches
 
 
-# ─── Batch evaluation prompt ─────────────────────────────────
-
-BATCH_EVAL_SYSTEM = """You are an expert AI response evaluator. You will be given a prompt and one or more model responses. Score EACH response independently.
-
-SCORING CRITERIA (apply to EACH response separately):
-1. CORRECTNESS (40%): Facts, code, logic accurate? Code compiles? Sound reasoning?
-2. COMPLETENESS (25%): Fully addresses ALL parts of the prompt?
-3. DEPTH & QUALITY (20%): Insightful, well-structured, expert-level?
-4. PRACTICAL USEFULNESS (15%): Runnable code? Actionable instructions?
-
-SCORING SCALE — you MUST differentiate between responses:
-  95-100 = Exceptional. Zero errors, comprehensive, novel insights
-  85-94  = Excellent. Correct, complete, minor imperfections
-  75-84  = Very Good. Mostly correct, a few small gaps
-  65-74  = Good. Correct overall, notable omissions
-  55-64  = Adequate. Core right, significant gaps or some errors
-  45-54  = Mediocre. Partially correct, missing important aspects
-  35-44  = Below Average. Major errors or very incomplete
-  25-34  = Poor. Mostly incorrect or off-topic
-  15-24  = Very Poor. Fundamentally wrong approach
-  5-14   = Terrible. Gibberish or completely off-topic
-  0-4    = No value. Empty or nonsensical
-
-MANDATORY RULES:
-- Score EACH response on its own merits — do NOT give the same score to all
-- Working, correct code that solves the prompt = 75+
-- Broken, nonsensical, or hallucinated code = below 30
-- Partial answer with gaps = 45-65
-- If response A is clearly better than B, their scores MUST differ by at least 10 points
-- A response with gibberish or invalid syntax MUST score below 20
-
-Return a JSON array with one object per response, in the SAME order as given:
-[{"model_id": "<model_id>", "accuracy_score": <integer 0-100>}, ...]
-
-Return ONLY the JSON array. No explanation, no markdown."""
-
-
-async def _evaluate_batch_with_retry(
+def _evaluate_batch_sync(
     prompt: str,
+    use_case: str,
     batch: list[dict],
-    model_name: str,
+    pool_entry: dict,
 ) -> list[dict]:
-    """Evaluate a batch of responses with retry logic."""
-    # Build the numbered response list
+    """Evaluate a batch of responses synchronously (runs in a thread pool)."""
+    client = pool_entry["client"]
+    model = pool_entry["model"]
+    label = pool_entry["label"]
+    system_prompt = _build_batch_eval_system(use_case)
+    normalized_use_case = _normalize_use_case(use_case)
+
     responses_text = "\n\n---\n\n".join(
-        f"[Response {i+1}] model_id: {r['model_id']}\n{r['response'][:3000]}"
-        for i, r in enumerate(batch)
+        f"[Response {i + 1}] model_id: {response['model_id']}\n{response['response'][:3000]}"
+        for i, response in enumerate(batch)
     )
 
     content = (
-        f"{BATCH_EVAL_SYSTEM}\n\n"
+        f"{system_prompt}\n\n"
+        f"USER-SELECTED USE CASE:\n{normalized_use_case}\n\n"
         f"PROMPT:\n{prompt}\n\n"
         f"MODEL RESPONSES ({len(batch)} total):\n\n{responses_text}"
     )
 
     for attempt in range(MAX_RETRIES):
         try:
-            result = client.models.generate_content(model=model_name, contents=content)
+            result = client.models.generate_content(
+                model=model,
+                contents=content,
+            )
             scores = json.loads(_clean_json(result.text))
 
-            # Validate we got the right number of scores
             if isinstance(scores, list) and len(scores) >= len(batch):
-                return scores[:len(batch)]
+                return scores[: len(batch)]
 
-            # If fewer scores returned, pad with defaults
-            existing_ids = {s.get("model_id") for s in scores}
-            for r in batch:
-                if r["model_id"] not in existing_ids:
-                    scores.append({"model_id": r["model_id"], "accuracy_score": 50})
-            return scores
+            existing_ids = {score.get("model_id") for score in scores} if isinstance(scores, list) else set()
+            normalized_scores = scores if isinstance(scores, list) else []
+            for response in batch:
+                if response["model_id"] not in existing_ids:
+                    normalized_scores.append({"model_id": response["model_id"], "accuracy_score": 50})
+            return normalized_scores
 
-        except Exception as e:
-            err_str = str(e).lower()
-            is_retryable = any(k in err_str for k in ["429", "rate", "quota", "503", "overload", "resource"])
+        except Exception as exc:
+            err_str = str(exc).lower()
+            is_retryable = any(
+                token in err_str for token in ["429", "rate", "quota", "503", "overload", "resource"]
+            )
 
             if is_retryable and attempt < MAX_RETRIES - 1:
                 delay = RETRY_BASE_DELAY * (2 ** attempt)
-                print(f"[EVAL RETRY] batch({','.join(r['model_id'] for r in batch)}) attempt {attempt+1}/{MAX_RETRIES}, wait {delay}s")
-                await asyncio.sleep(delay)
-            else:
-                print(f"[EVAL ERROR] batch: {e}")
-                return [{"model_id": r["model_id"], "accuracy_score": 50} for r in batch]
+                batch_ids = ",".join(response["model_id"] for response in batch)
+                print(
+                    f"[EVAL RETRY] {label} {normalized_use_case} batch({batch_ids}) "
+                    f"attempt {attempt + 1}/{MAX_RETRIES}, wait {delay}s"
+                )
+                import time
 
-    return [{"model_id": r["model_id"], "accuracy_score": 50} for r in batch]
+                time.sleep(delay)
+            else:
+                print(f"[EVAL ERROR] {label} {normalized_use_case}: {exc}")
+                return [{"model_id": response["model_id"], "accuracy_score": 50} for response in batch]
+
+    return [{"model_id": response["model_id"], "accuracy_score": 50} for response in batch]
 
 
 async def evaluate_all_responses(
     prompt: str,
     responses: list[dict],
-    evaluator_model: str = DEFAULT_EVALUATOR,
+    use_case: str = DEFAULT_USE_CASE,
+    evaluator_model: str = None,
 ) -> list[dict]:
     """
-    Smart batched evaluation:
-      1. Group responses by size into optimal batches
-      2. Send each batch sequentially with delay between calls
-      3. Collect all scores
-    """
-    model_name = EVALUATOR_MODELS.get(evaluator_model)
-    if not model_name:
-        raise ValueError(f"Unsupported evaluator: {evaluator_model}")
+    Parallel batched evaluation using the round-robin client pool.
 
+    The user-selected use case is passed directly into the evaluator prompt so
+    the model grades with the right rubric instead of guessing task type.
+    """
     batches = _create_batches(responses)
-    print(f"[EVALUATOR] {len(responses)} responses → {len(batches)} batches: {[len(b) for b in batches]}")
+    num_clients = get_client_count()
+    normalized_use_case = _normalize_use_case(use_case)
+    print(
+        f"[EVALUATOR] {len(responses)} responses -> {len(batches)} batches "
+        f"across {num_clients} clients for use_case={normalized_use_case}"
+    )
+
+    loop = asyncio.get_event_loop()
+
+    with ThreadPoolExecutor(max_workers=len(batches)) as executor:
+        futures = []
+        for batch in batches:
+            pool_entry = get_client()
+            futures.append(
+                loop.run_in_executor(
+                    executor,
+                    _evaluate_batch_sync,
+                    prompt,
+                    normalized_use_case,
+                    batch,
+                    pool_entry,
+                )
+            )
+        results = await asyncio.gather(*futures, return_exceptions=True)
 
     all_scores = []
-    for i, batch in enumerate(batches):
-        scores = await _evaluate_batch_with_retry(prompt, batch, model_name)
-        all_scores.extend(scores)
-
-        # Delay between batches (skip delay after last batch)
-        if i < len(batches) - 1:
-            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
+    for index, result in enumerate(results):
+        if isinstance(result, Exception):
+            print(f"[EVAL ERROR] batch {index}: {result}")
+            all_scores.extend(
+                [{"model_id": response["model_id"], "accuracy_score": 50} for response in batches[index]]
+            )
+        else:
+            all_scores.extend(result)
 
     return all_scores
 
 
-# ─── Single response evaluator (inference route) ─────────────
-
 async def evaluate_response(
-    prompt: str, response: str, evaluator_model: str = DEFAULT_EVALUATOR
+    prompt: str,
+    response: str,
+    use_case: str = DEFAULT_USE_CASE,
+    evaluator_model: str = None,
 ) -> dict:
-    model_name = EVALUATOR_MODELS.get(evaluator_model)
-    if not model_name:
-        raise ValueError(f"Unsupported evaluator: {evaluator_model}")
+    """Evaluate a single response using the same use-case-aware rubric."""
+    pool_entry = get_client()
+    client = pool_entry["client"]
+    model = pool_entry["model"]
+    system_prompt = _build_batch_eval_system(use_case)
+    normalized_use_case = _normalize_use_case(use_case)
 
-    content = (
-        f"{BATCH_EVAL_SYSTEM}\n\n"
-        f"PROMPT:\n{prompt}\n\n"
-        f"MODEL RESPONSES (1 total):\n\n[Response 1] model_id: single\n{response[:3000]}"
-    )
-    result = client.models.generate_content(model=model_name, contents=content)
-    scores = json.loads(_clean_json(result.text))
-    if isinstance(scores, list) and scores:
-        return {"accuracy_score": scores[0].get("accuracy_score", 50)}
-    return {"accuracy_score": 50}
+    def _call():
+        content = (
+            f"{system_prompt}\n\n"
+            f"USER-SELECTED USE CASE:\n{normalized_use_case}\n\n"
+            f"PROMPT:\n{prompt}\n\n"
+            f"MODEL RESPONSES (1 total):\n\n[Response 1] model_id: single\n{response[:3000]}"
+        )
+        result = client.models.generate_content(
+            model=model,
+            contents=content,
+        )
+        scores = json.loads(_clean_json(result.text))
+        if isinstance(scores, list) and scores:
+            return {"accuracy_score": scores[0].get("accuracy_score", 50)}
+        return {"accuracy_score": 50}
+
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, _call)
