@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, Zap } from 'lucide-react'
+import { Activity, Zap, BrainCircuit } from 'lucide-react'
 
 export default function Navbar() {
   return (
@@ -39,6 +39,19 @@ export default function Navbar() {
         >
           <Zap className="w-4 h-4" />
           Recommend
+        </NavLink>
+        <NavLink
+          to="/clarity"
+          className={({ isActive }) =>
+            `px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+              isActive
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`
+          }
+        >
+          <BrainCircuit className="w-4 h-4" />
+          Clarity
         </NavLink>
       </div>
       

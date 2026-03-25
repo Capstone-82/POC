@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Training from './pages/Training'
 import Inference from './pages/Inference'
-import { motion, AnimatePresence } from 'framer-motion'
+import ClarityLabeling from './pages/ClarityLabeling'
+import { motion } from 'framer-motion'
 
 export default function App() {
   return (
@@ -47,6 +48,18 @@ export default function App() {
                   <Inference />
                 </motion.div>
               } 
+            />
+            <Route
+              path="/clarity"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ClarityLabeling />
+                </motion.div>
+              }
             />
           </Routes>
         </main>

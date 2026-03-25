@@ -7,7 +7,13 @@ function cn(...inputs) {
   return twMerge(clsx(inputs))
 }
 
-export default function CSVUpload({ file, onFileChange }) {
+export default function CSVUpload({
+  file,
+  onFileChange,
+  title = 'Batch Dataset (CSV)',
+  idleText = 'Drag & drop csv benchmark source',
+  helperText = 'CSV must include "prompt" and "clarity" columns (CLEAR, PARTIAL, UNCLEAR).',
+}) {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
     maxFiles: 1,
@@ -19,7 +25,7 @@ export default function CSVUpload({ file, onFileChange }) {
       <div className="flex items-center gap-2 mb-3">
         <Files className="w-5 h-5 text-blue-500" />
         <label className="text-sm font-semibold text-gray-300">
-          Batch Dataset (CSV)
+          {title}
         </label>
       </div>
 
@@ -81,12 +87,11 @@ export default function CSVUpload({ file, onFileChange }) {
              
              <div className="space-y-1.5 max-w-[280px]">
                <p className="text-gray-200 text-sm font-semibold tracking-tight">
-                 {isDragActive ? "In-flight... Drop now" : "Drag & drop csv benchmark source"}
+                 {isDragActive ? 'In-flight... Drop now' : idleText}
                </p>
                <p className="text-gray-500 text-xs leading-relaxed">
-                 CSV must include <span className="font-mono text-blue-400 font-bold">"prompt"</span> and{' '}
-                 <span className="font-mono text-blue-400 font-bold">"clarity"</span> columns (CLEAR, PARTIAL, UNCLEAR).
-               </p>
+                 {helperText}
+                </p>
              </div>
           </div>
         )}
