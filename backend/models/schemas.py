@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 from enum import Enum
 
 
@@ -60,12 +60,44 @@ class InferenceRequest(BaseModel):
     current_model: str
 
 
+class ModelStats(BaseModel):
+    model_id: str
+    provider: str
+    sample_count: int
+    avg_accuracy: float
+    median_accuracy: float
+    median_cost: float
+    median_latency_ms: float
+
+
 class InferenceResponse(BaseModel):
     complexity: str
-    quality_score: int
+    complexity_confidence: Optional[float] = None
+    complexity_source: str
+    quality_score: Optional[int] = None
+    clarity: str
+    clarity_source: str
+    filter_level: str
+    recommendation_mode: str
+    data_source: str
     current_model: str
+    current_model_found: bool
+    current_model_stats: Optional[ModelStats] = None
     recommended_model: str
-    accuracy_delta: float
-    cost_delta: float
-    latency_delta: int
+    recommended_provider: str
+    expected_accuracy: float
+    expected_cost: float
+    expected_latency: float
+    accuracy_delta: Optional[float] = None
+    accuracy_delta_pct: Optional[float] = None
+    cost_delta_pct: Optional[float] = None
+    latency_delta_pct: Optional[float] = None
+    sample_size: int
+    slice_row_count: int
+    models_considered: int
+    switch_recommended: bool
+    final_suggestion_model: str
+    policy_reason: str
     reason: str
+    top_candidates: List[ModelStats]
+    warnings: List[str] = []

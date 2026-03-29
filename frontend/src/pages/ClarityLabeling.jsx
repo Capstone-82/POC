@@ -18,7 +18,7 @@ export default function ClarityLabeling() {
   const sourceRef = useRef(null)
 
   const handleStart = async () => {
-    setError(null)
+      setError(null)
     setRunning(true)
     setDone(false)
     setJobId(null)
@@ -26,7 +26,11 @@ export default function ClarityLabeling() {
     setJobMeta({ totalPrompts: 0, totalChunks: 0, processedPrompts: 0 })
 
     try {
-      const { job_id: jobId } = await startClarityJob({ file: csvFile })
+      const { job_id: jobId } = await startClarityJob({
+        file: csvFile,
+        prompt_complexity: 'mid',
+        use_case: 'text-generation',
+      })
       setJobId(jobId)
       const source = new EventSource(`${API_BASE}/api/clarity/stream/${jobId}`)
       sourceRef.current = source
@@ -50,7 +54,6 @@ export default function ClarityLabeling() {
             totalPrompts: data.total_prompts,
           }))
         }
-
         if (data.type === 'done') {
           setDone(true)
           setRunning(false)

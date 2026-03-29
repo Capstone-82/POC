@@ -15,12 +15,15 @@ import asyncio
 import json
 from concurrent.futures import ThreadPoolExecutor
 
-from services.gemini_clients import get_client, get_client_count
+from services.gemini_clients import cooldown_client, get_client, get_client_count
 
 MAX_TOKENS_PER_BATCH = 3000
 MAX_RETRIES = 3
 RETRY_BASE_DELAY = 4.0
 DEFAULT_USE_CASE = "text-generation"
+MAX_CLIENT_FAILOVER_ATTEMPTS = 6
+VERTEX_COOLDOWN_SECONDS = 120.0
+GEMINI_API_COOLDOWN_SECONDS = 45.0
 
 
 def _clean_json(text: str) -> str:
@@ -147,6 +150,14 @@ def _build_batch_eval_system(use_case: str | None) -> str:
     return f"{BASE_EVAL_RULES}\n\n{USE_CASE_RUBRICS[normalized]}"
 
 
+class EvaluatorClientFailover(Exception):
+    def __init__(self, message: str, pool_entry: dict, batch: list[dict], retryable: bool = True):
+        super().__init__(message)
+        self.pool_entry = pool_entry
+        self.batch = batch
+        self.retryable = retryable
+
+
 async def evaluate_prompt(prompt: str, evaluator_model: str = None) -> dict:
     """Evaluate a prompt's complexity and quality for inference routing."""
     pool_entry = get_client()
@@ -239,8 +250,12 @@ def _evaluate_batch_sync(
         except Exception as exc:
             err_str = str(exc).lower()
             is_retryable = any(
-                token in err_str for token in ["429", "rate", "quota", "503", "overload", "resource"]
+                token in err_str for token in ["429", "rate", "quota", "503", "overload", "resource", "tlsv1", "ssl"]
             )
+            is_vertex = pool_entry.get("source") == "vertex"
+
+            if is_vertex and is_retryable:
+                raise EvaluatorClientFailover(str(exc), pool_entry, batch, retryable=True)
 
             if is_retryable and attempt < MAX_RETRIES - 1:
                 delay = RETRY_BASE_DELAY * (2 ** attempt)
@@ -253,10 +268,48 @@ def _evaluate_batch_sync(
 
                 time.sleep(delay)
             else:
-                print(f"[EVAL ERROR] {label} {normalized_use_case}: {exc}")
-                return [{"model_id": response["model_id"], "accuracy_score": 50} for response in batch]
+                if pool_entry.get("source") == "gemini_api" and is_retryable:
+                    raise EvaluatorClientFailover(str(exc), pool_entry, batch, retryable=True)
+                raise EvaluatorClientFailover(str(exc), pool_entry, batch, retryable=False)
 
-    return [{"model_id": response["model_id"], "accuracy_score": 50} for response in batch]
+    raise EvaluatorClientFailover("Evaluator batch failed after retries", pool_entry, batch, retryable=False)
+
+
+async def _evaluate_batch_with_failover(
+    loop,
+    executor,
+    prompt: str,
+    use_case: str,
+    batch: list[dict],
+) -> list[dict]:
+    last_error = None
+
+    for _ in range(MAX_CLIENT_FAILOVER_ATTEMPTS):
+        pool_entry = get_client()
+        try:
+            return await loop.run_in_executor(
+                executor,
+                _evaluate_batch_sync,
+                prompt,
+                use_case,
+                batch,
+                pool_entry,
+            )
+        except EvaluatorClientFailover as exc:
+            last_error = exc
+            label = exc.pool_entry["label"]
+            source = exc.pool_entry.get("source", "unknown")
+            cooldown_seconds = VERTEX_COOLDOWN_SECONDS if source == "vertex" else GEMINI_API_COOLDOWN_SECONDS
+            cooldown_client(label, cooldown_seconds)
+            print(
+                f"[EVAL FAILOVER] {label} source={source} cooled down for {int(cooldown_seconds)}s: {exc}"
+            )
+            if not exc.retryable:
+                continue
+
+    if last_error:
+        print(f"[EVAL FALLBACK] All failover attempts exhausted for batch: {last_error}")
+    return [{"model_id": response["model_id"], "accuracy_score": 0} for response in batch]
 
 
 async def evaluate_all_responses(
@@ -284,15 +337,13 @@ async def evaluate_all_responses(
     with ThreadPoolExecutor(max_workers=len(batches)) as executor:
         futures = []
         for batch in batches:
-            pool_entry = get_client()
             futures.append(
-                loop.run_in_executor(
+                _evaluate_batch_with_failover(
+                    loop,
                     executor,
-                    _evaluate_batch_sync,
                     prompt,
                     normalized_use_case,
                     batch,
-                    pool_entry,
                 )
             )
         results = await asyncio.gather(*futures, return_exceptions=True)
@@ -302,7 +353,7 @@ async def evaluate_all_responses(
         if isinstance(result, Exception):
             print(f"[EVAL ERROR] batch {index}: {result}")
             all_scores.extend(
-                [{"model_id": response["model_id"], "accuracy_score": 50} for response in batches[index]]
+                [{"model_id": response["model_id"], "accuracy_score": 0} for response in batches[index]]
             )
         else:
             all_scores.extend(result)

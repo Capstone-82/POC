@@ -15,23 +15,38 @@ from services.supabase_client import save_row, save_prompt_log
 from services.model_registry import get_model_ids_for_use_case
 
 router = APIRouter()
+CSV_FILE_DELAY_MS = 3000
+
+
+def create_training_job(prompts: list[dict], background_tasks: BackgroundTasks | None = None) -> str:
+    """Create and launch a training job from already-normalized prompt rows."""
+    job_id = str(uuid.uuid4())
+    create_job(job_id)
+
+    if background_tasks is not None:
+        background_tasks.add_task(
+            process_prompts,
+            prompts=prompts,
+            job_id=job_id,
+        )
+    else:
+        asyncio.create_task(process_prompts(prompts=prompts, job_id=job_id))
+
+    return job_id
 
 
 # ─── SINGLE PROMPT ───────────────────────────────────────────
 
 @router.post("/run", response_model=JobResponse)
 async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks):
-    job_id = str(uuid.uuid4())
-    create_job(job_id)
-    background_tasks.add_task(
-        process_prompts,
+    job_id = create_training_job(
         prompts=[{
             "prompt": req.prompt,
             "prompt_complexity": req.prompt_complexity.value,
             "use_case": req.use_case.value,
             "clarity": req.clarity.value,
         }],
-        job_id=job_id,
+        background_tasks=background_tasks,
     )
     return {"job_id": job_id}
 
@@ -98,13 +113,95 @@ async def run_csv(
     if not prompts:
         raise HTTPException(status_code=400, detail="No valid prompts found in CSV")
 
+    job_id = create_training_job(
+        prompts=prompts,
+        background_tasks=background_tasks,
+    )
+    return {"job_id": job_id}
+
+
+@router.post("/upload-multi", response_model=JobResponse)
+async def run_multi_csv(
+    background_tasks: BackgroundTasks,
+    files: list[UploadFile] = File(...),
+    prompt_complexity: str = Form("mid"),
+    use_case: str = Form("text-generation"),
+    delay_ms: int = Form(CSV_FILE_DELAY_MS),
+):
+    try:
+        complexity_enum = PromptComplexity(prompt_complexity)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid prompt_complexity '{prompt_complexity}'. Must be one of: low, mid, high",
+        )
+
+    try:
+        use_case_enum = UseCase(use_case)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid use_case '{use_case}'. Must be one of: text-generation, reasoning, code-generation",
+        )
+
+    if not files:
+        raise HTTPException(status_code=400, detail="At least one CSV file is required")
+
+    file_batches = []
+    total_prompts = 0
+
+    for file in files:
+        contents = await file.read()
+        df = pd.read_csv(StringIO(contents.decode("utf-8")))
+
+        if "prompt" not in df.columns:
+            raise HTTPException(status_code=400, detail=f"CSV '{file.filename}' must have a 'prompt' column")
+        if "clarity" not in df.columns:
+            raise HTTPException(status_code=400, detail=f"CSV '{file.filename}' must have a 'clarity' column")
+
+        prompts = []
+        for _, row in df.iterrows():
+            p = row.get("prompt")
+            if pd.isna(p) or str(p).strip() == "":
+                continue
+
+            clarity_val = str(row.get("clarity", "CLEAR")).strip().upper()
+            if clarity_val not in VALID_CLARITY:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Invalid clarity value '{clarity_val}' in '{file.filename}'. "
+                        "Must be one of: CLEAR, PARTIAL, UNCLEAR"
+                    ),
+                )
+
+            prompts.append({
+                "prompt": str(p).strip(),
+                "prompt_complexity": complexity_enum.value,
+                "use_case": use_case_enum.value,
+                "clarity": clarity_val,
+            })
+
+        if not prompts:
+            continue
+
+        total_prompts += len(prompts)
+        file_batches.append({
+            "file_name": file.filename or f"file_{len(file_batches) + 1}.csv",
+            "prompts": prompts,
+        })
+
+    if not file_batches:
+        raise HTTPException(status_code=400, detail="No valid prompts found in uploaded CSV files")
+
     job_id = str(uuid.uuid4())
     create_job(job_id)
-
     background_tasks.add_task(
-        process_prompts,
-        prompts=prompts,
+        process_prompt_files,
+        file_batches=file_batches,
         job_id=job_id,
+        total_prompts=total_prompts,
+        delay_ms=max(0, delay_ms),
     )
     return {"job_id": job_id}
 
@@ -256,6 +353,24 @@ async def _process_one_prompt(
 
 # ─── CORE ORCHESTRATOR — ALL PROMPTS IN PARALLEL ────────────
 
+async def _process_prompt_batch(
+    prompts: list[dict],
+    job_id: str,
+    total_prompts: int,
+    start_index: int,
+):
+    tasks = [
+        _process_one_prompt(
+            prompt_data=prompt_data,
+            prompt_index=start_index + i,
+            total=total_prompts,
+            job_id=job_id,
+        )
+        for i, prompt_data in enumerate(prompts, start=1)
+    ]
+    await asyncio.gather(*tasks)
+
+
 async def process_prompts(prompts: list[dict], job_id: str):
     """
     FULL PARALLEL pipeline:
@@ -264,23 +379,14 @@ async def process_prompts(prompts: list[dict], job_id: str):
 
     Each prompt is processed by _process_one_prompt concurrently.
     """
-    total = len(prompts)
-
     try:
-        # Fire ALL prompts at once
-        tasks = [
-            _process_one_prompt(
-                prompt_data=prompt_data,
-                prompt_index=i,
-                total=total,
-                job_id=job_id,
-            )
-            for i, prompt_data in enumerate(prompts, start=1)
-        ]
-
-        await asyncio.gather(*tasks)
-
-        # All done
+        total = len(prompts)
+        await _process_prompt_batch(
+            prompts=prompts,
+            job_id=job_id,
+            total_prompts=total,
+            start_index=0,
+        )
         await push_event(job_id, {"type": "done", "prompt_index": total, "total": total})
 
     except Exception as e:
@@ -288,5 +394,70 @@ async def process_prompts(prompts: list[dict], job_id: str):
             "type":          "error",
             "message":       str(e),
             "prompt_index":  0,
-            "total":         total,
+            "total":         len(prompts),
+        })
+
+
+async def process_prompt_files(
+    file_batches: list[dict],
+    job_id: str,
+    total_prompts: int,
+    delay_ms: int,
+):
+    processed = 0
+    total_files = len(file_batches)
+
+    try:
+        for file_index, file_batch in enumerate(file_batches, start=1):
+            await push_event(job_id, {
+                "type": "file_started",
+                "file_index": file_index,
+                "total_files": total_files,
+                "file_name": file_batch["file_name"],
+                "file_prompt_count": len(file_batch["prompts"]),
+                "processed_prompts": processed,
+                "total": total_prompts,
+            })
+
+            await _process_prompt_batch(
+                prompts=file_batch["prompts"],
+                job_id=job_id,
+                total_prompts=total_prompts,
+                start_index=processed,
+            )
+
+            processed += len(file_batch["prompts"])
+
+            await push_event(job_id, {
+                "type": "file_done",
+                "file_index": file_index,
+                "total_files": total_files,
+                "file_name": file_batch["file_name"],
+                "processed_prompts": processed,
+                "total": total_prompts,
+            })
+
+            if file_index < total_files and delay_ms > 0:
+                await push_event(job_id, {
+                    "type": "file_delay",
+                    "file_index": file_index,
+                    "next_file_index": file_index + 1,
+                    "delay_ms": delay_ms,
+                    "processed_prompts": processed,
+                    "total": total_prompts,
+                })
+                await asyncio.sleep(delay_ms / 1000)
+
+        await push_event(job_id, {
+            "type": "done",
+            "prompt_index": processed,
+            "total": total_prompts,
+        })
+
+    except Exception as e:
+        await push_event(job_id, {
+            "type": "error",
+            "message": str(e),
+            "prompt_index": processed,
+            "total": total_prompts,
         })

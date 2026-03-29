@@ -4,7 +4,7 @@ import { Play, Square, CheckCircle2, AlertTriangle, Cpu, LayoutGrid, FileText, C
 import PromptInput from '../components/PromptInput'
 import CSVUpload from '../components/CSVUpload'
 import LiveLog from '../components/LiveLog'
-import { startTrainingJob, startCSVTrainingJob } from '../api/training'
+import { startTrainingJob, startCSVTrainingJob, startMultiCSVTrainingJob } from '../api/training'
 
 const COMPLEXITY_OPTIONS = [
   { value: 'low',  label: 'Low',  desc: 'Simple factual, one-step',  color: 'green' },
@@ -31,9 +31,12 @@ export default function Training() {
   const [inputMode, setInputMode] = useState('single') // 'single' | 'csv'
   const [prompt, setPrompt] = useState('')
   const [csvFile, setCsvFile] = useState(null)
+  const [csvFiles, setCsvFiles] = useState([])
+  const [csvDelayMs, setCsvDelayMs] = useState(3000)
   const [logs, setLogs] = useState([])
   const [failedLogs, setFailedLogs] = useState([])
   const [progress, setProgress] = useState({ current: 0, total: 0 })
+  const [fileProgress, setFileProgress] = useState(null)
   const [running, setRunning] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState(null)
@@ -45,6 +48,7 @@ export default function Training() {
     setLogs([])
     setFailedLogs([])
     setProgress({ current: 0, total: 0 })
+    setFileProgress(null)
     setDone(false)
     setError(null)
     setRunning(true)
@@ -60,11 +64,18 @@ export default function Training() {
         })
         jobId = res.job_id
       } else {
-        const res = await startCSVTrainingJob({
-          file: csvFile,
-          prompt_complexity: promptComplexity,
-          use_case: useCase,
-        })
+        const res = csvFiles.length > 1
+          ? await startMultiCSVTrainingJob({
+              files: csvFiles,
+              prompt_complexity: promptComplexity,
+              use_case: useCase,
+              delay_ms: csvDelayMs,
+            })
+          : await startCSVTrainingJob({
+              file: csvFile,
+              prompt_complexity: promptComplexity,
+              use_case: useCase,
+            })
         jobId = res.job_id
       }
 
@@ -77,6 +88,43 @@ export default function Training() {
         if (data.type === 'progress') {
           setProgress({ current: data.prompt_index, total: data.total })
           setLogs(prev => [...prev, data])
+        }
+
+        if (data.type === 'file_started') {
+          setFileProgress({
+            status: 'processing',
+            fileIndex: data.file_index,
+            totalFiles: data.total_files,
+            fileName: data.file_name,
+            processedPrompts: data.processed_prompts,
+            totalPrompts: data.total,
+          })
+          setProgress({ current: data.processed_prompts, total: data.total })
+        }
+
+        if (data.type === 'file_done') {
+          setFileProgress({
+            status: 'completed',
+            fileIndex: data.file_index,
+            totalFiles: data.total_files,
+            fileName: data.file_name,
+            processedPrompts: data.processed_prompts,
+            totalPrompts: data.total,
+          })
+          setProgress({ current: data.processed_prompts, total: data.total })
+        }
+
+        if (data.type === 'file_delay') {
+          setFileProgress({
+            status: 'waiting',
+            fileIndex: data.file_index,
+            totalFiles: csvFiles.length,
+            fileName: null,
+            processedPrompts: data.processed_prompts,
+            totalPrompts: data.total,
+            delayMs: data.delay_ms,
+          })
+          setProgress({ current: data.processed_prompts, total: data.total })
         }
 
         if (data.type === 'model_failed') {
@@ -345,6 +393,36 @@ export default function Training() {
                    transition={{ duration: 0.3 }}
                  >
                    <CSVUpload file={csvFile} onFileChange={setCsvFile} />
+                   <div className="mt-5 space-y-4">
+                     <CSVUpload
+                       files={csvFiles}
+                       onFileChange={(files) => {
+                         setCsvFiles(files)
+                         setCsvFile(files[0] || null)
+                       }}
+                       title="Sequential CSV Queue"
+                       idleText="Optionally select multiple chunk CSVs to process one file at a time"
+                       helperText='Each CSV must contain "prompt" and "clarity". Files will be processed sequentially with a pause between them.'
+                       multiple
+                     />
+                     <div className="rounded-xl bg-black/20 border border-white/5 p-4 flex flex-col md:flex-row md:items-center gap-4">
+                       <div className="text-sm text-gray-400 flex-1">
+                         When multiple CSVs are selected, the backend will finish one file, wait, then start the next file.
+                       </div>
+                       <label className="flex items-center gap-3 text-sm font-semibold text-gray-300">
+                         Delay Between Files
+                         <input
+                           type="number"
+                           min="0"
+                           step="500"
+                           value={csvDelayMs}
+                           onChange={(e) => setCsvDelayMs(Number(e.target.value) || 0)}
+                           className="w-28 rounded-lg bg-gray-950/60 border border-gray-800 px-3 py-2 text-white"
+                         />
+                         <span className="text-gray-500 text-xs uppercase tracking-widest">ms</span>
+                       </label>
+                     </div>
+                   </div>
                  </motion.div>
                )}
              </AnimatePresence>
@@ -402,6 +480,32 @@ export default function Training() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-8"
         >
+          {fileProgress && (
+            <div className="glass-card rounded-2xl p-6 border border-white/5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest text-blue-500 font-black">
+                    {fileProgress.status === 'waiting' ? 'Inter-File Delay' : 'CSV Queue'}
+                  </div>
+                  <div className="text-white font-black text-lg mt-2">
+                    {fileProgress.status === 'processing' && `Processing ${fileProgress.fileName}`}
+                    {fileProgress.status === 'completed' && `Completed ${fileProgress.fileName}`}
+                    {fileProgress.status === 'waiting' && `Waiting ${Math.round((fileProgress.delayMs || 0) / 1000)}s before next CSV`}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    {fileProgress.fileIndex} of {fileProgress.totalFiles || csvFiles.length} file steps
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Overall Prompts</div>
+                  <div className="text-2xl font-black text-white mt-2">
+                    {fileProgress.processedPrompts} / {fileProgress.totalPrompts}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Progress Visualizer */}
           {progress.total > 0 && (
             <div className="space-y-3 px-1">

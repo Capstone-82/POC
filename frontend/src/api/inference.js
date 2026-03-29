@@ -13,3 +13,8 @@ export const getRecommendation = async ({ prompt, use_case, current_model }) => 
   })
   return response.data;
 }
+
+export const getRecommendationOptions = async () => {
+  const response = await api.get('/inference/options')
+  return response.data
+}

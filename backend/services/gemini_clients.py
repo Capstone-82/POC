@@ -1,21 +1,68 @@
 """
-Round-robin Gemini evaluator client pool.
+Round-robin evaluator client pool backed only by Vertex AI.
 
-4 clients total:
-  - 3 × Gemini API key clients  → gemini-2.5-flash  (free tier)
-  - 1 × Vertex AI client        → gemini-2.5-flash  (paid Vertex quota)
-
-Each client tracks which model it should use.
+The pool uses known-working Vertex regional/global endpoints for
+gemini-2.5-flash, with the global endpoint weighted more heavily.
 """
 
 import os
 import threading
+import time
+
 from google import genai
 
-_CLIENTS: list[dict] = []   # [{"client": genai.Client, "model": str, "label": str}, ...]
+EVALUATOR_MODEL = "gemini-2.5-flash"
+VERTEX_EVAL_REGIONS = [
+    "asia-south1",
+    "asia-southeast1",
+    "asia-northeast1",
+    "asia-northeast3",
+    "australia-southeast1",
+    "us-central1",
+    "us-east4",
+    "us-east1",
+    "us-west1",
+    "us-west4",
+    "northamerica-northeast1",
+    "europe-west1",
+    "europe-west2",
+    "europe-west3",
+    "europe-west4",
+    "europe-west9",
+    "southamerica-east1",
+    "global",
+]
+
+_CLIENTS: list[dict] = []
 _lock = threading.Lock()
 _counter = 0
 _initialized = False
+_cooldowns: dict[str, float] = {}
+
+
+def _vertex_weight(location: str) -> int:
+    if location == "global":
+        return int(os.getenv("VERTEX_EVAL_GLOBAL_WEIGHT", "6"))
+    return int(os.getenv("VERTEX_EVAL_REGION_WEIGHT", "1"))
+
+
+def _build_vertex_entry(location: str) -> dict:
+    project = os.getenv("GOOGLE_CLOUD_PROJECT", "").strip()
+    if not project:
+        raise RuntimeError("GOOGLE_CLOUD_PROJECT is required for Vertex evaluator clients")
+
+    client = genai.Client(
+        vertexai=True,
+        project=project,
+        location=location,
+    )
+    return {
+        "client": client,
+        "model": EVALUATOR_MODEL,
+        "label": f"Vertex AI ({location})",
+        "source": "vertex",
+        "location": location,
+    }
 
 
 def _init_clients():
@@ -26,50 +73,58 @@ def _init_clients():
 
     clients = []
 
-    # ── 3 Gemini API key clients → gemini-2.5-flash ──────────
-    for var in ("GEMINI_API_KEY1", "GEMINI_API_KEY2", "GEMINI_API_KEY3"):
-        k = os.getenv(var, "").strip()
-        if k:
-            clients.append({
-                "client": genai.Client(api_key=k),
-                "model":  "gemini-2.5-flash",
-                "label":  f"{var} (flash)",
-            })
-
-    # ── 1 Vertex AI client → gemini-2.5-flash ──────────────────
-    vertex_key = os.getenv("GOOGLE_API_KEY", "").strip()
-    if vertex_key:
-        clients.append({
-            "client": genai.Client(vertexai=True, api_key=vertex_key),
-            "model":  "gemini-2.5-flash",
-            "label":  "Vertex AI (flash)",
-        })
+    vertex_project = os.getenv("GOOGLE_CLOUD_PROJECT", "").strip()
+    if vertex_project:
+        for location in VERTEX_EVAL_REGIONS:
+            entry = _build_vertex_entry(location)
+            weight = max(1, _vertex_weight(location))
+            for replica_index in range(weight):
+                clients.append({
+                    **entry,
+                    "label": (
+                        f"{entry['label']} [weight {replica_index + 1}/{weight}]"
+                        if weight > 1 else entry["label"]
+                    ),
+                })
 
     if not clients:
-        raise RuntimeError("No Gemini/Vertex API keys found for evaluator pool")
+        raise RuntimeError("No Vertex evaluator clients could be initialized")
 
     _CLIENTS = clients
     _initialized = True
-    labels = [c["label"] for c in clients]
+    labels = [client["label"] for client in clients]
     print(f"[EVALUATOR POOL] Initialized {len(_CLIENTS)} clients: {labels}")
 
 
 def get_client() -> dict:
     """
     Get the next evaluator client in round-robin order (thread-safe).
-    Returns dict with: {"client": genai.Client, "model": str, "label": str}
+    Returns dict with client metadata.
     """
     global _counter
     _init_clients()
 
     with _lock:
-        idx = _counter % len(_CLIENTS)
+        now = time.time()
+        available = [
+            client for client in _CLIENTS
+            if _cooldowns.get(client["label"], 0) <= now
+        ]
+        if not available:
+            available = _CLIENTS
+
+        idx = _counter % len(available)
         _counter += 1
 
-    return _CLIENTS[idx]
+    return available[idx]
 
 
 def get_client_count() -> int:
-    """Return count of available evaluator clients."""
     _init_clients()
     return len(_CLIENTS)
+
+
+def cooldown_client(label: str, seconds: float):
+    _init_clients()
+    with _lock:
+        _cooldowns[label] = time.time() + max(0.0, seconds)

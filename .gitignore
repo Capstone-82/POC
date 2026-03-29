@@ -55,3 +55,6 @@ htmlcov/
 # OS related
 ehthumbs.db
 Thumbs.db
+
+
+service-account.json

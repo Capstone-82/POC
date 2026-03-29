@@ -6,11 +6,12 @@ import zipfile
 from io import StringIO
 
 import pandas as pd
-from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 
 from jobs.store import close_job, create_job, get_event, push_event
-from models.schemas import JobResponse
+from models.schemas import JobResponse, PromptComplexity, UseCase
+from routers.training import create_training_job
 from services.clarity_classifier import classify_prompt_batch
 
 router = APIRouter()
@@ -62,7 +63,13 @@ def _build_zip_archive(job_id: str) -> str:
 
 
 @router.post("/upload", response_model=JobResponse)
-async def upload_csv(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def upload_csv(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    auto_forward: bool = Form(False),
+    prompt_complexity: str = Form("mid"),
+    use_case: str = Form("text-generation"),
+):
     contents = await file.read()
 
     try:
@@ -88,9 +95,32 @@ async def upload_csv(background_tasks: BackgroundTasks, file: UploadFile = File(
     if not prompts:
         raise HTTPException(status_code=400, detail="No valid prompts found in CSV")
 
+    try:
+        complexity_enum = PromptComplexity(prompt_complexity)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid prompt_complexity '{prompt_complexity}'. Must be one of: low, mid, high",
+        ) from exc
+
+    try:
+        use_case_enum = UseCase(use_case)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid use_case '{use_case}'. Must be one of: text-generation, reasoning, code-generation",
+        ) from exc
+
     job_id = str(uuid.uuid4())
     create_job(job_id)
-    background_tasks.add_task(process_clarity_job, job_id=job_id, prompts=prompts)
+    background_tasks.add_task(
+        process_clarity_job,
+        job_id=job_id,
+        prompts=prompts,
+        auto_forward=auto_forward,
+        prompt_complexity=complexity_enum.value,
+        use_case=use_case_enum.value,
+    )
     return {"job_id": job_id}
 
 
@@ -137,7 +167,13 @@ async def download_zip(job_id: str):
     )
 
 
-async def process_clarity_job(job_id: str, prompts: list[dict]):
+async def process_clarity_job(
+    job_id: str,
+    prompts: list[dict],
+    auto_forward: bool,
+    prompt_complexity: str,
+    use_case: str,
+):
     total_prompts = len(prompts)
     batches = _chunk_rows(prompts, CLARITY_BATCH_SIZE)
 
@@ -148,6 +184,9 @@ async def process_clarity_job(job_id: str, prompts: list[dict]):
                 "type": "started",
                 "total_prompts": total_prompts,
                 "total_chunks": len(batches),
+                "auto_forward": auto_forward,
+                "prompt_complexity": prompt_complexity,
+                "use_case": use_case,
             },
         )
 
@@ -178,8 +217,53 @@ async def process_clarity_job(job_id: str, prompts: list[dict]):
                     "total_prompts": total_prompts,
                     "file_name": file_name,
                     "download_url": f"/api/clarity/download/{job_id}/{file_name}",
+                    "forward_status": "pending" if auto_forward else "manual_only",
                 },
             )
+
+            if auto_forward:
+                await push_event(
+                    job_id,
+                    {
+                        "type": "chunk_forwarding",
+                        "chunk_index": chunk_index,
+                        "file_name": file_name,
+                        "prompt_complexity": prompt_complexity,
+                        "use_case": use_case,
+                    },
+                )
+                try:
+                    training_prompts = [
+                        {
+                            "prompt": row["prompt"],
+                            "clarity": row["clarity"],
+                            "prompt_complexity": prompt_complexity,
+                            "use_case": use_case,
+                        }
+                        for row in chunk_rows
+                    ]
+                    downstream_job_id = create_training_job(training_prompts)
+                    await push_event(
+                        job_id,
+                        {
+                            "type": "chunk_forwarded",
+                            "chunk_index": chunk_index,
+                            "file_name": file_name,
+                            "forward_status": "forwarded",
+                            "training_job_id": downstream_job_id,
+                        },
+                    )
+                except Exception as exc:
+                    await push_event(
+                        job_id,
+                        {
+                            "type": "chunk_forward_failed",
+                            "chunk_index": chunk_index,
+                            "file_name": file_name,
+                            "forward_status": "failed",
+                            "message": str(exc),
+                        },
+                    )
 
             if chunk_index < len(batches) and CLARITY_BATCH_DELAY_MS > 0:
                 await asyncio.sleep(CLARITY_BATCH_DELAY_MS / 1000)

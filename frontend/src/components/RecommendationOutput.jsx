@@ -1,101 +1,182 @@
-import { TrendingUp, Sparkles, AlertCircle, Quote, Cpu, Layers } from 'lucide-react'
+import {
+  Sparkles,
+  Cpu,
+  Layers,
+  ShieldCheck,
+  Database,
+  ArrowRight,
+  AlertTriangle,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
 
-export default function RecommendationOutput({ data }) {
-  const fmt = (val, unit = '', label = '') => {
-    const isNumber = typeof val === 'number'
-    const sign = isNumber && val > 0 ? '+' : ''
-    // Specific logic for latency delta vs accuracy delta
-    const isGood = label.toLowerCase().includes('accuracy') ? val >= 0 : val <= 0
-    const colorClass = isGood ? 'text-green-400 bg-green-500/10 border-green-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'
-    
-    return (
-      <div className={`px-3 py-1.5 rounded-lg border flex flex-col items-center justify-center gap-1 ${colorClass}`}>
-         <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">{label}</span>
-         <span className="font-mono font-black text-xs">{sign}{val}{unit}</span>
-      </div>
-    )
-  }
+const fmtNum = (value, digits = 2) => {
+  if (typeof value !== 'number') return 'N/A'
+  return value.toFixed(digits)
+}
+
+const fmtPct = (value) => {
+  if (typeof value !== 'number') return 'N/A'
+  return `${value > 0 ? '+' : ''}${value}%`
+}
+
+function Metric({ label, value }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 min-w-0">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-1 text-base font-black text-white truncate">{value}</p>
+    </div>
+  )
+}
+
+function Delta({ label, value, positiveGood = false }) {
+  const good =
+    typeof value === 'number'
+      ? positiveGood
+        ? value >= 0
+        : value <= 0
+      : null
+
+  const tone =
+    good === null
+      ? 'border-white/10 bg-white/[0.03] text-slate-300'
+      : good
+        ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+        : 'border-rose-400/20 bg-rose-400/10 text-rose-200'
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+    <div className={`rounded-xl border px-3 py-3 ${tone}`}>
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] opacity-70">{label}</p>
+      <p className="mt-1 text-base font-black">{fmtPct(value)}</p>
+    </div>
+  )
+}
+
+export default function RecommendationOutput({ data }) {
+  const currentStats = data.current_model_stats
+  const warnings = data.warnings || []
+  const sourceLabel = data.data_source === 'supabase' ? 'Supabase' : 'Local CSV'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative group mt-8"
+      className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(10,16,28,0.98))] shadow-[0_24px_100px_rgba(2,8,23,0.45)] overflow-hidden"
     >
-      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-blue-600/20 blur-2xl group-hover:opacity-100 transition-opacity duration-1000 opacity-70" />
-      
-      <div className="relative bg-[#0f172a]/40 border border-white/10 rounded-2xl p-8 backdrop-blur-3xl shadow-2xl space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
-            <h3 className="text-lg font-bold text-white tracking-tight uppercase">Recommendation Analysis</h3>
+      <div className="border-b border-white/8 px-6 py-5 lg:px-7">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-cyan-300" />
+              <h3 className="text-2xl font-black text-white tracking-tight">Recommendation Analysis</h3>
+            </div>
+            <p className="mt-2 max-w-2xl text-sm text-slate-400">
+              Using the <span className="font-bold text-white">{data.recommendation_mode}</span> policy with matched benchmark slices and safe switching thresholds.
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-                <Layers className="w-3.5 h-3.5 text-yellow-500" />
-                <span className="text-[10px] font-black uppercase text-yellow-500 tracking-widest">{data.complexity}Complexity</span>
-             </div>
-             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                <Cpu className="w-3.5 h-3.5 text-blue-500" />
-                <span className="text-[10px] font-black uppercase text-blue-500 tracking-widest">Score: {data.quality_score}</span>
-             </div>
+
+          <div className="flex flex-wrap gap-2">
+            <div className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-yellow-200 flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5" />
+              {data.complexity}
+            </div>
+            <div className="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-blue-200 flex items-center gap-2">
+              <Cpu className="w-3.5 h-3.5" />
+              {data.clarity}
+            </div>
+            <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-200 flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {data.filter_level}
+            </div>
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-slate-300 flex items-center gap-2">
+              <Database className="w-3.5 h-3.5" />
+              {sourceLabel}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 py-6 lg:px-7 space-y-5">
+        <div className="rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.05] p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-300">Recommended</p>
+              <h4 className="mt-2 text-3xl font-black text-white leading-[1.05] break-words">
+                {data.recommended_provider}/{data.recommended_model}
+              </h4>
+            </div>
+            <div className="rounded-full bg-cyan-400/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100">
+              {data.switch_recommended ? 'Switch' : 'Stay'}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <Metric label="Accuracy" value={fmtNum(data.expected_accuracy)} />
+            <Metric label="Cost" value={`$${fmtNum(data.expected_cost, 6)}`} />
+            <Metric label="Latency" value={`${fmtNum(data.expected_latency, 0)}ms`} />
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-300">
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+              {data.sample_size} rows for this model
+            </div>
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+              {data.slice_row_count} rows in matched slice
+            </div>
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+              {data.models_considered} supported models
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Models */}
-          <div className="space-y-4">
-             <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Comparison Point</span>
-                <div className="px-5 py-4 rounded-xl bg-gray-950/40 border border-gray-800/80 flex items-center justify-between group/model transition-colors hover:border-white/10">
-                   <span className="text-sm font-bold text-gray-400">{data.current_model}</span>
-                   <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-gray-900 border border-gray-800 text-gray-600">Current</span>
-                </div>
-             </div>
-
-             <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-bold uppercase text-blue-500 tracking-widest">Optimal Choice</span>
-                <div className="px-5 py-4 rounded-xl bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/model shadow-lg shadow-blue-950/20 animate-in fade-in zoom-in duration-1000">
-                   <span className="text-lg font-black text-white tracking-tight">{data.recommended_model}</span>
-                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-600 shadow-lg shadow-blue-900/40 border border-blue-400/50">
-                      <TrendingUp className="w-3 h-3 text-white" />
-                      <span className="text-[10px] uppercase font-black text-white">Recommended</span>
-                   </div>
-                </div>
-             </div>
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Compared Against</p>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <h4 className="text-2xl font-black text-white break-words">{data.current_model}</h4>
+              <p className="mt-1 text-sm text-slate-400">
+                {data.current_model_found ? 'Matched in current slice.' : 'No direct match found in current slice.'}
+              </p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-slate-600 shrink-0" />
           </div>
 
-          {/* Deltas */}
-          <div className="flex flex-col justify-end gap-3">
-             <div className="grid grid-cols-3 gap-3">
-               {fmt(data.accuracy_delta, '%', 'Accuracy')}
-               {fmt(data.cost_delta, '%', 'Cost')}
-               {fmt(data.latency_delta, 'ms', 'Latency')}
-             </div>
-             <p className="text-[10px] text-gray-500 font-medium px-1 text-center italic">*Deltas relative to current baseline benchmark data</p>
+          {currentStats && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <Metric label="Accuracy" value={fmtNum(currentStats.avg_accuracy)} />
+              <Metric label="Cost" value={`$${fmtNum(currentStats.median_cost, 6)}`} />
+              <Metric label="Latency" value={`${fmtNum(currentStats.median_latency_ms, 0)}ms`} />
+            </div>
+          )}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <Delta label="Accuracy" value={data.accuracy_delta_pct} positiveGood />
+            <Delta label="Cost" value={data.cost_delta_pct} />
+            <Delta label="Latency" value={data.latency_delta_pct} />
           </div>
         </div>
 
-        {/* Reason */}
-        <div className="relative pt-6 border-t border-gray-800/80">
-          <div className="absolute -top-3 left-4 px-2 bg-[#0f172a] flex items-center gap-1.5">
-             <Quote className="w-3 h-3 text-blue-500" />
-             <span className="text-[10px] font-bold uppercase text-gray-400 tracking-widest">Decision Rationale</span>
-          </div>
-          <p className="text-sm leading-relaxed text-gray-300 font-medium italic pl-4 border-l-2 border-blue-600/30">
+        <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Rationale</p>
+          <p className="mt-3 text-lg leading-relaxed text-slate-100 font-semibold italic">
             "{data.reason}"
           </p>
+
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Policy Summary</p>
+            <p className="mt-2 text-sm text-slate-300">{data.policy_reason}</p>
+          </div>
         </div>
 
-        {/* Action Button */}
-        <div className="flex justify-end pt-2">
-           <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 transition-all rounded-lg text-xs font-bold uppercase tracking-widest text-white shadow-xl shadow-blue-900/40 group/btn">
-              Acknowledge & Apply
-              <TrendingUp className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-           </button>
-        </div>
+        {warnings.length > 0 && (
+          <div className="rounded-2xl border border-amber-400/20 bg-amber-400/[0.06] px-4 py-4 space-y-2">
+            {warnings.map((warning) => (
+              <div key={warning} className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-100">{warning}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   )
