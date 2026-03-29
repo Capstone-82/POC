@@ -1,0 +1,549 @@
+prompt,use_case,prompt_complexity,clarity
+"A 500-page book has words distributed across pages such that the first half averages 280 words per page and the second half averages 320 words per page. Estimate the total word count. If a reader reads at 250 words per minute for 45 minutes per day, how many days will it take to finish the book? Show each step and flag any assumptions.",reasoning,mid,CLEAR
+"A bag contains 5 red, 4 blue, and 3 green balls. Two balls are drawn without replacement. What is the probability that both balls are the same colour? Show the calculation for each colour and sum the probabilities correctly.",reasoning,mid,CLEAR
+A bag contains only red and blue balls. The ratio of red to blue is 3:5. There are 24 red balls. How many blue balls are there and what is the total number of balls? Explain the ratio reasoning.,reasoning,low,CLEAR
+"A ball is dropped from 80 metres. Each time it bounces, it reaches half the height of the previous bounce. What is the total height the ball travels after 4 bounces including the initial drop? Add up the distances step by step.",reasoning,low,CLEAR
+A bookshelf has 5 shelves. Each shelf holds 24 books. Currently 87 books are on the shelf. How many more books can fit? Is there enough space for 40 more books? Reason through both questions.,reasoning,low,CLEAR
+"A box contains 6 white and 4 black socks. In a dark room, what is the minimum number of socks you must take to guarantee at least one matching pair? Now answer the same for guaranteeing one pair of each colour. Use worst-case logical reasoning in both cases.",reasoning,mid,CLEAR
+"A box has 3 red, 4 green, and 5 blue pens. You draw pens one at a time without replacement until you get a red pen. What is the probability that you draw exactly 3 pens before getting the first red pen? Show the sequential probability reasoning and multiply correctly.",reasoning,mid,CLEAR
+A bus can seat 45 passengers. A school has 312 students going on a trip. How many buses are needed? Explain why rounding rules matter differently here than in a standard calculation.,reasoning,low,CLEAR
+"A bus travels between two cities. Going: 3 hours at 80 km/h. Return: same distance at 60 km/h. What is the average speed for the entire round trip? Explain why you cannot simply average 80 and 60, and show the harmonic mean reasoning.",reasoning,mid,CLEAR
+"A car depreciates by 15% each year. If it is worth $20,000 today, what will it be worth in 2 years? Show the compound depreciation calculation and explain why you cannot simply subtract 30%.",reasoning,low,CLEAR
+"A car loan of $18,000 is taken at 7% annual interest over 4 years using simple interest. What is the total amount repaid? Now if compound interest is used instead at the same rate, what is the total repaid? Show both calculations and explain the difference in outcome.",reasoning,mid,CLEAR
+"A car rental company charges $40 per day plus $0.15 per km. A competitor charges $25 per day plus $0.22 per km. For what number of kilometres per day are the two companies equal in cost? For a 3-day trip, at what daily distance does switching companies become beneficial? Show the algebraic reasoning.",reasoning,mid,CLEAR
+"A car travels 150 km in 2.5 hours. What is the average speed in km/h? If it continues at that speed, how long will it take to travel another 90 km? Show your reasoning.",reasoning,low,CLEAR
+"A chemical engineer is designing a reactor for a first-order irreversible reaction A→B. The rate constant k=0.35 min⁻¹. Feed concentration CA0=2.0 mol/L. Target conversion X=0.92. (1) Calculate the required volume for a CSTR (continuous stirred tank reactor). (2) Calculate the required volume for a PFR (plug flow reactor). (3) Compare the two volumes and explain why a PFR is more efficient for this reaction order. (4) If two equal-volume CSTRs are placed in series, what conversion is achieved? Volumetric flow rate = 5 L/min.",reasoning,high,CLEAR
+"A city's population grows at 3% per year. Currently 850,000 people. A neighbouring city's population shrinks at 1.5% per year from 1,100,000. In how many years will the first city's population exceed the second city's? Use year-by-year estimation or logarithmic reasoning, and explain your method.",reasoning,mid,CLEAR
+"A civil engineer is designing a retaining wall to hold back a soil mass. Soil properties: unit weight γ=18 kN/m³, angle of internal friction φ=30°, cohesion c=0. Wall height H=5m. (1) Calculate the active earth pressure coefficient Ka using Rankine's theory. (2) Compute the total active thrust per unit length and its point of application. (3) Check the factor of safety against sliding assuming the base friction angle δ=25° and the wall self-weight is 120 kN/m. (4) Check the factor of safety against overturning about the toe. Show all moment arms.",reasoning,high,CLEAR
+A clock shows 3:15. What is the angle between the hour hand and the minute hand? Show your reasoning about how clock hands move over time.,reasoning,low,CLEAR
+"A company has three departments: Sales, Engineering, and Operations. Sales has 40 employees and generates $2.4M revenue. Engineering has 25 employees and generates $1.8M revenue. Operations has 35 employees and generates $0.9M revenue. Calculate revenue per employee for each department. Then determine which department should receive priority budget if the goal is to maximise revenue per additional hire. Show your full reasoning including any assumptions you make.",reasoning,mid,CLEAR
+"A company made a profit of $45,000 last year. This year profit increased by 20%. Next year they expect a 10% decrease from this year's profit. What is the expected profit for next year? Show all steps.",reasoning,low,CLEAR
+"A compiler engineer is implementing a recursive descent parser. The grammar is: E → T (('+' | '-') T)*, T → F (('*' | '/') F)*, F → '(' E ')' | NUMBER. (1) Write the parse functions for E, T, and F in pseudocode handling left associativity correctly. (2) Trace the parse tree for the expression: 3 + 4 * (2 - 1). (3) Explain how operator precedence is encoded in the grammar structure itself. (4) Describe one ambiguity that would arise if E were defined as E → E '+' E instead.",reasoning,high,CLEAR
+"A cone has a radius of 6cm and a height of 8cm. A sphere has the same volume as this cone. What is the radius of the sphere? Show the volume formulae for both, equate them, and solve for the sphere's radius.",reasoning,mid,CLEAR
+A control systems engineer is analysing a closed-loop feedback system with open-loop transfer function G(s) = 10 / [s(s+2)(s+5)]. (1) Find the poles of the open-loop system. (2) Apply the Routh-Hurwitz criterion to determine the range of gain K for which the closed-loop system is stable. (3) Sketch the approximate root locus showing departure from poles and arrival at zeros. (4) Determine the gain margin and explain its physical meaning for this system.,reasoning,high,CLEAR
+"A corporate strategist is applying Porter's Five Forces and a VRIO framework simultaneously to a mid-sized cloud security SaaS company with $45M ARR, 89% gross margins, high customer switching costs due to deep API integrations, and a patent portfolio of 14 active patents. (1) Score each of Porter's Five Forces as low/medium/high with a 3-sentence justification for each. (2) Apply the VRIO framework to 4 company resources and classify each as competitive parity, temporary advantage, or sustained advantage. (3) Synthesise a strategic position statement and identify the single highest-priority threat.",reasoning,high,CLEAR
+"A country is deciding whether to adopt a four-day working week nationally. Reason through the economic and social implications from multiple angles — productivity, GDP, employment, wellbeing, and business competitiveness — and arrive at a structured conclusion. State where evidence is weak or contested.",reasoning,high,CLEAR
+"A cryptanalyst is analysing a ciphertext encrypted with a Vigenère cipher. The ciphertext is 400 characters long. (1) Describe the Index of Coincidence method step by step to determine the likely key length. (2) Once key length L is determined, explain how frequency analysis on every L-th character recovers each key byte. (3) If the key length is found to be 4, describe the chi-squared statistic calculation used to match each shifted alphabet to English letter frequencies. (4) Explain why the Vigenère cipher was considered unbreakable for centuries and what mathematical insight broke it.",reasoning,high,CLEAR
+"A cryptography student is implementing RSA encryption manually. Choose two primes p=61 and q=53. (1) Compute n and φ(n). (2) Choose e=17 and verify it is valid. (3) Compute the private key d using the extended Euclidean algorithm, showing every step of the algorithm. (4) Encrypt the message M=65 and then decrypt the ciphertext to verify the result. (5) Explain what property of prime factorisation makes RSA secure and what class of algorithm would break it.",reasoning,high,CLEAR
+"A cyclist and a runner start from the same point at the same time and travel in the same direction. The cyclist travels at 24 km/h and the runner at 8 km/h. After 45 minutes, the cyclist turns around and heads back toward the runner. At what point in time and distance from the start do they meet? Show your reasoning with equations.",reasoning,mid,CLEAR
+"A data scientist is building a binary classification model. The confusion matrix on the test set is: TP=430, FP=85, FN=70, TN=915. (1) Calculate precision, recall, F1 score, accuracy, and AUC-ROC interpretation guidance. (2) The business cost of a false negative is 5× that of a false positive. Recommend whether the threshold should be adjusted up or down and explain the precision-recall trade-off. (3) Describe two techniques to address class imbalance if the positive class were only 5% of the data.",reasoning,high,CLEAR
+"A dataset contains the values: 12, 15, 14, 10, 18, 22, 13, 16, 11, 19. Calculate the mean, median, mode, and range. Then identify which measure of central tendency best represents this dataset and justify your reasoning based on the distribution.",reasoning,mid,CLEAR
+"A factory has two machines. Machine A produces 300 units per day with 2% defect rate. Machine B produces 200 units per day with 3.5% defect rate. All production is pooled. If one unit is selected at random and found defective, what is the probability it came from Machine A? Apply Bayes' theorem and show each step.",reasoning,mid,CLEAR
+"A factory produces items at a rate of 200 per hour but 4% are defective. A quality check catches 85% of defective items before shipping. In an 8-hour shift, how many defective items are shipped? Now if the quality check rate improves to 95%, how many defective items are prevented per week assuming 5 working days? Show all stages of reasoning.",reasoning,mid,CLEAR
+"A farmer has chickens and cows. There are 20 heads and 56 legs in total. How many chickens and how many cows are there? Set up and solve the simultaneous equations, explaining each step.",reasoning,low,CLEAR
+"A fast-growing tech company is deciding whether to expand into Southeast Asia or Latin America first. Reason through the market entry decision using whatever strategic framework fits best. Make your criteria explicit, apply them to both regions, and give a recommendation with the key risk that could invalidate it.",reasoning,high,CLEAR
+"A financial analyst must value a company using three methods: (1) DCF — project 5 years of free cash flows starting at $4.2M growing at 8% annually, discount at WACC of 11%, and calculate the terminal value using the Gordon Growth Model with a perpetual growth rate of 3%. (2) EV/EBITDA comparable — industry median multiple is 9x, company EBITDA is $3.8M. (3) Precedent transactions — average acquisition premium in the sector is 28% over EV/EBITDA value. Synthesise the three valuations and recommend a fair value range. Show all calculations and flag all assumptions.",reasoning,high,CLEAR
+"A game theorist is analysing a 3-player simultaneous game. Players A, B, C each choose either Cooperate (C) or Defect (D). Payoffs are: if all cooperate: (4,4,4). If one defects while two cooperate: defector gets 6, cooperators get 1 each. If two defect while one cooperates: defectors get 3 each, cooperator gets 0. If all defect: (2,2,2). (1) Find all pure strategy Nash equilibria. (2) Explain whether this is a prisoner's dilemma structure. (3) Discuss what mechanism could sustain the cooperative outcome and why repeated interaction changes the analysis.",reasoning,high,CLEAR
+"A government wants to reduce carbon emissions by 40% in 10 years. Reason through which combination of policy interventions would most efficiently achieve this. Consider economic, behavioural, and structural factors. Flag where your reasoning depends on assumptions that could change the conclusion.",reasoning,high,CLEAR
+"A hedge fund manager is evaluating two portfolios over a 5-year period. Portfolio X: annual returns of 12%, -8%, 15%, 6%, 11%. Portfolio Y: annual returns of 7%, 5%, 8%, 6%, 9%. (1) Calculate the arithmetic mean return, geometric mean return, and standard deviation of returns for each portfolio. (2) Calculate the Sharpe ratio for each assuming a risk-free rate of 3%. (3) Explain which portfolio a risk-averse investor should prefer and why the geometric mean is more informative than the arithmetic mean for multi-period returns.",reasoning,high,CLEAR
+"A hospital system is experiencing increasing patient wait times in the emergency department. The causes are unclear but could involve staffing, patient flow, or demand patterns. Reason through the most likely drivers systematically and propose a prioritised investigation approach, flagging where you need more data.",reasoning,high,PARTIAL
+"A hotel offers two pricing models: Model A charges $120 per night with a 15% discount for stays over 5 nights. Model B charges $95 per night with no discounts but includes breakfast worth $18 per person per night. For a solo traveller staying 7 nights, which model is cheaper? Show the full cost comparison.",reasoning,mid,CLEAR
+"A jar contains 4 red marbles, 6 blue marbles, and 2 green marbles. If you pick one marble at random, what is the probability of picking a blue marble? What is the probability of not picking a red marble? Show your working.",reasoning,low,CLEAR
+A ladder 10 metres long leans against a wall. The base of the ladder is 6 metres from the wall. How high up the wall does the ladder reach? Identify the theorem used and show the calculation.,reasoning,low,CLEAR
+A light blinks every 4 seconds and another blinks every 6 seconds. They blink together at time zero. After how many seconds do they blink together again? Explain the concept of LCM in your reasoning.,reasoning,low,CLEAR
+"A logistics company operates 3 warehouses (W1, W2, W3) serving 5 cities. Weekly demand (units): City A=400, B=250, C=310, D=180, E=270. Warehouse capacities: W1=600, W2=500, W3=400. Transport cost per unit ($/unit): W1→A=2, W1→B=3, W1→C=4, W1→D=5, W1→E=6; W2→A=4, W2→B=2, W2→C=3, W2→D=3, W2→E=4; W3→A=6, W3→B=5, W3→C=2, W3→D=2, W3→E=3. Formulate this as a linear programming problem, define the objective function and all constraints explicitly, then solve using the northwest corner method as an initial feasible solution. Compute the total transport cost of your initial solution and identify which routes are most likely improvable using the MODI method. Show every step.",reasoning,high,CLEAR
+"A machine learning engineer is implementing backpropagation from scratch for a 2-layer neural network with: input layer 3 neurons, hidden layer 4 neurons with ReLU activation, output layer 1 neuron with sigmoid activation, binary cross-entropy loss. (1) Write out the forward pass equations symbolically. (2) Derive the gradient of the loss with respect to the output layer weights using the chain rule. (3) Derive the gradient with respect to the hidden layer weights including the ReLU derivative. (4) Explain the vanishing gradient problem and why ReLU partially addresses it.",reasoning,high,CLEAR
+A machine learning researcher is comparing L1 (Lasso) and L2 (Ridge) regularisation on a high-dimensional linear regression problem with 500 features and 200 training samples. (1) Write the optimisation objective for both. (2) Explain geometrically why L1 produces sparse solutions and L2 does not. (3) Derive the closed-form solution for Ridge regression. (4) Describe two scenarios — one where L1 is preferred and one where L2 is preferred — with reasoning. (5) Explain what elastic net combines from both and when it is preferred over either alone.,reasoning,high,CLEAR
+"A macroeconomist is modelling the impact of a fiscal stimulus of $200 billion injected into an economy where the marginal propensity to consume (MPC) is 0.75. (1) Calculate the fiscal multiplier and the total change in GDP. (2) Now introduce a tax rate of 20% and a marginal propensity to import of 0.1. Recalculate the multiplier. (3) If the money supply is held constant, explain the crowding-out effect using the IS-LM framework. (4) Compare the effectiveness of fiscal vs monetary policy in a liquidity trap scenario, using the IS-LM diagram logic.",reasoning,high,CLEAR
+"A map has a scale of 1:50,000. Two cities are 8 cm apart on the map. What is the actual distance between them in kilometres? Show the unit conversion reasoning.",reasoning,low,CLEAR
+"A mechanical engineer is designing a flywheel for energy storage. The flywheel is a solid disk of mass 80 kg and radius 0.6 m. It spins at 1,500 RPM. (1) Calculate the moment of inertia. (2) Calculate the angular velocity in rad/s. (3) Calculate the rotational kinetic energy stored in joules. (4) If the flywheel decelerates uniformly to rest in 45 seconds, calculate the angular deceleration and the braking torque required. Show all formulae and unit conversions.",reasoning,high,CLEAR
+A mixture contains 30 litres of milk and water in a 3:2 ratio. How many litres of milk must be added so that the new ratio becomes 2:1? Show the before-and-after ratio reasoning step by step.,reasoning,mid,CLEAR
+"A natural language processing engineer is designing a transformer-based text classification system for legal documents. The system must classify 8 document types with imbalanced class distribution (smallest class: 1.2%, largest: 34%). (1) Describe the full fine-tuning pipeline from pre-trained BERT including tokenisation, special tokens, and classification head. (2) Propose and justify a loss function that handles class imbalance. (3) Define 4 evaluation metrics appropriate for this imbalanced multi-class problem and explain what each measures. (4) Describe 3 strategies to prevent overfitting given only 2,400 labelled training examples.",reasoning,high,CLEAR
+"A network engineer needs to find the shortest path in a weighted directed graph with 7 nodes (A–G) and the following edges: A→B=4, A→C=2, B→D=5, B→C=1, C→B=1, C→D=8, C→E=10, D→E=2, D→F=6, E→G=3, F→G=1. (1) Apply Dijkstra's algorithm from node A, showing the distance table updated at every step. (2) State the shortest path to every node and the path to G explicitly. (3) Identify which edge, if its weight were doubled, would most increase the shortest path from A to G.",reasoning,high,CLEAR
+A number doubled and then increased by 7 equals 31. A second number tripled and decreased by 4 equals 20. Which number is larger and by how much? Solve and compare.,reasoning,low,CLEAR
+"A number is divided by 4, then 12 is added, and the result is 20. What is the original number? Work backwards step by step, explaining each inverse operation.",reasoning,low,CLEAR
+A number when divided by 6 gives a remainder of 4. The same number when divided by 8 gives a remainder of 2. What is the smallest positive integer satisfying both conditions? Show the modular arithmetic reasoning step by step.,reasoning,mid,CLEAR
+"A painter can paint a wall in 3 hours. A second painter can paint the same wall in 5 hours. If they work together but the second painter takes a 1-hour break, how long does the whole job take? Show your combined rate reasoning with the break factored in.",reasoning,low,CLEAR
+"A person walks north for 3 km, then east for 4 km. How far are they from their starting point in a straight line? Which geometric principle applies and why?",reasoning,low,CLEAR
+"A pharmaceutical company is running a double-blind clinical trial for a new drug. The trial has 3 arms: Drug A, Drug B, and Placebo. After 12 weeks, success rates are: Drug A 68% (n=120), Drug B 54% (n=115), Placebo 41% (n=118). (1) Conduct a chi-square test of independence to determine whether treatment outcome is independent of group assignment. Use α=0.05. Show the contingency table, expected frequencies, chi-square statistic, degrees of freedom, and your conclusion. (2) If significance is found, perform pairwise comparisons with Bonferroni correction and state which pairs differ significantly.",reasoning,high,CLEAR
+"A phone costs $800. It is on sale for 25% off. After the discount, there is a 10% tax added to the sale price. What is the final price? Explain each operation in order.",reasoning,low,CLEAR
+A population of bacteria doubles every 3 hours. At 9:00 AM there are 500 bacteria. At what time will the population first exceed 1 million? Show the exponential reasoning step by step and explain why linear estimation would give a wrong answer here.,reasoning,mid,CLEAR
+"A portfolio manager must construct a minimum-variance portfolio from 3 assets. Expected returns: μ₁=8%, μ₂=12%, μ₃=10%. Standard deviations: σ₁=15%, σ₂=22%, σ₃=18%. Correlation matrix: ρ₁₂=0.3, ρ₁₃=0.5, ρ₂₃=0.1. (1) Construct the covariance matrix. (2) Write the Lagrangian for the minimum variance portfolio with weights summing to 1. (3) Solve the system of equations for the optimal weights. (4) Calculate the portfolio variance and standard deviation. (5) Explain how adding a fourth uncorrelated asset would change the efficient frontier.",reasoning,high,CLEAR
+"A principal of $5,000 is invested in two accounts. Account A earns 5% simple interest and Account B earns 4% compound interest annually. After 5 years, which account has more money and by how much? Show both full calculations and explain why the comparison shifts over longer time horizons.",reasoning,mid,CLEAR
+"A project has three phases. Phase 1 takes 4 weeks with 3 workers. Phase 2 takes 6 weeks with 5 workers. Phase 3 takes 3 weeks with 4 workers. Each worker costs $800 per week. What is the total labour cost? If the budget is $90,000, is the project affordable, and if not, where could workers be reduced first without affecting total duration? Reason through the trade-offs.",reasoning,mid,PARTIAL
+"A public health epidemiologist is modelling an infectious disease using the SIR model. Initial population N=100,000. S₀=99,900, I₀=100, R₀=0. Transmission rate β=0.3 per day, recovery rate γ=0.1 per day. (1) Calculate the basic reproduction number R₀. (2) Using Euler's method with Δt=1 day, simulate the first 5 days showing S, I, R values each day. (3) Predict the peak infected population and the day it occurs qualitatively. (4) Calculate the herd immunity threshold and explain its policy implication.",reasoning,high,CLEAR
+"A quant analyst is pricing a European call option using the Black-Scholes model. Parameters: S=150, K=145, T=0.5 years, r=0.05, σ=0.25. (1) Calculate d₁ and d₂. (2) Look up or approximate N(d₁) and N(d₂) using the standard normal distribution. (3) Calculate the call option price. (4) Calculate the option's delta and explain what it means for hedging. (5) Explain how the price changes if volatility increases to 0.35 and what that implies about vega.",reasoning,high,CLEAR
+"A quantum computing researcher is explaining Shor's algorithm to a technical audience. (1) Explain the integer factorisation problem and its classical hardness. (2) Describe the quantum period-finding subroutine and how the Quantum Fourier Transform (QFT) is applied. (3) Explain how the period r of f(x) = aˣ mod N is used to find a non-trivial factor of N. (4) Walk through the algorithm for N=15, a=7, showing the steps where classical and quantum parts are used. (5) State the implications for RSA encryption and what post-quantum cryptography approaches address this.",reasoning,high,CLEAR
+"A queue has 15 people. Every 5 minutes, 3 people are served and 2 new people join. How many people are in the queue after 20 minutes? Track the queue state at each 5-minute interval.",reasoning,low,CLEAR
+A recipe calls for 2 cups of flour to make 12 cookies. How many cups of flour are needed to make 30 cookies? Show the proportion calculation step by step.,reasoning,low,CLEAR
+"A rectangle has a length that is 3 times its width. If the perimeter of the rectangle is 48 cm, what are the dimensions of the rectangle? Walk through your reasoning clearly.",reasoning,low,CLEAR
+A rectangular box has dimensions 8cm by 5cm by 6cm. A second box has all dimensions scaled by a factor of 1.5. How do the surface areas compare? How do the volumes compare? Explain why volume scales by a cube factor while area scales by a square factor.,reasoning,mid,CLEAR
+"A rectangular garden is 12m by 8m. A path 1.5m wide runs around the outside of the garden. What is the area of the path alone? If paving costs $35 per square metre, what is the total cost? Now if the path width doubles, by what factor does the path area increase? Reason through each part.",reasoning,mid,CLEAR
+"A right-angled triangle has a hypotenuse of 17cm. One leg is 3cm longer than the other. Find both leg lengths. Set up the quadratic using the Pythagorean theorem and solve it, explaining each step including why one solution is rejected.",reasoning,mid,CLEAR
+"A robotics engineer is programming a path-planning algorithm for a robot in a 2D grid with obstacles. The grid is 10×10. The robot starts at (0,0) and must reach (9,9). Obstacles occupy cells: (2,3), (3,3), (4,3), (5,5), (5,6), (7,2), (7,3). (1) Apply the A* algorithm using Manhattan distance as the heuristic. Trace the open and closed sets for the first 6 iterations. (2) Compare A* with Dijkstra's algorithm for this problem — when does each perform better? (3) Explain what makes the Manhattan distance heuristic admissible in this context.",reasoning,high,CLEAR
+"A sale reduces a jacket from $120 to $84. What percentage discount is this? If another jacket is discounted by 35% from $160, which jacket has the lower final price? Reason through both.",reasoning,low,CLEAR
+"A salesperson earns a base salary of $2,500 per month plus 3% commission on sales up to $50,000 and 5% on any sales above $50,000. In a month where they sell $74,000, what is their total earnings? Compare this to a flat 4% commission on all sales and determine which structure benefits the salesperson more at this sales level.",reasoning,mid,CLEAR
+"A school records test scores for 3 classes. Class A: mean 72, 30 students. Class B: mean 78, 25 students. Class C: mean 81, 20 students. What is the combined weighted mean score across all three classes? Explain why a simple average of the three means would give the wrong answer.",reasoning,mid,CLEAR
+"A school running track is an oval with two straight sections of 80m each and two semicircular ends. The diameter of each semicircular end is 50m. What is the total length of one lap? If a student runs 10 laps in 18 minutes, what is their average speed in km/h? Show all geometry and unit conversion steps.",reasoning,mid,CLEAR
+A security researcher is analysing a buffer overflow vulnerability in a C program. The vulnerable function copies user input into a fixed-size stack buffer without bounds checking. (1) Explain step by step how a stack-based buffer overflow can overwrite the return address. (2) Describe how a return-to-libc attack works as a non-executable stack bypass. (3) Explain Address Space Layout Randomisation (ASLR) and stack canaries as mitigations and their limitations. (4) Write pseudocode for a safe version of the vulnerable function using bounded copy and explain each defensive measure.,reasoning,high,CLEAR
+"A shop buys goods for $40 and sells them for $56. What is the percentage profit? If the shop wants a 40% profit margin, what should the selling price be? Explain your reasoning for both.",reasoning,low,CLEAR
+"A signal processing engineer is analysing a discrete-time signal x[n] = cos(0.2πn) + 0.5·sin(0.6πn). (1) Identify the frequencies of each component in normalised form and in Hz if the sampling rate is 1000 Hz. (2) Determine the Nyquist frequency and confirm no aliasing occurs. (3) Design a simple FIR low-pass filter that would pass the first component and attenuate the second. Specify the cutoff frequency and explain the window method conceptually. (4) Show what the DFT magnitude spectrum would look like qualitatively, identifying peak locations.",reasoning,high,CLEAR
+"A software architect is designing a distributed key-value store that must satisfy the following requirements: (1) handle 100,000 reads per second and 20,000 writes per second, (2) guarantee 99.99% uptime, (3) support horizontal scaling, (4) tolerate up to 2 simultaneous node failures, (5) maintain eventual consistency with read-your-writes guarantee for individual sessions. Design the full architecture: data partitioning strategy, replication model, consistency mechanism, failure detection, and a write path trace end-to-end. Explain every design decision and its trade-off.",reasoning,high,CLEAR
+"A startup is growing fast but the unit economics seem off. Figure out what's going wrong and model a path to profitability. The company has a SaaS product, around 3,000 customers, and is spending heavily on paid acquisition. Use whatever financial reasoning frameworks are appropriate and show your working.",reasoning,high,CLEAR
+"A statistician is analysing a dataset to test whether the mean of a population differs from a hypothesised value. Sample: n=36, x̄=74.2, s=9.6, hypothesised μ₀=71. (1) Conduct a two-tailed t-test at α=0.05. State H₀ and H₁, compute the t-statistic, find the critical value, and state your conclusion. (2) Calculate the 95% confidence interval for the true mean. (3) Calculate the p-value and explain what it means. (4) Compute the required sample size to detect a true difference of 3 units with 80% power at α=0.05.",reasoning,high,CLEAR
+A store has a loyalty programme: every 5th purchase gets 20% off. A customer makes 13 purchases at an average price of $45. How much did the customer save in total through the loyalty discount? How much would they have saved if the discount applied every 4th purchase instead? Compare and explain.,reasoning,mid,CLEAR
+"A store sells apples for $1.20 each and oranges for $0.80 each. If Sarah buys 5 apples and 3 oranges, how much does she spend in total? Now if she has $10, how much change does she receive? Explain each step.",reasoning,low,CLEAR
+A structural engineer is analysing a simply supported beam of length 8 metres carrying a uniformly distributed load of 12 kN/m and a point load of 40 kN at 3 metres from the left support. (1) Calculate the reaction forces at both supports using equilibrium equations. (2) Draw the shear force diagram by computing shear values at key sections. (3) Draw the bending moment diagram and identify the location and magnitude of maximum bending moment. Show all free body diagram reasoning and sign conventions.,reasoning,high,CLEAR
+"A student must pass at least 4 of 6 subjects to advance. Probability of passing each subject is: 0.9, 0.85, 0.7, 0.75, 0.8, 0.65. Assuming independence, calculate the probability of passing exactly 4 subjects. Explain why exact calculation here is complex and outline the combinatorial approach needed.",reasoning,mid,CLEAR
+"A student scores 72, 85, 91, 68, and 79 on five tests. What is the average score? What score does the student need on the sixth test to bring the average to 80? Show step-by-step reasoning.",reasoning,low,CLEAR
+"A supply chain analyst is solving the following assignment problem using the Hungarian algorithm. Four workers (W1–W4) are assigned to four tasks (T1–T4). Cost matrix: W1=[9,2,7,8], W2=[6,4,3,7], W3=[5,8,1,8], W4=[7,6,9,4]. (1) Apply row and column reduction. (2) Cover zeros with minimum lines. (3) Iterate until an optimal assignment is found. (4) State the optimal assignment and total minimum cost. Show every tableau step.",reasoning,high,CLEAR
+"A supply chain manager models demand using a normal distribution with μ=500 units/week and σ=60 units/week. Lead time is 2 weeks (constant). The holding cost is $2/unit/week and the stockout cost is $25/unit. (1) Calculate the reorder point for a 95% service level. (2) Calculate the safety stock. (3) Calculate the economic order quantity (EOQ) if ordering cost is $150 per order and annual demand is 26,000 units. (4) Determine the reorder point when lead time itself is also variable with mean 2 weeks and standard deviation 0.5 weeks.",reasoning,high,CLEAR
+"A survey of 200 people finds that 120 own a car, 90 own a bicycle, and 40 own both. Using set logic, find how many own only a car, only a bicycle, only both, and neither. Then calculate what percentage of car owners also own a bicycle. Show the Venn diagram reasoning in written form.",reasoning,mid,CLEAR
+A swimming pool is being filled by two pipes. Pipe A fills the pool in 6 hours. Pipe B fills the pool in 4 hours. How long does it take to fill the pool if both pipes are open? Show the rate-based reasoning.,reasoning,low,CLEAR
+A tank holds 500 litres. It has a leak that drains 5 litres per hour. A pipe fills it at 12 litres per hour. The tank currently has 200 litres. How long until the tank is full? Show the net rate reasoning.,reasoning,low,CLEAR
+"A tank is 3/5 full. After removing 45 litres it is 2/5 full. What is the full capacity of the tank? If water is now added at 9 litres per minute and removed at 4 litres per minute simultaneously, how long until the tank overflows from its current 2/5 level? Show both parts.",reasoning,mid,CLEAR
+"A tank is 40% full of water. After adding 120 litres, it is 70% full. What is the total capacity of the tank? Show your algebraic reasoning step by step.",reasoning,low,CLEAR
+"A thermodynamics engineer analyses a Carnot cycle. The working fluid operates between a high-temperature reservoir at 600K and a low-temperature reservoir at 300K. The heat absorbed from the hot reservoir is 800 kJ. (1) Calculate the maximum theoretical efficiency. (2) Calculate the work output and heat rejected. (3) If the actual cycle efficiency is 38%, calculate the irreversibility (exergy destruction) per cycle. (4) Explain why no real engine can exceed Carnot efficiency and connect your answer to the second law of thermodynamics.",reasoning,high,CLEAR
+"A train 150 metres long travels at 90 km/h. How long does it take to completely pass through a tunnel that is 600 metres long? Now if a second train 200 metres long travels in the opposite direction at 70 km/h, how long do the trains take to completely pass each other? Show the distance and relative speed reasoning for both.",reasoning,mid,CLEAR
+"A virus spreads such that each infected person infects 2 others every day. Starting from 1 infected person, after how many days will over 10,000 people be infected? Show the geometric progression and compare it to a scenario where each person infects 3 others — how many fewer days does the faster spread take?",reasoning,mid,CLEAR
+A worker completes 1/3 of a project on day one and 1/4 of the remaining project on day two. What fraction of the total project is left after day two? Work through the fractions step by step.,reasoning,low,CLEAR
+Add one to integer array digits,code-generation,low,CLEAR
+Add two binary strings,code-generation,low,CLEAR
+"An economist is modelling consumer demand. The demand function is Qd = 800 − 4P and the supply function is Qs = 2P − 100. (1) Find the equilibrium price and quantity algebraically. (2) Calculate price elasticity of demand at the equilibrium point. (3) The government imposes a specific tax of $15 per unit on producers. Find the new equilibrium, the price paid by consumers, the price received by producers, total tax revenue, and the deadweight loss. Draw and annotate each step in your reasoning.",reasoning,high,CLEAR
+"An employee's salary is first decreased by 20% due to budget cuts, then later increased by 25% as a reward. What is the net percentage change from the original salary? Most people guess this is a 5% gain — show precisely why they are wrong and what the correct answer is.",reasoning,mid,CLEAR
+"An environmental engineer is designing a water treatment plant. Influent flow rate: 15,000 m³/day. BOD influent: 250 mg/L, target effluent BOD: 20 mg/L. (1) Calculate the BOD removal efficiency required. (2) Size a completely mixed activated sludge reactor using the following parameters: μmax=0.3 day⁻¹, Ks=60 mg/L, Y=0.5, kd=0.05 day⁻¹. Calculate the minimum SRT and the design SRT at a safety factor of 2.5. (3) Calculate the reactor volume. (4) Calculate the daily sludge production in kg VSS/day. Show all biological kinetics equations.",reasoning,high,CLEAR
+"An escalator moves upward at a rate of 1 step per second. A person walking up the escalator takes 2 steps per second relative to the escalator. The escalator has 60 steps. How long does it take the person to reach the top? Now if the escalator breaks and stops, how long does it take? Compare and explain.",reasoning,mid,CLEAR
+An investor wants to understand whether a mid-size logistics company is a good acquisition target. There's decent revenue but margins are thin and the market is getting more competitive. Apply whatever valuation and strategic reasoning you think is appropriate and highlight the 3 most important uncertainties.,reasoning,high,PARTIAL
+"An item costs $240 wholesale. A retailer marks it up by 40%, then offers a 15% promotional discount on the marked-up price. A customer also has a loyalty voucher giving a further $10 off. What is the final price? What is the effective percentage change from the original wholesale price? Show every step.",reasoning,mid,CLEAR
+An office uses 500 sheets of paper per week. A ream contains 500 sheets and costs $6. How much does the office spend on paper in a year? Show your unit conversion and multiplication steps.,reasoning,low,CLEAR
+"An operations researcher is applying the simplex method to the following LP problem. Maximise Z = 5x₁ + 4x₂ subject to: 6x₁ + 4x₂ ≤ 24, x₁ + 2x₂ ≤ 6, x₁ ≥ 0, x₂ ≥ 0. (1) Convert to standard form with slack variables. (2) Set up the initial simplex tableau. (3) Perform all pivot operations showing entering and leaving variables at each iteration. (4) State the optimal solution and value of Z. (5) Interpret the shadow prices of the binding constraints.",reasoning,high,CLEAR
+Analyse the situation and tell me what to do next.,reasoning,high,UNCLEAR
+"Analyse the trade-offs in this system design. We have high read volume, some writes, and need it to stay up. We've been debating SQL vs NoSQL and monolith vs microservices. Walk through the reasoning and give a recommendation with the key assumptions stated.",reasoning,high,CLEAR
+Apply flood fill algorithm on grid,text-generation,low,CLEAR
+"Arrange the following fractions in ascending order: 3/4, 2/3, 5/8, 7/10. Show the method used to compare them and explain why a common denominator or decimal conversion makes this reliable.",reasoning,low,CLEAR
+Best time to buy and sell stock for maximum profit,code-generation,low,CLEAR
+Build a CI/CD pipeline orchestrator in Python that reads a YAML pipeline config executes stages sequentially or in parallel streams logs handles failures and reports status to a webhook.,code-generation,high,PARTIAL
+Build a class that manages some objects and has methods to add and remove them.,code-generation,mid,PARTIAL
+Build a code execution sandbox in Python that accepts arbitrary Python snippets via an API runs them in a Docker container with CPU and memory limits captures output and errors and returns results within a timeout.,code-generation,high,CLEAR
+Build a dashboard for sales with charts and export support.,text-generation,low,PARTIAL
+Build a feature flag service in Python with a REST API for managing flags support for percentage rollouts and user segment targeting a client SDK that evaluates flags locally from a cached ruleset and an audit log.,code-generation,high,PARTIAL
+Build a function that validates some form of user input.,code-generation,mid,PARTIAL
+Build a job scheduling system in Python similar to cron that parses cron expressions schedules jobs in a thread pool handles missed executions and persists job state to survive restarts.,code-generation,high,CLEAR
+Build a load balancer in Python that distributes HTTP requests across multiple backend servers using weighted round-robin performs health checks every N seconds and removes unhealthy backends automatically.,code-generation,high,CLEAR
+Build a rate-limiting middleware system in Python that supports per-user and per-endpoint limits uses a sliding window algorithm stored in Redis and returns appropriate 429 responses with retry-after headers.,code-generation,high,PARTIAL
+Build a reactive state management library in Python inspired by Redux with a central store pure reducer functions middleware support for async actions and a subscription mechanism for state change notifications.,code-generation,high,CLEAR
+Build a real-time anomaly detection pipeline in Python that ingests a stream of numeric metrics uses a sliding window z-score algorithm to flag anomalies and sends alerts via a webhook when thresholds are breached.,code-generation,high,CLEAR
+Build a real-time collaborative document editing backend in Node.js using WebSockets supporting multiple simultaneous users conflict resolution using operational transforms and persistent storage in MongoDB.,code-generation,high,CLEAR
+Build a real-time data processing system that ingests some events and does some analysis on them.,code-generation,high,PARTIAL
+Build a real-time fraud detection system in Python that ingests transaction events via Kafka evaluates each transaction against a set of configurable rules and ML model scores and flags suspicious ones with reasons.,code-generation,high,PARTIAL
+Build a real-time leaderboard system using Redis sorted sets supporting score updates rank queries paginated top-N retrieval and a WebSocket server that pushes live rank changes to connected clients.,code-generation,high,CLEAR
+Build a scalable backend system that handles high traffic with some caching and load distribution.,code-generation,high,PARTIAL
+Build a self-healing distributed system in Python where nodes monitor each other via heartbeats elect a leader using the Raft consensus algorithm and automatically rebalance responsibilities when a node joins or leaves.,code-generation,high,PARTIAL
+Build a semantic search system using Python that encodes documents with a sentence transformer model stores embeddings in a vector database and retrieves the top-k most semantically similar documents for a query.,code-generation,high,PARTIAL
+Build a streaming data processing engine in Python that supports a pipeline of operators filter map aggregate join on infinite data streams with configurable window sizes and watermark-based late data handling.,code-generation,high,CLEAR
+Build an API gateway in Python that handles routing to multiple backend microservices request/response transformation authentication via JWT request aggregation for composite endpoints and OpenAPI spec generation.,code-generation,high,PARTIAL
+Build an intelligent system that learns from data and makes some decisions automatically.,code-generation,high,PARTIAL
+Build me something complex that works at scale.,code-generation,high,UNCLEAR
+Build something that processes large datasets efficiently with some pipeline architecture.,code-generation,high,PARTIAL
+Check if a string is a palindrome ignoring non-alphanumeric,code-generation,low,CLEAR
+Check if array contains duplicates,code-generation,low,CLEAR
+Check if binary tree is symmetric,code-generation,low,CLEAR
+Check if linked list is palindrome,code-generation,low,CLEAR
+Check if strings are isomorphic,code-generation,low,CLEAR
+Check if two binary trees are identical,code-generation,low,CLEAR
+Check if two strings are anagrams,text-generation,low,CLEAR
+Compute average of levels in binary tree,code-generation,low,CLEAR
+Compute integer square root using binary search,code-generation,low,CLEAR
+Compute range sum in BST,code-generation,low,CLEAR
+Compute running sum of array,code-generation,low,CLEAR
+Construct ransom note from magazine,code-generation,low,CLEAR
+Count nodes in complete binary tree,code-generation,low,CLEAR
+Count number of islands in grid,text-generation,low,CLEAR
+Count ways to climb stairs with 1 or 2 steps,code-generation,low,CLEAR
+Create a blog-style explanation of digital privacy for beginners with examples,text-generation,mid,CLEAR
+Create a brief message inviting a friend to your birthday party with time and location included,text-generation,low,CLEAR
+Create a caching system for some type of function.,code-generation,mid,PARTIAL
+Create a comprehensive guide describing how to resolve conflicts between stakeholders with opposing priorities using structured negotiation frameworks,text-generation,high,CLEAR
+Create a detailed explanation showing how resource constraints reshape solution strategies in complex systems with examples,text-generation,high,PARTIAL
+Create a detailed guide explaining how relaxing constraints changes feasible solution spaces,text-generation,high,PARTIAL
+Create a detailed report analyzing how optimizing for one metric can degrade overall system performance,text-generation,high,CLEAR
+Create a guide explaining how to manage time effectively in a busy schedule,text-generation,mid,CLEAR
+Create a guide for managing time,text-generation,mid,PARTIAL
+Create a guide on managing conflicts in projects,text-generation,high,PARTIAL
+Create a message about anything,text-generation,low,UNCLEAR
+Create a message about meeting someone,text-generation,low,UNCLEAR
+Create a message about something important,text-generation,low,UNCLEAR
+Create a message explaining rescheduling of a meeting with reasons,text-generation,mid,PARTIAL
+Create a message inviting classmates to a group study session tomorrow evening,text-generation,low,CLEAR
+Create a message inviting colleagues for a small celebration at a specific time,text-generation,low,CLEAR
+Create a message inviting friends to a movie night with time and place mentioned,text-generation,low,CLEAR
+Create a message thanking a team for completing a project,text-generation,mid,CLEAR
+Create a paragraph about a game,text-generation,low,PARTIAL
+Create a paragraph about a trip you enjoyed,text-generation,low,PARTIAL
+Create a paragraph about something,text-generation,low,PARTIAL
+Create a paragraph about something fun you did,text-generation,low,PARTIAL
+Create a paragraph about something you enjoy,text-generation,low,PARTIAL
+Create a paragraph about something you like,text-generation,low,PARTIAL
+Create a paragraph about your favorite activity and what you do in it,text-generation,low,PARTIAL
+Create a platform backend that integrates with third-party services and manages some workflows.,code-generation,high,PARTIAL
+Create a professional email requesting technical support with issue details,text-generation,mid,PARTIAL
+Create a professional invitation message for an event,text-generation,mid,PARTIAL
+Create a report about apps,text-generation,mid,PARTIAL
+Create a report about why app users are reducing,text-generation,mid,PARTIAL
+Create a report comparing strategies,text-generation,mid,PARTIAL
+Create a report explaining how technology improves productivity,text-generation,mid,PARTIAL
+Create a short explanation of why teamwork is important in school projects,text-generation,low,CLEAR
+Create a short message about something,text-generation,low,UNCLEAR
+Create a short note reminding someone about an upcoming meeting tomorrow,text-generation,low,CLEAR
+Create a short note reminding someone to complete a task today,text-generation,low,CLEAR
+Create a short reminder message for a friend about an event tomorrow,text-generation,low,CLEAR
+Create a short thank-you note for someone who helped you complete a task,text-generation,low,CLEAR
+Create a simple note about something,text-generation,low,PARTIAL
+Create a simple note asking for help,text-generation,low,PARTIAL
+Create a simple note asking someone to call you back,text-generation,low,PARTIAL
+Create a simple note for someone,text-generation,low,PARTIAL
+Create a SQL query to find the top 10 highest-selling products in the last 30 days.,text-generation,low,CLEAR
+Create a structured report analyzing how decision-making changes under incomplete information conditions,text-generation,high,CLEAR
+Create a structured report analyzing reasons for declining user engagement in a mobile app,text-generation,mid,CLEAR
+Create a technical article describing how system boundaries influence overall system behavior,text-generation,high,CLEAR
+Create a thank-you message for receiving a gift from a friend,text-generation,low,CLEAR
+Create a thank-you message for receiving help during a difficult situation,text-generation,low,CLEAR
+Create a thank-you note for a teacher who guided you in studies,text-generation,low,CLEAR
+Create an architecture that is good and scalable.,code-generation,high,PARTIAL
+Create an article about internet,text-generation,mid,PARTIAL
+Create an article about privacy online,text-generation,mid,PARTIAL
+Create any message,text-generation,low,UNCLEAR
+Create article about system boundaries,text-generation,high,PARTIAL
+Create explanation,text-generation,high,UNCLEAR
+Create explanation about constraints in systems,text-generation,high,PARTIAL
+Create guide about constraints,text-generation,high,PARTIAL
+Create invitation message,text-generation,mid,PARTIAL
+Create message,text-generation,mid,UNCLEAR
+Create message about event,text-generation,mid,PARTIAL
+Create message about meeting change,text-generation,mid,PARTIAL
+Create report,text-generation,high,UNCLEAR
+Create report about decisions with missing information,text-generation,high,PARTIAL
+Create report about optimization trade-offs,text-generation,high,PARTIAL
+Create report about strategies,text-generation,mid,PARTIAL
+Create report about technology,text-generation,mid,PARTIAL
+Create something about conflicts,text-generation,high,UNCLEAR
+Create something about time,text-generation,mid,UNCLEAR
+Design a complete solution for a tech startup idea.,code-generation,high,PARTIAL
+Design a declarative data validation framework in Python where validation rules are defined as class-level annotations supports nested objects and lists and returns structured error reports with field paths.,code-generation,high,CLEAR
+Design a microservices architecture for an e-commerce platform with separate services for user auth product catalog order management and payment processing communicating via a message broker like RabbitMQ.,code-generation,high,PARTIAL
+Design a microservices-based application for a common use case with proper inter-service communication.,code-generation,high,PARTIAL
+Design a multi-agent simulation framework in Python where agents have individual state and behavior rules interact with a shared environment and the system supports configurable tick rates and pluggable rendering backends.,code-generation,high,PARTIAL
+Design a plugin architecture in Python where plugins are loaded dynamically from a directory register themselves via entry points can extend a core application's behavior and are isolated to prevent crashes from affecting the host.,code-generation,high,PARTIAL
+Design a recommendation engine in Python that builds a user-item interaction matrix from event logs applies collaborative filtering using matrix factorization and serves personalized top-N recommendations via a REST API.,code-generation,high,CLEAR
+Design a stack supporting getMin in O(1),code-generation,low,CLEAR
+Design a type-safe ORM in Python using metaclasses that maps Python classes to database tables supports relationships one-to-many many-to-many lazy loading and generates parameterized SQL queries.,code-generation,high,PARTIAL
+Design a workflow engine in Python that executes directed acyclic graphs DAGs of tasks resolves dependencies runs independent tasks in parallel handles retries and supports pause/resume of running workflows.,code-generation,high,CLEAR
+Design an API system that is scalable secure and handles multiple types of requests.,code-generation,high,PARTIAL
+Design and build a GraphQL API in Node.js using Apollo Server with resolvers for a social media platform including nested queries for posts comments likes and user followers backed by PostgreSQL.,code-generation,high,PARTIAL
+Design and build a multi-region data replication system in Python where writes to a primary region are asynchronously replicated to secondaries conflicts are resolved using last-write-wins with vector clocks and lag is monitored.,code-generation,high,CLEAR
+Design and implement a data pipeline framework in Python where pipelines are defined as composable steps in YAML support parallel branches allow conditional execution and emit structured metrics for each step run.,code-generation,high,PARTIAL
+Design and implement a distributed tracing system in Python where each service call generates a trace span with timing and metadata spans are propagated via HTTP headers and a collector aggregates them into complete traces.,code-generation,high,PARTIAL
+Design and implement a log aggregation system in Python that collects logs from multiple sources via a TCP socket parses structured log formats indexes them in Elasticsearch and exposes a query API.,code-generation,high,CLEAR
+Design and implement a RESTful API in Python using FastAPI with JWT authentication role-based access control and CRUD endpoints for a user management system backed by PostgreSQL.,code-generation,high,CLEAR
+Design and implement a service mesh sidecar proxy in Python that intercepts all inbound and outbound HTTP traffic for a service enforces circuit breaking collects latency metrics and reports them to a central collector.,code-generation,high,PARTIAL
+Design and implement an OAuth 2.0 authorization server in Python supporting the authorization code flow with PKCE token issuance refresh token rotation and token introspection endpoints.,code-generation,high,CLEAR
+Detect cycle in linked list using Floyd algorithm,code-generation,low,CLEAR
+Do it like before but better.,text-generation,low,UNCLEAR
+Draft a professional email to a client explaining that the project timeline has moved by two weeks.,text-generation,low,CLEAR
+Explain machine learning for beginners.,text-generation,low,CLEAR
+Find any peak element index in array,code-generation,low,CLEAR
+Find center of star graph,text-generation,low,CLEAR
+Find first unique character in a string,code-generation,low,CLEAR
+Find LCA in BST,code-generation,low,CLEAR
+Find length of last word in string,code-generation,low,CLEAR
+Find majority element using Boyer-Moore voting,code-generation,low,CLEAR
+Find maximum depth of binary tree,code-generation,low,CLEAR
+Find maximum value in BST,code-generation,low,CLEAR
+Find middle of linked list using slow-fast pointers,code-generation,low,CLEAR
+Find minimum value in BST,code-generation,low,CLEAR
+Find missing number in range 0 to n using XOR,text-generation,mid,CLEAR
+Find pivot index of array,code-generation,low,CLEAR
+Find richest customer wealth,code-generation,low,CLEAR
+Find single number using XOR,code-generation,low,CLEAR
+Find the town judge,text-generation,low,CLEAR
+Find two indices whose sum equals target using hashmap,code-generation,low,CLEAR
+Five cards are drawn from a standard 52-card deck without replacement. What is the probability that exactly 3 of the 5 cards are hearts? Show the combinatorial reasoning using combinations and explain each part of the formula.,reasoning,mid,CLEAR
+Fix this code.,text-generation,low,UNCLEAR
+Generate a comparison article between online and offline learning with clear examples,text-generation,mid,CLEAR
+Generate a comparison between two apps based on usability,text-generation,mid,PARTIAL
+Generate a comparison between two learning methods,text-generation,mid,PARTIAL
+Generate a comparison of two job roles with responsibilities,text-generation,mid,PARTIAL
+Generate a comprehensive guide explaining how to design systems resilient to adversarial inputs,text-generation,high,CLEAR
+Generate a comprehensive guide explaining how uncertainty propagates across multi-stage processes,text-generation,high,CLEAR
+Generate a guide explaining how to use a new software tool step-by-step,text-generation,mid,PARTIAL
+Generate a message congratulating a friend on passing an exam,text-generation,low,CLEAR
+Generate a paragraph about a day,text-generation,low,UNCLEAR
+Generate a paragraph about a happy memory,text-generation,low,PARTIAL
+Generate a paragraph about a topic,text-generation,low,PARTIAL
+Generate a paragraph about a weekend,text-generation,low,PARTIAL
+Generate a paragraph about anything,text-generation,low,UNCLEAR
+Generate a paragraph about something good,text-generation,low,PARTIAL
+Generate a paragraph about the importance of healthy eating habits,text-generation,low,CLEAR
+Generate a paragraph about the importance of regular exercise,text-generation,low,CLEAR
+Generate a paragraph about the importance of time management in daily life,text-generation,low,CLEAR
+Generate a scenario about handling complaints,text-generation,mid,PARTIAL
+Generate a scenario about problems,text-generation,mid,UNCLEAR
+Generate a scenario describing how to handle customer complaints effectively,text-generation,mid,CLEAR
+Generate a short story about a child overcoming fear of speaking in public,text-generation,low,CLEAR
+Generate a short story about a child who finds a lost wallet and returns it,text-generation,low,CLEAR
+Generate a short story about a person helping a stranger in need,text-generation,low,CLEAR
+Generate a short story about a student learning a valuable lesson from failure,text-generation,low,CLEAR
+Generate a small story about helping someone in need,text-generation,low,PARTIAL
+Generate a small story about making a mistake,text-generation,low,PARTIAL
+Generate a story about something happening,text-generation,low,PARTIAL
+Generate a story without details,text-generation,low,UNCLEAR
+"Generate a structured analysis explaining trade-offs between scalability, consistency, and availability in distributed architectures with real-world examples",text-generation,high,CLEAR
+Generate a structured essay explaining how multiple simultaneous failures interact to produce cascading breakdowns,text-generation,high,CLEAR
+Generate a structured essay explaining trade-offs between modularity and performance in systems,text-generation,high,PARTIAL
+Generate a structured explanation of how iterative processes fail to converge under certain constraints,text-generation,high,PARTIAL
+Generate an analysis of scalability issues,text-generation,high,PARTIAL
+Generate any paragraph,text-generation,low,UNCLEAR
+Generate article,text-generation,mid,UNCLEAR
+Generate article about exercise,text-generation,mid,PARTIAL
+Generate comparison,text-generation,mid,UNCLEAR
+Generate comparison of apps,text-generation,mid,PARTIAL
+Generate comparison of jobs,text-generation,mid,PARTIAL
+Generate comparison of things,text-generation,mid,UNCLEAR
+Generate essay,text-generation,high,UNCLEAR
+Generate essay about modularity,text-generation,high,PARTIAL
+Generate essay about system failures,text-generation,high,PARTIAL
+Generate explanation about convergence issues,text-generation,high,PARTIAL
+Generate guide,text-generation,high,UNCLEAR
+Generate guide about resilient systems,text-generation,high,PARTIAL
+Generate guide about uncertainty in systems,text-generation,high,PARTIAL
+Generate something about systems,text-generation,high,UNCLEAR
+Guess number using binary search API,code-generation,low,CLEAR
+Help me prepare a presentation for leadership.,text-generation,low,PARTIAL
+"If a product's price increases by 20% and then decreases by 20%, is the final price the same as the original? Show numerically why or why not, and explain the general principle.",reasoning,low,CLEAR
+"If a train leaves Station A at 9:00 AM travelling at 60 km/h and another train leaves Station B at 10:00 AM travelling at 80 km/h toward Station A, and the two stations are 280 km apart, at what time do the trains meet? Show your reasoning step by step.",reasoning,low,CLEAR
+"If all mammals are warm-blooded, and a dolphin is a mammal, what can you conclude about dolphins? Now if someone claims that all warm-blooded animals are mammals, explain why that reasoning is flawed.",reasoning,low,CLEAR
+"If all squares are rectangles, and all rectangles are quadrilaterals, is every square a quadrilateral? Is every quadrilateral a square? Explain the difference in reasoning for each question.",reasoning,low,CLEAR
+"If it takes 4 workers 6 days to complete a task, how many days would it take 8 workers to complete the same task, assuming everyone works at the same rate? Explain the logic behind your answer.",reasoning,low,CLEAR
+"If n is an even number, explain why n squared is always even. Then explain why the sum of two odd numbers is always even. Use clear logical reasoning for each.",reasoning,low,CLEAR
+"If the sum of three consecutive integers is 72, what are the three integers? Set up the equation, solve it, and verify your answer by substitution.",reasoning,low,CLEAR
+"If today is Wednesday, what day of the week will it be in 100 days? Explain how modular arithmetic or cycle reasoning helps solve this.",reasoning,low,CLEAR
+"If you flip a fair coin 3 times, how many possible outcomes are there in total? What is the probability of getting exactly 2 heads? List the sample space and explain your counting.",reasoning,low,CLEAR
+Implement a basic queue using two stacks in Python with enqueue and dequeue operations.,code-generation,mid,CLEAR
+Implement a binary search algorithm in Python that returns the index of a target value in a sorted list or -1 if not found.,code-generation,mid,CLEAR
+Implement a circular buffer in Python with fixed capacity and support for read write and is-full/is-empty checks.,code-generation,mid,CLEAR
+Implement a columnar in-memory database engine in Python that supports CREATE TABLE INSERT and SELECT with WHERE and GROUP BY clauses using columnar storage for efficient aggregations.,code-generation,high,CLEAR
+Implement a container orchestration mini-system in Python that manages Docker containers via the Docker SDK ensures desired replica counts are maintained restarts failed containers and balances them across available hosts.,code-generation,high,PARTIAL
+Implement a CQRS Command Query Responsibility Segregation pattern in Python for an order management system with separate command and query models a command bus event publishing and a denormalized read model.,code-generation,high,PARTIAL
+Implement a database connection pool in Python from scratch with configurable min/max connections connection validation on checkout automatic recycling of stale connections and overflow handling.,code-generation,high,CLEAR
+Implement a debounce function in JavaScript that delays invoking a callback until after a specified wait time has passed since the last call.,code-generation,mid,CLEAR
+Implement a depth-first search DFS algorithm in Python on a graph represented as an adjacency list.,code-generation,mid,CLEAR
+Implement a distributed key-value store in Python using consistent hashing for data partitioning across nodes with replication factor support and automatic failover when a node goes down.,code-generation,high,PARTIAL
+Implement a distributed rate limiter in Python using Redis Lua scripts for atomic sliding window counters that work correctly across multiple API server instances without race conditions.,code-generation,high,CLEAR
+Implement a distributed task queue system in Python using Redis as the broker with support for task prioritization retries with exponential backoff and a worker pool that processes tasks concurrently.,code-generation,high,CLEAR
+Implement a full-text search engine in Python from scratch with inverted index construction TF-IDF ranking and support for boolean queries across a collection of documents.,code-generation,high,CLEAR
+Implement a graph class in Python with methods for adding nodes/edges BFS traversal and detecting cycles in an undirected graph.,code-generation,mid,CLEAR
+Implement a linked list in Python with methods for insertion at head deletion by value and printing all nodes.,code-generation,mid,CLEAR
+Implement a min-heap in Python from scratch with insert and extract-min operations without using the heapq module.,code-generation,mid,CLEAR
+Implement a multi-level caching system in Python with L1 in-process dict L2 Redis and L3 database layers automatic cache population on miss TTL-based expiry at each level and cache invalidation on write.,code-generation,high,PARTIAL
+Implement a multi-tenant SaaS application backend in Python using FastAPI where each tenant has isolated data in separate PostgreSQL schemas with tenant resolution via subdomain and middleware-based schema switching.,code-generation,high,CLEAR
+Implement a peer-to-peer file sharing system in Python where nodes can discover each other via a DHT split files into chunks for parallel download verify integrity with checksums and reassemble them correctly.,code-generation,high,PARTIAL
+Implement a Python context manager class that tracks and logs all exceptions raised within the with block.,code-generation,mid,CLEAR
+Implement a Python function that evaluates a mathematical expression given as a string supporting + - * / without using eval.,code-generation,mid,CLEAR
+Implement a rate limiter in Python that allows at most N function calls per second using a token bucket approach.,code-generation,mid,CLEAR
+Implement a retry decorator in Python that re-executes a failing function up to N times with exponential backoff.,code-generation,mid,CLEAR
+Implement a reverse proxy server in Python with SSL termination HTTP/2 support request caching with cache-control header compliance and configurable rewrite rules defined in a YAML file.,code-generation,high,PARTIAL
+Implement a serverless function execution engine in Python that loads function code from a registry executes each invocation in an isolated subprocess with resource limits captures stdout/stderr and returns results via HTTP.,code-generation,high,CLEAR
+Implement a simple CLI argument parser in Python from scratch without using argparse supporting --flag and --key=value syntax.,code-generation,mid,CLEAR
+Implement a simple event emitter class in Python with on emit and off methods for managing event listeners.,code-generation,mid,CLEAR
+Implement a simple in-memory key-value store in Python that supports set get delete and list-all-keys operations with TTL time to live per key.,code-generation,mid,CLEAR
+Implement a simple LRU cache in Python using an OrderedDict with a fixed capacity and get/put methods.,code-generation,mid,CLEAR
+Implement a simple tokenizer in Python that splits a mathematical expression into numbers operators and parentheses.,code-generation,mid,CLEAR
+Implement a system that handles authentication user data and some kind of content management.,code-generation,high,PARTIAL
+Implement a thread-safe counter in Python using the threading module with increment and get methods.,code-generation,mid,CLEAR
+Implement a trie data structure in Python with insert and search methods for string keys.,code-generation,mid,CLEAR
+Implement a write-ahead log WAL in Python for crash recovery where all mutations are first written to an append-only log file and can be replayed to restore state after an unexpected shutdown.,code-generation,high,CLEAR
+Implement an event sourcing system in Python where all state changes are stored as immutable events with projections to rebuild current state and support for replaying events from a given point in time.,code-generation,high,PARTIAL
+Implement binary search in sorted array,text-generation,mid,CLEAR
+Implement merge sort in Python that sorts a list of integers in ascending order.,code-generation,mid,CLEAR
+Implement queue using two stacks,code-generation,low,CLEAR
+Implement quicksort in Python and verify it handles duplicate elements empty lists and single-element lists correctly.,code-generation,mid,CLEAR
+Implement some kind of distributed system where multiple services communicate and share data.,code-generation,high,PARTIAL
+Implement something that handles async requests and returns results.,code-generation,mid,PARTIAL
+Implement stack using two queues,code-generation,low,CLEAR
+Implement the observer design pattern in Python with Subject and Observer classes and a working notification example.,code-generation,mid,CLEAR
+"In a city, 60% of residents prefer public transport, 30% prefer private cars, and 10% have no preference. A survey randomly selects 5 residents. Using the binomial distribution, what is the probability that exactly 3 prefer public transport? Show the formula and calculation clearly.",reasoning,mid,CLEAR
+"In a class of 30 students, 18 play football and 14 play basketball. 6 students play both sports. How many students play neither sport? Use logical set reasoning to explain your answer.",reasoning,low,CLEAR
+"In a class, 40% of students passed Maths, 50% passed English, and 25% passed both. A student is chosen at random. What is the probability they passed Maths given they passed English? Use the conditional probability formula and explain what the formula measures conceptually.",reasoning,mid,CLEAR
+"In a game, you roll two 6-sided dice. You win $10 if the sum is 7, lose $5 if the sum is 2 or 12, and break even otherwise. What is the expected value of one round? Show the probability of each outcome and the weighted calculation. Would you play this game and why?",reasoning,mid,CLEAR
+"In a round-robin tournament, every team plays every other team exactly once. There are 8 teams. How many total matches are played? If each match takes 2 hours and there are 3 pitches available running simultaneously, what is the minimum number of days needed if each day has 6 hours of play? Reason through both parts.",reasoning,mid,CLEAR
+"In a sequence: 3, 7, 15, 31, 63, what is the next number? Identify the pattern and explain the rule governing the sequence before giving your answer.",reasoning,low,CLEAR
+"In a series of coin flips, what is the probability of getting at least one head in 5 flips? Show why calculating the complement is more efficient than summing individual cases, and verify your answer using both methods.",reasoning,mid,CLEAR
+Insert a node into BST,code-generation,low,CLEAR
+Invert a binary tree,code-generation,low,CLEAR
+"John says: if it rains, the ground gets wet. The ground is wet. John concludes it must have rained. Identify whether this is valid deductive reasoning and explain any flaws in the argument.",reasoning,low,CLEAR
+Make a backend that does what modern apps need.,code-generation,high,UNCLEAR
+Make a system that handles something in real time with some logic.,code-generation,mid,UNCLEAR
+Make it more professional and send quickly.,text-generation,low,UNCLEAR
+Make the model better. It's not performing well and we need to fix it.,reasoning,high,UNCLEAR
+Maria earns $18 per hour and works 40 hours per week. She receives a 12% pay rise. What is her new hourly rate and her new weekly earnings? Show each calculation step.,reasoning,low,CLEAR
+Merge two sorted arrays into a single sorted array,code-generation,low,CLEAR
+Merge two sorted linked lists,code-generation,low,CLEAR
+Move all zeroes to the end maintaining order,code-generation,low,CLEAR
+Need something for the team by tomorrow.,text-generation,low,UNCLEAR
+Perform inorder traversal of binary tree,code-generation,low,CLEAR
+Perform postorder traversal of binary tree,code-generation,low,CLEAR
+Perform preorder traversal of binary tree,code-generation,low,CLEAR
+Reason through whether this is a good idea or not.,reasoning,high,UNCLEAR
+Remove duplicates from sorted array in place and return length,code-generation,low,CLEAR
+Return unique intersection of two arrays,text-generation,mid,CLEAR
+Reverse a string in place,code-generation,low,CLEAR
+Reverse singly linked list iteratively,code-generation,low,CLEAR
+Search a value in BST,code-generation,low,CLEAR
+Something about risk and returns. Figure it out and give the right answer with reasoning.,reasoning,high,UNCLEAR
+"Something's wrong with our recommendation algorithm — engagement is up but users say they feel worse after using the app. Reason through the possible explanations for why optimising for engagement could decouple from user satisfaction, and propose a framework for redefining what the algorithm should optimise for.",reasoning,high,PARTIAL
+Suggest improvements for our website homepage.,text-generation,low,PARTIAL
+Summarize the main causes of World War I in 5 bullet points.,text-generation,low,CLEAR
+Summarize this and make it shorter.,text-generation,low,UNCLEAR
+The numbers don't add up. Use logic to work out what went wrong.,reasoning,high,UNCLEAR
+"There are 3 boxes labelled Apples, Oranges, and Mixed. All three labels are wrong. You can pick one fruit from one box. Which box should you pick from to correctly label all three boxes, and why? Reason through the logic completely.",reasoning,low,CLEAR
+"Three boxes weigh 5 kg, 8 kg, and 11 kg. You can carry at most 15 kg at a time. What is the minimum number of trips needed to move all three boxes? Reason through the combinations.",reasoning,low,CLEAR
+"Three friends A, B, and C can complete a task in 10, 15, and 20 days respectively working alone. They start together but A leaves after 3 days and B leaves 2 days after that. How many more days does C need to finish the task alone? Show work completed at each stage.",reasoning,mid,CLEAR
+Three friends split a restaurant bill equally. The bill is $87 before tip. They leave a 15% tip. What does each person pay in total? Show your reasoning at each stage.,reasoning,low,CLEAR
+"Three investors put money into a startup in the ratio 2:3:5. The startup is sold for $480,000. After repaying a $30,000 loan taken equally from all three investors, the remaining profit is split according to the original investment ratio. How much does each investor receive? Show each stage of reasoning.",reasoning,mid,CLEAR
+Tom is older than Sarah. Sarah is older than Mike. Mike is 14 years old. Tom is twice Sarah's age. Sarah is 18. Is the statement that Tom is the oldest person correct? Explain your reasoning.,reasoning,low,CLEAR
+Two candles are each 30 cm tall. Candle A burns at 3 cm per hour. Candle B burns at 5 cm per hour. After how many hours will Candle B be exactly half the height of Candle A? Show your reasoning.,reasoning,low,CLEAR
+Two pipes fill a cistern. Pipe X fills 1/4 of the cistern per hour and Pipe Y fills 1/6 per hour. They are opened together but Pipe X is closed after 2 hours. How much longer does Pipe Y take to finish filling the cistern? Show the fraction of work done at each stage.,reasoning,mid,CLEAR
+"Two taps fill a bath. Tap A alone takes 12 minutes. Tap B alone takes 18 minutes. The drain empties a full bath in 30 minutes. If both taps are open and the drain is open, how long does it take to fill the bath from empty? Show the net rate as a fraction and convert to minutes.",reasoning,mid,CLEAR
+Validate parentheses string using stack,code-generation,low,CLEAR
+We have two competing architectural approaches for migrating our monolith: strangler fig pattern over 18 months vs a big-bang rewrite in 9 months. The team is split. Reason through the technical and organisational trade-offs rigorously and give a recommendation. Be explicit about what information would change your answer.,reasoning,high,CLEAR
+"We're seeing declining user retention after week 3 of our mobile app. Could be onboarding, could be product-market fit, could be notifications. Reason through a diagnostic framework to identify the most likely cause given typical patterns in consumer apps, and outline what data would confirm each hypothesis.",reasoning,high,CLEAR
+What is the capital of France?,text-generation,low,CLEAR
+Write a backend for a social platform that supports posts users and some form of interactions.,code-generation,high,PARTIAL
+Write a data processing function that handles some edge cases and transforms the input.,code-generation,mid,PARTIAL
+Write a description of a busy market including sounds and activities,text-generation,low,CLEAR
+Write a description of a festival celebration in your area,text-generation,low,CLEAR
+Write a description of a peaceful park including surroundings and activities,text-generation,low,CLEAR
+Write a description of a rainy day including how it feels and looks,text-generation,low,CLEAR
+Write a detailed email explaining a delay in project delivery and include a revised timeline,text-generation,mid,CLEAR
+Write a detailed explanation of how inconsistencies in multi-source data systems can be detected and resolved,text-generation,high,CLEAR
+Write a detailed technical report explaining how cascading failures propagate in distributed systems with step-by-step scenarios and mitigation strategies,text-generation,high,CLEAR
+Write a formal analysis showing how minor design flaws escalate into large-scale system failures,text-generation,high,CLEAR
+Write a formal report evaluating how feedback loops influence long-term system stability under varying conditions,text-generation,high,PARTIAL
+Write a function to process a file and extract some useful information from it.,code-generation,mid,PARTIAL
+Write a guide about studying,text-generation,mid,PARTIAL
+Write a guide for interview,text-generation,mid,PARTIAL
+Write a guide on improving focus while studying with steps,text-generation,mid,CLEAR
+Write a guide on studying better,text-generation,mid,PARTIAL
+Write a JavaScript async function that fetches data from a public REST API and returns only records matching a given filter condition.,code-generation,mid,PARTIAL
+Write a JavaScript class that implements a simple publish-subscribe pattern with subscribe unsubscribe and publish methods.,code-generation,mid,CLEAR
+Write a message about a plan,text-generation,low,PARTIAL
+Write a message about feedback,text-generation,mid,PARTIAL
+Write a message about something happening,text-generation,low,PARTIAL
+Write a message asking for feedback,text-generation,mid,PARTIAL
+Write a message inviting someone somewhere,text-generation,low,PARTIAL
+Write a message inviting someone to a casual lunch this weekend,text-generation,low,PARTIAL
+Write a message inviting someone to hang out,text-generation,low,PARTIAL
+Write a message wishing someone good luck for something,text-generation,low,PARTIAL
+Write a message wishing someone well,text-generation,low,PARTIAL
+Write a paragraph about a teacher you like,text-generation,low,PARTIAL
+Write a paragraph about something good,text-generation,low,UNCLEAR
+Write a paragraph about something nice,text-generation,low,PARTIAL
+Write a paragraph about your daily routine from morning to evening,text-generation,low,CLEAR
+Write a paragraph describing your favorite festival and how it is celebrated,text-generation,low,CLEAR
+Write a paragraph describing your favorite food,text-generation,low,PARTIAL
+Write a paragraph describing your favorite hobby and why you enjoy it,text-generation,low,CLEAR
+Write a paragraph describing your school environment and activities,text-generation,low,CLEAR
+Write a paragraph explaining how habits affect success,text-generation,mid,CLEAR
+Write a paragraph explaining stress and its management techniques,text-generation,mid,CLEAR
+Write a paragraph explaining the impact of social media on students with examples,text-generation,mid,CLEAR
+Write a paragraph explaining why drinking water is important for health,text-generation,low,CLEAR
+Write a paragraph explaining why education matters with at least two reasons,text-generation,low,CLEAR
+Write a paragraph explaining why sleep is important for students with two examples,text-generation,low,CLEAR
+Write a paragraph explaining why teamwork helps achieve goals with examples,text-generation,low,CLEAR
+Write a professional message requesting feedback on a completed assignment,text-generation,mid,CLEAR
+Write a Python async function using asyncio that fetches multiple URLs concurrently and returns their response lengths.,code-generation,mid,CLEAR
+Write a Python class that implements a binary search tree with insert search and in-order traversal methods.,code-generation,mid,CLEAR
+Write a Python class to implement a stack data structure with push pop peek and is_empty methods.,code-generation,mid,CLEAR
+Write a Python decorator that logs the execution time of any function it wraps.,code-generation,mid,CLEAR
+Write a Python function that compresses a string using run-length encoding and decompresses it back to the original.,code-generation,mid,CLEAR
+Write a Python function that connects to a SQLite database creates a users table inserts a record and fetches all rows.,code-generation,mid,CLEAR
+Write a Python function that generates all permutations of a given string without using itertools.,code-generation,mid,CLEAR
+Write a Python function that parses a CSV string into a list of dictionaries using the header row as keys.,code-generation,mid,CLEAR
+Write a Python function that parses a log file and extracts all lines with ERROR level returning them with their timestamps.,code-generation,mid,CLEAR
+Write a Python function that reads a JSON file updates a specific key's value and writes the result back to the file.,code-generation,mid,CLEAR
+Write a Python function that scrapes the title and URL of all links from a given webpage using BeautifulSoup.,code-generation,mid,CLEAR
+Write a Python function that takes a list of employee dictionaries with name age department fields and groups them by department.,code-generation,mid,CLEAR
+Write a Python function that takes a list of intervals and merges all overlapping ones into a minimal set.,code-generation,mid,CLEAR
+Write a Python function that takes a list of transactions each with date amount and category and returns a monthly summary grouped by category.,code-generation,mid,CLEAR
+Write a Python function that takes a nested dictionary of arbitrary depth and flattens it into a single-level dictionary with dot-separated keys.,code-generation,mid,CLEAR
+Write a Python function that takes two sorted lists and merges them into a single sorted list without using sort().,code-generation,mid,CLEAR
+Write a Python function that uses memoization to solve the 0/1 knapsack problem given weights values and a capacity.,code-generation,mid,CLEAR
+Write a Python function that validates a JSON schema given a schema dict and a data dict check that all required fields exist and have the correct types.,code-generation,mid,CLEAR
+Write a Python function that validates an email address using a regular expression and returns True or False.,code-generation,mid,CLEAR
+Write a Python function to remove duplicates from a list while preserving order.,text-generation,low,CLEAR
+Write a Python script that monitors a directory for new files and prints the filename and creation time whenever a new file appears.,code-generation,mid,CLEAR
+Write a Python script that reads a large text file line by line and counts the frequency of each word using a generator.,code-generation,mid,CLEAR
+Write a report about feedback loops,text-generation,high,PARTIAL
+Write a report analyzing how prioritization strategies affect final system outcomes,text-generation,high,PARTIAL
+Write a report describing importance of feedback in product improvement,text-generation,mid,PARTIAL
+Write a script that connects to a database and does some queries.,code-generation,mid,PARTIAL
+Write a short email asking for permission to submit an assignment late,text-generation,low,CLEAR
+Write a short email requesting clarification about a task with details,text-generation,low,CLEAR
+Write a short email requesting notes from a missed class due to absence,text-generation,low,CLEAR
+Write a short explanation about being kind,text-generation,low,PARTIAL
+Write a short explanation about saving money,text-generation,low,PARTIAL
+Write a short explanation about something,text-generation,low,PARTIAL
+Write a short explanation about something helpful,text-generation,low,PARTIAL
+Write a short explanation about something useful,text-generation,low,PARTIAL
+Write a short explanation about why people should exercise regularly,text-generation,low,PARTIAL
+Write a short explanation of why helping others is important in society,text-generation,low,CLEAR
+Write a short explanation of why honesty is important in friendships,text-generation,low,CLEAR
+Write a short explanation of why planning ahead is useful,text-generation,low,CLEAR
+Write a short explanation of why rules are needed,text-generation,low,PARTIAL
+Write a short paragraph describing your favorite place and why you like it,text-generation,low,CLEAR
+Write a simple email asking your teacher for leave for one day due to illness,text-generation,low,CLEAR
+Write a step-by-step guide for improving productivity during exam preparation,text-generation,mid,CLEAR
+Write a story about anything,text-generation,low,UNCLEAR
+Write a story about something good happening,text-generation,low,UNCLEAR
+Write a structured explanation of how adversarial conditions impact system robustness with examples,text-generation,high,CLEAR
+Write a structured explanation of how cloud storage works with examples,text-generation,mid,CLEAR
+Write a structured explanation of how teamwork improves project outcomes,text-generation,mid,CLEAR
+Write a structured guide for organizing a small event,text-generation,mid,PARTIAL
+Write a system that handles everything for a web app.,code-generation,high,UNCLEAR
+Write a technical article describing how hidden dependencies can lead to large-scale system failures,text-generation,high,CLEAR
+Write a technical explanation showing how randomness affects predictability in complex systems,text-generation,high,PARTIAL
+Write about adversarial situations in systems,text-generation,high,PARTIAL
+Write about cloud storage,text-generation,mid,PARTIAL
+Write about communication,text-generation,mid,PARTIAL
+Write about dependencies causing issues,text-generation,high,PARTIAL
+Write about design flaws causing failures,text-generation,high,PARTIAL
+Write about detecting inconsistencies in systems,text-generation,high,PARTIAL
+Write about failures spreading in systems and how they can be handled,text-generation,high,PARTIAL
+Write about feedback in systems,text-generation,high,PARTIAL
+Write about habits,text-generation,mid,PARTIAL
+Write about problems in systems,text-generation,high,PARTIAL
+Write about randomness in systems,text-generation,high,PARTIAL
+Write about social media,text-generation,mid,PARTIAL
+Write about social media impact,text-generation,mid,PARTIAL
+Write about stress,text-generation,mid,PARTIAL
+Write about teamwork,text-generation,mid,PARTIAL
+Write an article about advantages and disadvantages of remote work,text-generation,mid,CLEAR
+Write an email about misunderstanding,text-generation,mid,PARTIAL
+Write an email asking for deadline extension with reasons,text-generation,mid,PARTIAL
+Write an email for client update on project status.,text-generation,low,PARTIAL
+Write an explanation of teamwork benefits,text-generation,mid,PARTIAL
+Write any story,text-generation,low,UNCLEAR
+Write anything,text-generation,low,UNCLEAR
+Write code that does some kind of sorting on data with a few conditions.,code-generation,mid,PARTIAL
+Write code that scrapes some data from a website and saves it.,code-generation,mid,PARTIAL
+Write guide about focus,text-generation,mid,PARTIAL
+Write guide about planning,text-generation,mid,PARTIAL
+Write guide for event,text-generation,mid,PARTIAL
+Write guide for something,text-generation,mid,UNCLEAR
+Write report about prioritization strategies,text-generation,high,PARTIAL
+Write something about a day,text-generation,low,UNCLEAR
+Write something about a place you like,text-generation,low,UNCLEAR
+Write something about anything,text-generation,low,UNCLEAR
+Write something about food,text-generation,low,UNCLEAR
+Write something about meetings,text-generation,mid,PARTIAL
+Write something about project delays,text-generation,mid,PARTIAL
+Write something about systems failing,text-generation,high,PARTIAL
+Write something complex about systems,text-generation,high,PARTIAL
+Write something simple,text-generation,low,UNCLEAR
+Write something that implements a design pattern for managing state.,code-generation,mid,PARTIAL
+Write something without topic,text-generation,low,UNCLEAR
+"You are comparing two job offers. Job A pays $72,000 per year with a 5% annual raise and no bonus. Job B pays $65,000 per year with a 10% annual raise and a $3,000 signing bonus. After how many years does Job B's cumulative earnings overtake Job A's cumulative earnings? Show the year-by-year comparison and reason through when the crossover happens.",reasoning,mid,CLEAR
+You have 9 balls that look identical. One is slightly heavier. You have a balance scale and can only make 2 weighings. How do you identify the heavy ball? Describe the decision tree and explain why 3 groups of 3 is the optimal first move.,reasoning,mid,CLEAR
+"You have a 3-litre jug and a 5-litre jug with no markings, and an unlimited water supply. How do you measure exactly 4 litres? Describe the logical steps in sequence.",reasoning,low,CLEAR
+"You invest $10,000 at 6% annual compound interest. A friend invests $12,000 at 4% annual compound interest. After how many years will your investment first exceed your friend's? Show the compound interest formula applied to both, and reason through the year of crossover.",reasoning,mid,CLEAR
+You need to seat 4 couples at a circular table such that each person sits next to their partner. How many distinct seating arrangements are there? Explain the circular permutation formula and how the partner constraint reduces the count.,reasoning,mid,CLEAR
