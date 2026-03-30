@@ -1,177 +1,191 @@
-# LLM Recommendation System — Project Overview
+# ModelMatrix Project Overview
 
-## What Are We Building?
+## Purpose
 
-A two-part web application that:
+ModelMatrix is a benchmark-and-recommendation workspace for LLM routing.
 
-1. **Trains** a benchmark dataset by sending prompts to multiple LLMs, evaluating their responses, and storing results in Supabase
-2. **Recommends** the best LLM for a given prompt based on that benchmark data
+It has two main jobs:
 
----
+- Build benchmark data by running prompts through a curated set of AWS Bedrock and Google Vertex models
+- Recommend the best-value model for a new prompt using matched historical benchmark slices instead of a single global average
 
-## The Big Picture
+It also includes a separate prompt clarity labeling pipeline that classifies raw prompts into `CLEAR`, `PARTIAL`, or `UNCLEAR` batches.
 
-```
-USER TYPES PROMPT
-      ↓
-[TRAINING VIEW]
-Evaluator model scores the prompt → complexity + quality
-Same prompt sent to all Bedrock models → responses collected
-Evaluator scores each response → accuracy score
-Everything saved to Supabase
+## Product Areas
 
-[INFERENCE VIEW]
-User types new prompt + selects use case + selects current model
-Backend classifies prompt → runs recommendation model
-Returns: "Switch to X → +12% accuracy, -8% cost, -180ms latency"
-```
+### 1. Benchmarking
 
----
+The benchmarking flow lives in the training UI and the `/api/training/*` backend routes.
 
-## Tech Stack
+The operator chooses:
 
-| Layer | Technology |
-|---|---|
-| Frontend | React + Vite |
-| Backend | Python FastAPI |
-| Database | Supabase (PostgreSQL) |
-| LLM Providers | AWS Bedrock (14 models) |
-| Evaluator Models | Gemini 2.0 Flash / GPT-4o / Claude Sonnet 4.6 |
-| Real-time updates | SSE (Server Sent Events) |
-| Styling | Tailwind CSS |
+- Use case: `text-generation`, `code-generation`, or `reasoning`
+- Prompt complexity label: `low`, `mid`, or `high`
+- Prompt clarity label for single-prompt mode: `CLEAR`, `PARTIAL`, or `UNCLEAR`
+- Input source: one prompt, one CSV, or a queue of CSV files
 
----
+For each prompt, the backend:
 
-## Two Views
+1. Logs the prompt and its clarity label to `prompt_logs`
+2. Selects only the models allowed for the chosen use case
+3. Calls Bedrock and Vertex models in parallel
+4. Sends successful responses to the evaluator service in batches
+5. Writes benchmark rows to Supabase
+6. Streams progress events back to the frontend over SSE
 
-### View 1 — Training
+### 2. Recommendation
 
-**Purpose:** Build the benchmark dataset
+The recommendation flow lives in the inference UI and `/api/inference/*`.
 
-**What the user does:**
-- Selects an evaluator model (default: Gemini 2.0 Flash)
-- Either types a single prompt OR uploads a CSV with a `prompt` column
-- Clicks Run
-- Watches a live log stream as each model processes each prompt
-- Sees a success message when done
+The operator provides:
 
-**What happens in the background (per prompt):**
-```
-Step 1: Send prompt to evaluator → get prompt_complexity + prompt_quality_score
-Step 2: Enrich prompt with those two fields
-Step 3: Send enriched prompt to all 14 Bedrock models in parallel
-Step 4: For each response → send to evaluator → get accuracy_score
-Step 5: Save one row per model to Supabase
-```
+- A prompt to route
+- A use case
+- A current baseline model
 
-**Each Supabase row contains:**
-```
-model_id, provider, prompt, prompt_complexity, prompt_quality_score,
-response, accuracy_score, cost, tokens, latency_ms
-```
+The backend then:
 
----
+1. Infers prompt complexity with a local classifier when available, otherwise heuristics
+2. Infers prompt clarity from exact prompt log matches when available, otherwise heuristics
+3. Loads benchmark rows from Supabase, with local CSV fallback
+4. Builds a narrow benchmark slice
+5. Keeps only models with enough supporting rows
+6. Chooses the best value model among near-top quality candidates
+7. Applies switching thresholds before telling the user to switch
 
-### View 2 — Inference / Recommendation
+### 3. Clarity Labeling
 
-**Purpose:** Recommend the best LLM for a new prompt
+The clarity flow lives in the `/clarity` page and `/api/clarity/*`.
 
-**What the user does:**
-- Types a prompt
-- Selects use case from dropdown
-- Selects their current model from dropdown
-- Clicks Get Recommendation
+It is designed for prompt dataset preparation:
 
-**What they see:**
-```
-Your prompt:     high complexity  •  quality: 78/100
+- Upload a CSV with a `prompt` column
+- Backend chunks prompts into groups of 5
+- OpenAI classifies each group with a strict JSON schema
+- Backend writes one `prompt_set_N.csv` per chunk
+- Frontend offers per-chunk downloads and a ZIP download
 
-You chose:       GPT-4o
+The backend also supports auto-forwarding clarity-labeled chunks into the training pipeline, although the current frontend always sends `auto_forward=false`.
 
-Recommended:     Gemini 2.5 Pro
-  + 12% accuracy
-  -  8% cost
-  - 180ms latency
+## Architecture Summary
 
-Reason: High-complexity reasoning prompts. Gemini 2.5 Pro
-outperforms GPT-4o on this task type in our benchmark data.
+```text
+Frontend (React + Vite)
+  Benchmark page
+  Recommendation page
+  Clarity page
+        |
+        v
+Backend (FastAPI)
+  /api/training
+  /api/inference
+  /api/clarity
+  /api/test
+        |
+        +--> AWS Bedrock model calls
+        +--> Google Vertex model calls
+        +--> Gemini evaluator pool on Vertex
+        +--> OpenAI clarity classifier
+        +--> Supabase benchmark_results + prompt_logs
+        +--> local CSV fallback from model_training/
 ```
 
----
+## Data Stores
 
-## Dataset Schema (Supabase Table: `benchmark_results`)
+### Supabase tables
 
-| Column | Type | Description |
-|---|---|---|
-| `id` | uuid | Auto generated primary key |
-| `created_at` | timestamp | Auto generated |
-| `provider` | text | e.g. Amazon, OpenAI, Google |
-| `model_id` | text | e.g. gpt-4o, gemini-2.5-pro |
-| `prompt` | text | Original prompt text |
-| `prompt_complexity` | text | low / mid / high |
-| `prompt_quality_score` | int | 0-100 |
-| `response` | text | Raw model response |
-| `accuracy_score` | int | 0-100 |
-| `cost` | float | USD cost of the API call |
-| `tokens` | int | Total tokens used |
-| `latency_ms` | int | Response time in ms |
+- `benchmark_results`
+- `prompt_logs`
 
----
+### Local fallback artifacts
 
-## Models in Scope (Bedrock)
+- `model_training/artifacts/classifier.pkl`
+- `model_training/benchmark_results.csv`
+- `model_training/prompt_logs_rows.csv`
 
-| Provider | Models |
-|---|---|
-| Amazon | nova-lite-v1, nova-pro-v1 |
-| Meta | llama-3.3-70b, llama-4-scout |
-| Mistral | mistral-large, mistral-small, pixtral-large |
-| DeepSeek | deepseek-r1, deepseek-v3 |
+These local files let recommendation continue even if Supabase is unavailable or empty.
 
-Plus any additional Bedrock models you add.
+## Current Model Sources
 
----
+### Bedrock
 
-## Use Cases (Inference Dropdown)
+The code currently benchmarks these Bedrock-backed short IDs:
 
-Chat · Code · Reasoning · RAG · Summarization · Structured Output · Tool Calling · Vision · Multimodality
+- `llama4-scout`
+- `llama4-maverick`
+- `llama3-3-70b`
+- `llama3-2-90b`
+- `llama3-1-70b`
+- `nova-lite`
+- `nova-pro`
+- `nova-premier`
+- `devstral-2`
+- `ministral-3-8b`
+- `ministral-3b`
+- `magistral-small`
+- `pixtral-large-2`
+- `mistral-large`
+- `mistral-small`
+- `deepseek-r1`
 
----
+### Vertex
 
-## Key Design Decisions
+The code currently benchmarks these Vertex-backed short IDs:
 
-**Why SSE for training?**
-Training one prompt across 14 models takes time. Without live updates the user sees a blank screen and has no idea if it's working. SSE streams one log line per model per prompt as it completes — gives instant feedback.
+- `gemini-3-1-pro`
+- `gemini-3-1-flash-lite`
+- `gemini-2-5-pro`
+- `gemini-2-5-flash`
+- `gemini-2-0-flash`
+- `gemini-2-0-flash-lite`
 
-**Why user-selected use case?**
-Classifying use case from prompt text alone is ambiguous and error-prone. User knows their intent — let them select it. Eliminates one source of classification error entirely.
+The training page UI presents use-case-specific active model counts based on the model registry:
 
-**Why evaluator at temperature=0 with grouped scoring bands?**
-LLM evaluators are non-deterministic — same response can score 82 one call and 86 the next. Temperature 0 reduces variance significantly. Grouped scoring bands (e.g. 90-100 = fully correct) anchor the model to defined buckets rather than free-picking any number, reducing variance further.
+- Text generation: 17
+- Code generation: 14
+- Reasoning: 12
 
-**Why store the response text?**
-During training we store it so you can audit and verify evaluator scores. In the final ML training pipeline you may drop it — only the scores matter for the model.
+## Main Folders
 
----
+```text
+backend/
+  main.py
+  jobs/
+  models/
+  routers/
+  services/
 
-## Folder Structure
+frontend/
+  src/
+    api/
+    components/
+    pages/
 
-```
-project/
-  frontend/         ← React Vite app
-  backend/          ← FastAPI app
-  README.md
-  PROJECT_OVERVIEW.md   ← this file
-  FRONTEND_SPEC.md
+docs/
+  PROJECT_OVERVIEW.md
   BACKEND_SPEC.md
+  FRONTEND_SPEC.md
+  backend_status.md
+  docs_analysis.md
+
+model_training/
+  artifacts/
+  benchmark_results.csv
+  prompt_logs_rows.csv
+  recommend_v2.py
 ```
 
----
+## Key Design Choices
 
-## Build Order
+- Benchmarking is explicit-label driven. Training does not infer use case, complexity, or clarity from the UI payload.
+- Recommendation is slice-based. It does not rank models across one broad global aggregate.
+- The evaluator is use-case-aware. It scores text generation, code generation, and reasoning with different rubrics.
+- Supabase is preferred, but recommendation can continue from local CSV fallback.
+- SSE is used for long-running training and clarity streams so the frontend remains responsive.
 
-1. Set up Supabase table
-2. Build FastAPI skeleton with all endpoints returning mock data
-3. Build frontend against mock endpoints
-4. Wire in real Bedrock + evaluator calls
-5. Test end to end with single prompt
-6. Test with CSV upload
+## See Also
+
+- [BACKEND_SPEC.md](c:\Users\Musharraf\Documents\POC\docs\BACKEND_SPEC.md)
+- [FRONTEND_SPEC.md](c:\Users\Musharraf\Documents\POC\docs\FRONTEND_SPEC.md)
+- [backend_status.md](c:\Users\Musharraf\Documents\POC\docs\backend_status.md)
+- [docs_analysis.md](c:\Users\Musharraf\Documents\POC\docs\docs_analysis.md)

@@ -45,18 +45,18 @@ Prompt: "Explain photosynthesis in simple terms"
 ### Usage
 ```bash
 # Train (first time)
-python recommend.py --train
+python recommend_v2.py --train
 
 # Single prompt
-python recommend.py --prompt "your prompt here" --current-model gemini-2-0-flash
+python recommend_v2.py --prompt "your prompt here" --current-model gemini-2-0-flash
 
 # Interactive
-python recommend.py
+python recommend_v2.py
 ```
 
 ### Files Created
 | File | Size | Purpose |
 |------|------|---------|
-| [recommend.py](file:///c:/Users/Musharraf/Documents/POC/model_training/recommend.py) | Main script | Full pipeline |
+| [recommend_v2.py](file:///c:/Users/Musharraf/Documents/POC/model_training/recommend_v2.py) | Main script | Full pipeline |
 | [artifacts/classifier.pkl](cci:7://file:///c:/Users/Musharraf/Documents/POC/model_training/artifacts/classifier.pkl:0:0-0:0) | 170 KB | Trained classifier |
 | [artifacts/model_profiles.json](cci:7://file:///c:/Users/Musharraf/Documents/POC/model_training/artifacts/model_profiles.json:0:0-0:0) | 26 KB | Pre-computed model stats |
