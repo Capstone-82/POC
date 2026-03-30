@@ -22,6 +22,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent
 BENCHMARK_CSV = BASE_DIR / "benchmark_results.csv"
 PROMPT_LOGS_CSV = BASE_DIR / "prompt_logs_rows.csv"
+RELABELED_COMPLEXITY_CSV = BASE_DIR / "prompt_complexity_relabeled.csv"
 CLASSIFIER_PATH = BASE_DIR / "artifacts" / "classifier.pkl"
 
 VALID_USE_CASES = {"text-generation", "code-generation", "reasoning"}
@@ -44,14 +45,29 @@ class PromptSignals:
     clarity_source: str
 
 
-def load_classifier_training_rows() -> pd.DataFrame:
-    df = pd.read_csv(BENCHMARK_CSV, usecols=["prompt", "prompt_complexity"])
-    df = df.dropna(subset=["prompt", "prompt_complexity"]).copy()
+def build_classifier_input(prompt: str, use_case: str) -> str:
+    return f"use_case: {use_case.strip().lower()}\nprompt: {prompt.strip()}"
+
+
+def load_classifier_training_rows(training_csv: Path | None = None) -> pd.DataFrame:
+    source_csv = training_csv
+    if source_csv is None:
+        source_csv = RELABELED_COMPLEXITY_CSV if RELABELED_COMPLEXITY_CSV.exists() else BENCHMARK_CSV
+
+    usecols = ["prompt", "use_case", "prompt_complexity"]
+    df = pd.read_csv(source_csv, usecols=usecols)
+    df = df.dropna(subset=["prompt", "use_case", "prompt_complexity"]).copy()
     df["prompt"] = df["prompt"].astype(str).str.strip()
+    df["use_case"] = df["use_case"].astype(str).str.strip().str.lower()
     df["prompt_complexity"] = df["prompt_complexity"].astype(str).str.strip().str.lower()
     df = df[df["prompt"] != ""]
+    df = df[df["use_case"].isin(VALID_USE_CASES)]
     df = df[df["prompt_complexity"].isin(VALID_COMPLEXITIES)]
-    df = df.drop_duplicates(subset=["prompt", "prompt_complexity"]).reset_index(drop=True)
+    df["classifier_input"] = df.apply(
+        lambda row: build_classifier_input(str(row["prompt"]), str(row["use_case"])),
+        axis=1,
+    )
+    df = df.drop_duplicates(subset=["prompt", "use_case"]).reset_index(drop=True)
     return df
 
 
@@ -100,7 +116,7 @@ def load_complexity_classifier():
         return None
 
 
-def train_complexity_classifier() -> dict[str, Any]:
+def train_complexity_classifier(training_csv: Path | None = None) -> dict[str, Any]:
     try:
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.linear_model import LogisticRegression
@@ -111,11 +127,11 @@ def train_complexity_classifier() -> dict[str, Any]:
             "Training requires scikit-learn. Install it before running --train-classifier."
         ) from exc
 
-    df = load_classifier_training_rows()
+    df = load_classifier_training_rows(training_csv=training_csv)
     if df.empty:
-        raise RuntimeError("No labeled prompt complexity rows were found in benchmark_results.csv.")
+        raise RuntimeError("No labeled prompt complexity rows were found in the training CSV.")
 
-    X = df["prompt"].tolist()
+    X = df["classifier_input"].tolist()
     y = df["prompt_complexity"].tolist()
 
     pipeline = Pipeline(
@@ -164,6 +180,7 @@ def train_complexity_classifier() -> dict[str, Any]:
 
     return {
         "artifact_path": str(CLASSIFIER_PATH),
+        "training_csv": str(training_csv if training_csv is not None else (RELABELED_COMPLEXITY_CSV if RELABELED_COMPLEXITY_CSV.exists() else BENCHMARK_CSV)),
         "training_rows": int(len(df)),
         "class_distribution": {
             key: int(value)
@@ -181,13 +198,14 @@ def normalize_prompt(prompt: str) -> str:
     return prompt
 
 
-def infer_complexity(prompt: str, classifier: Any | None) -> tuple[str, float | None, str]:
+def infer_complexity(prompt: str, use_case: str, classifier: Any | None) -> tuple[str, float | None, str]:
+    classifier_input = build_classifier_input(prompt, use_case)
     if classifier is not None:
-        prediction = classifier.predict([prompt])[0]
+        prediction = classifier.predict([classifier_input])[0]
         confidence = None
         if hasattr(classifier, "predict_proba"):
             try:
-                confidence = float(max(classifier.predict_proba([prompt])[0]))
+                confidence = float(max(classifier.predict_proba([classifier_input])[0]))
             except Exception:
                 confidence = None
         prediction = str(prediction).strip().lower()
@@ -307,7 +325,7 @@ def infer_signals(
         complexity = complexity_override
         complexity_confidence = None
     else:
-        complexity, complexity_confidence, _ = infer_complexity(prompt, classifier)
+        complexity, complexity_confidence, _ = infer_complexity(prompt, use_case, classifier)
 
     if clarity_override:
         clarity = clarity_override
@@ -653,6 +671,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Train and save the prompt complexity classifier from benchmark_results.csv.",
     )
+    parser.add_argument(
+        "--training-csv",
+        help="Optional training CSV. Defaults to prompt_complexity_relabeled.csv when present.",
+    )
     parser.add_argument("--prompt", help="User prompt to score.")
     parser.add_argument(
         "--use-case",
@@ -681,7 +703,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     if args.train_classifier:
-        result = train_complexity_classifier()
+        training_csv = Path(args.training_csv) if args.training_csv else None
+        result = train_complexity_classifier(training_csv=training_csv)
         print(json.dumps(result, indent=2))
         return
     if not args.prompt or not args.use_case:

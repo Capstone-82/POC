@@ -30,6 +30,10 @@ def normalize_prompt(prompt: str) -> str:
     return re.sub(r"\s+", " ", prompt.strip().lower())
 
 
+def build_classifier_input(prompt: str, use_case: str) -> str:
+    return f"use_case: {use_case.strip().lower()}\nprompt: {prompt.strip()}"
+
+
 def load_local_csv_rows(path: Path) -> List[dict]:
     if not path.exists():
         return []
@@ -60,13 +64,14 @@ def load_complexity_classifier():
         return pickle.load(file)
 
 
-def infer_complexity(prompt: str, classifier: Optional[Any]) -> Tuple[str, Optional[float], str]:
+def infer_complexity(prompt: str, use_case: str, classifier: Optional[Any]) -> Tuple[str, Optional[float], str]:
+    classifier_input = build_classifier_input(prompt, use_case)
     if classifier is not None:
-        prediction = str(classifier.predict([prompt])[0]).strip().lower()
+        prediction = str(classifier.predict([classifier_input])[0]).strip().lower()
         confidence = None
         if hasattr(classifier, "predict_proba"):
             try:
-                confidence = float(max(classifier.predict_proba([prompt])[0]))
+                confidence = float(max(classifier.predict_proba([classifier_input])[0]))
             except Exception:
                 confidence = None
         if prediction in VALID_COMPLEXITIES:
@@ -372,7 +377,7 @@ def build_reason(
 
 async def get_recommendation(use_case: str, prompt: str, current_model: str) -> dict:
     classifier = load_complexity_classifier()
-    complexity, complexity_confidence, complexity_source = infer_complexity(prompt, classifier)
+    complexity, complexity_confidence, complexity_source = infer_complexity(prompt, use_case, classifier)
     clarity, clarity_source = await infer_clarity(prompt, use_case)
 
     all_rows, data_source = await load_benchmark_rows_with_fallback(use_case=use_case)

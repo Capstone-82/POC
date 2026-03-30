@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Zap,
@@ -15,6 +15,7 @@ import {
   TimerReset,
   Database,
   ChevronDown,
+  Search,
 } from 'lucide-react'
 import RecommendationOutput from '../components/RecommendationOutput'
 import { getRecommendation, getRecommendationOptions } from '../api/inference'
@@ -33,6 +34,9 @@ export default function Inference() {
   const [error, setError] = useState(null)
   const [optionError, setOptionError] = useState(null)
   const [catalog, setCatalog] = useState({ use_cases: [], models: [], data_source: 'loading' })
+  const [modelMenuOpen, setModelMenuOpen] = useState(false)
+  const [modelQuery, setModelQuery] = useState('')
+  const modelMenuRef = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -83,6 +87,27 @@ export default function Inference() {
     [filteredModels, currentModel]
   )
 
+  const visibleModels = useMemo(() => {
+    const query = modelQuery.trim().toLowerCase()
+    if (!query) return filteredModels
+    return filteredModels.filter((model) =>
+      `${model.provider}/${model.model_id}`.toLowerCase().includes(query)
+    )
+  }, [filteredModels, modelQuery])
+
+  useEffect(() => {
+    if (!modelMenuOpen) return
+
+    const handlePointerDown = (event) => {
+      if (!modelMenuRef.current?.contains(event.target)) {
+        setModelMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [modelMenuOpen])
+
   const handleSubmit = async () => {
     setLoading(true)
     setError(null)
@@ -102,6 +127,9 @@ export default function Inference() {
   }
 
   const canSubmit = prompt.trim() && useCase && currentModel
+  const selectedModelLabel = selectedModel
+    ? `${selectedModel.provider}/${selectedModel.model_id}`
+    : 'Choose a baseline model'
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 space-y-10 pb-28">
@@ -214,21 +242,95 @@ export default function Inference() {
                 </div>
 
               <div className="space-y-3">
-                <div className="relative">
-                  <select
-                    value={currentModel}
-                    onChange={(e) => setCurrentModel(e.target.value)}
-                    className="w-full appearance-none rounded-2xl border border-white/10 bg-slate-950/60 px-5 py-4 pr-14 text-sm font-semibold text-white focus:outline-none focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-950/30 transition-all"
+                <div className="relative" ref={modelMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setModelMenuOpen((open) => !open)}
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-5 py-4 text-left transition-all hover:border-cyan-400/25 focus:outline-none focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-950/30"
                   >
-                    {filteredModels.map((model) => (
-                      <option key={model.model_id} value={model.model_id} className="bg-slate-950 text-white">
-                        {model.provider}/{model.model_id} | acc {fmt(model.avg_accuracy)} | ${fmt(model.median_cost, 6)} | {fmt(model.median_latency_ms, 0)}ms
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
-                  </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{selectedModelLabel}</p>
+                        {selectedModel ? (
+                          <p className="mt-1 truncate text-xs text-slate-400">
+                            acc {fmt(selectedModel.avg_accuracy)} - ${fmt(selectedModel.median_cost, 6)} - {fmt(selectedModel.median_latency_ms, 0)}ms - n={selectedModel.sample_count}
+                          </p>
+                        ) : (
+                          <p className="mt-1 text-xs text-slate-500">Select a benchmark-backed baseline to compare against.</p>
+                        )}
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 shrink-0 text-slate-500 transition-transform ${modelMenuOpen ? 'rotate-180' : ''}`}
+                      />
+                    </div>
+                  </button>
+
+                  <AnimatePresence>
+                    {modelMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        className="absolute z-30 mt-3 w-full overflow-hidden rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,15,28,0.98),rgba(5,10,20,0.98))] shadow-[0_24px_70px_rgba(2,8,23,0.55)]"
+                      >
+                        <div className="border-b border-white/8 p-3">
+                          <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                            <Search className="w-4 h-4 text-slate-500" />
+                            <input
+                              value={modelQuery}
+                              onChange={(e) => setModelQuery(e.target.value)}
+                              placeholder="Search provider or model"
+                              className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="max-h-80 overflow-y-auto p-2">
+                          <div className="space-y-2">
+                            {visibleModels.map((model) => {
+                              const active = model.model_id === currentModel
+                              return (
+                                <button
+                                  key={model.model_id}
+                                  type="button"
+                                  onClick={() => {
+                                    setCurrentModel(model.model_id)
+                                    setModelMenuOpen(false)
+                                    setModelQuery('')
+                                  }}
+                                  className={`w-full rounded-2xl border px-4 py-3 text-left transition-all ${
+                                    active
+                                      ? 'border-cyan-400/30 bg-cyan-400/[0.08]'
+                                      : 'border-white/8 bg-white/[0.03] hover:bg-white/[0.06]'
+                                  }`}
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="truncate text-sm font-black text-white">
+                                        {model.provider}/{model.model_id}
+                                      </p>
+                                      <p className="mt-1 text-xs text-slate-400">
+                                        Accuracy {fmt(model.avg_accuracy)} - Cost ${fmt(model.median_cost, 6)} - Latency {fmt(model.median_latency_ms, 0)}ms
+                                      </p>
+                                    </div>
+                                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                                      n={model.sample_count}
+                                    </span>
+                                  </div>
+                                </button>
+                              )
+                            })}
+
+                            {!visibleModels.length && (
+                              <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-slate-500">
+                                No models match that search.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {selectedModel && (
