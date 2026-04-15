@@ -73,13 +73,14 @@ def load_classifier_training_rows(training_csv: Path | None = None) -> pd.DataFr
 
 def load_benchmark_rows() -> pd.DataFrame:
     df = pd.read_csv(BENCHMARK_CSV)
+    accuracy_column = "avg_accuracy_score" if "avg_accuracy_score" in df.columns else "accuracy_score"
     df = df.dropna(
         subset=[
             "model_id",
             "use_case",
             "prompt_complexity",
             "clarity",
-            "accuracy_score",
+            accuracy_column,
             "cost",
             "latency_ms",
         ]
@@ -89,7 +90,7 @@ def load_benchmark_rows() -> pd.DataFrame:
     df["clarity"] = df["clarity"].astype(str).str.strip().str.upper()
     df["model_id"] = df["model_id"].astype(str).str.strip()
     df["provider"] = df["provider"].fillna("").astype(str).str.strip()
-    df["accuracy_score"] = pd.to_numeric(df["accuracy_score"], errors="coerce")
+    df["accuracy_score"] = pd.to_numeric(df[accuracy_column], errors="coerce")
     df["cost"] = pd.to_numeric(df["cost"], errors="coerce")
     df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce")
     df = df.dropna(subset=["accuracy_score", "cost", "latency_ms"])
