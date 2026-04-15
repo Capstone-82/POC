@@ -4,6 +4,8 @@ import math
 import pickle
 import re
 import csv
+import asyncio
+import uuid
 from pathlib import Path
 from statistics import median
 from typing import Any, Dict, List, Optional, Tuple
@@ -18,6 +20,7 @@ ACCURACY_TOLERANCE = 2.0
 MIN_ACCURACY_GAIN = 2.0
 MIN_COST_IMPROVEMENT_PCT = 15.0
 MIN_LATENCY_IMPROVEMENT_PCT = 20.0
+MIN_KNN_NEIGHBORS = 5
 
 CLASSIFIER_PATH = (
     Path(__file__).resolve().parents[2] / "model_training" / "artifacts" / "classifier.pkl"
@@ -199,13 +202,32 @@ def clean_benchmark_rows(rows: List[dict]) -> List[dict]:
     cleaned: List[dict] = []
     for row in rows:
         try:
-            model_id = str(row["model_id"]).strip()
-            provider = str(row.get("provider", "")).strip()
-            use_case = str(row["use_case"]).strip().lower()
+            model_id   = str(row["model_id"]).strip()
+            provider   = str(row.get("provider", "")).strip()
+            use_case   = str(row["use_case"]).strip().lower()
             complexity = str(row["prompt_complexity"]).strip().lower()
-            clarity = str(row["clarity"]).strip().upper()
-            accuracy_score = float(row["accuracy_score"])
-            cost = float(row["cost"])
+            clarity    = str(row["clarity"]).strip().upper()
+
+            avg_acc = row.get("avg_accuracy_score")
+            leg_acc = row.get("accuracy_score")
+
+            if avg_acc is not None and str(avg_acc).strip() != "":
+                try:
+                    accuracy_score = float(avg_acc)
+                except (TypeError, ValueError):
+                    accuracy_score = None
+            elif leg_acc is not None and str(leg_acc).strip() != "":
+                try:
+                    accuracy_score = float(leg_acc)
+                except (TypeError, ValueError):
+                    accuracy_score = None
+            else:
+                continue
+
+            if accuracy_score is None:
+                continue
+
+            cost       = float(row["cost"])
             latency_ms = float(row["latency_ms"])
         except (KeyError, TypeError, ValueError):
             continue
@@ -223,6 +245,7 @@ def clean_benchmark_rows(rows: List[dict]) -> List[dict]:
                 "accuracy_score": accuracy_score,
                 "cost": cost,
                 "latency_ms": latency_ms,
+                "has_multi_eval": avg_acc is not None and str(avg_acc).strip() != "",
             }
         )
     return cleaned
@@ -320,7 +343,72 @@ def build_model_stats(row: dict) -> dict:
     }
 
 
-def should_switch(recommended: dict, current: Optional[dict]) -> Tuple[bool, str]:
+def build_knn_model_stats(row: dict) -> dict:
+    accuracy = float(row.get("sim_weighted_accuracy", row.get("avg_accuracy", 0.0)))
+    return {
+        "model_id": row["model_id"],
+        "provider": row.get("provider", ""),
+        "sample_count": int(row.get("sample_n", row.get("sample_count", 0))),
+        "avg_accuracy": round(accuracy, 2),
+        "median_accuracy": round(accuracy, 2),
+        "median_cost": round(float(row.get("p50_cost", row.get("median_cost", 0.0))), 6),
+        "median_latency_ms": round(float(row.get("p50_latency", row.get("median_latency_ms", 0.0))), 1),
+    }
+
+
+def score_and_rank_knn_candidates(candidates: Dict[str, dict]) -> List[dict]:
+    ranked = [dict(item) for item in candidates.values()]
+    if not ranked:
+        return []
+
+    acc_values = [float(item["sim_weighted_accuracy"]) for item in ranked]
+    cost_values = [float(item["p50_cost"]) for item in ranked]
+    latency_values = [float(item["p50_latency"]) for item in ranked]
+    variance_values = [float(item.get("score_variance", 0.0)) for item in ranked]
+
+    acc_min, acc_max = min(acc_values), max(acc_values)
+    cost_min, cost_max = min(cost_values), max(cost_values)
+    latency_min, latency_max = min(latency_values), max(latency_values)
+    variance_min, variance_max = min(variance_values), max(variance_values)
+
+    for item in ranked:
+        acc_norm = 1.0 if math.isclose(acc_min, acc_max) else (
+            (float(item["sim_weighted_accuracy"]) - acc_min) / (acc_max - acc_min)
+        )
+        cost_norm = normalize_lower_better(float(item["p50_cost"]), cost_min, cost_max)
+        latency_norm = normalize_lower_better(float(item["p50_latency"]), latency_min, latency_max)
+        confidence = normalize_lower_better(
+            float(item.get("score_variance", 0.0)),
+            variance_min,
+            variance_max,
+        )
+        item["confidence"] = round(confidence, 3)
+        item["value_score"] = round(
+            0.55 * acc_norm
+            + 0.25 * cost_norm
+            + 0.15 * latency_norm
+            + 0.05 * confidence,
+            4,
+        )
+
+    ranked.sort(
+        key=lambda item: (
+            -item["value_score"],
+            -float(item["sim_weighted_accuracy"]),
+            float(item["p50_cost"]),
+            float(item["p50_latency"]),
+        )
+    )
+    return ranked
+
+
+def should_switch(
+    recommended: dict,
+    current: Optional[dict],
+    min_accuracy_gain: float = 0.0,
+    max_cost_increase_pct: float = 0.0,
+    max_latency_increase_pct: float = 0.0,
+) -> Tuple[bool, str]:
     if current is None:
         return True, "No current model comparison was available, so this is the best value option in the matched benchmark slice."
 
@@ -328,24 +416,23 @@ def should_switch(recommended: dict, current: Optional[dict]) -> Tuple[bool, str
     cost_delta_pct = recommended["cost_delta_pct"]
     latency_delta_pct = recommended["latency_delta_pct"]
 
-    if accuracy_gain is not None and accuracy_gain >= MIN_ACCURACY_GAIN:
-        return True, "Accuracy gain is large enough to justify switching."
-
     if (
-        cost_delta_pct is not None
-        and cost_delta_pct <= -MIN_COST_IMPROVEMENT_PCT
-        and (accuracy_gain is None or accuracy_gain >= -1.0)
+        accuracy_gain is not None
+        and accuracy_gain >= min_accuracy_gain
+        and cost_delta_pct is not None
+        and cost_delta_pct <= max_cost_increase_pct
+        and latency_delta_pct is not None
+        and latency_delta_pct <= max_latency_increase_pct
     ):
-        return True, "Cost drops meaningfully without a material quality loss."
+        return (
+            True,
+            "Candidate meets the selected thresholds for accuracy gain, cost, and latency.",
+        )
 
-    if (
-        latency_delta_pct is not None
-        and latency_delta_pct <= -MIN_LATENCY_IMPROVEMENT_PCT
-        and (accuracy_gain is None or accuracy_gain >= -1.0)
-    ):
-        return True, "Latency improves meaningfully without a material quality loss."
-
-    return False, "Current model is already close enough that switching would mostly be noise."
+    return (
+        False,
+        "Switching requires a candidate to meet the selected accuracy, cost, and latency thresholds.",
+    )
 
 
 def build_reason(
@@ -357,9 +444,10 @@ def build_reason(
     filter_level: str,
 ) -> str:
     recommended_name = f"{recommended_stats['provider']}/{recommended_stats['model_id']}"
+    benchmark_scope = "semantic KNN neighbors" if filter_level == "semantic_knn" else f"{filter_level} benchmark slice"
     if not current_model_found:
         return (
-            f"{recommended_name} is the best value option in the {filter_level} benchmark slice. "
+            f"{recommended_name} is the best value option in the {benchmark_scope}. "
             f"{policy_reason}"
         )
 
@@ -371,15 +459,24 @@ def build_reason(
 
     return (
         f"Stay on {current_model}. {policy_reason} "
-        f"The best alternative in the {filter_level} slice was {recommended_name}."
+        f"The best alternative in the {benchmark_scope} was {recommended_name}."
     )
 
 
-async def get_recommendation(use_case: str, prompt: str, current_model: str) -> dict:
-    classifier = load_complexity_classifier()
-    complexity, complexity_confidence, complexity_source = infer_complexity(prompt, use_case, classifier)
-    clarity, clarity_source = await infer_clarity(prompt, use_case)
-
+async def build_slice_recommendation(
+    use_case: str,
+    prompt: str,
+    current_model: str,
+    complexity: str,
+    complexity_confidence: Optional[float],
+    complexity_source: str,
+    clarity: str,
+    clarity_source: str,
+    min_accuracy_gain: float = 0.0,
+    max_cost_increase_pct: float = 0.0,
+    max_latency_increase_pct: float = 0.0,
+    fallback_warning: Optional[str] = None,
+) -> dict:
     all_rows, data_source = await load_benchmark_rows_with_fallback(use_case=use_case)
     if not all_rows:
         raise ValueError("No benchmark data was found for this use case.")
@@ -452,7 +549,13 @@ async def get_recommendation(use_case: str, prompt: str, current_model: str) -> 
         )
     )
 
-    switch_recommended, policy_reason = should_switch(recommended_stats, current_stats)
+    switch_recommended, policy_reason = should_switch(
+        recommended_stats,
+        current_stats,
+        min_accuracy_gain=min_accuracy_gain,
+        max_cost_increase_pct=max_cost_increase_pct,
+        max_latency_increase_pct=max_latency_increase_pct,
+    )
     final_suggestion_model = recommended_stats["model_id"] if switch_recommended else current_model
     reason = build_reason(
         switch_recommended=switch_recommended,
@@ -464,6 +567,8 @@ async def get_recommendation(use_case: str, prompt: str, current_model: str) -> 
     )
 
     warnings: List[str] = []
+    if fallback_warning:
+        warnings.append(fallback_warning)
     if not current_model_found:
         warnings.append(
             f"Current model '{current_model}' was not found in the matched benchmark slice, so comparison deltas were skipped."
@@ -474,6 +579,7 @@ async def get_recommendation(use_case: str, prompt: str, current_model: str) -> 
         "complexity_confidence": round(complexity_confidence, 3) if complexity_confidence is not None else None,
         "complexity_source": complexity_source,
         "quality_score": None,
+        "use_case": use_case,
         "clarity": clarity,
         "clarity_source": clarity_source,
         "filter_level": filter_level,
@@ -500,7 +606,272 @@ async def get_recommendation(use_case: str, prompt: str, current_model: str) -> 
         "reason": reason,
         "top_candidates": [build_model_stats(row) for row in summary[:5]],
         "warnings": warnings,
+        "policy_thresholds": {
+            "min_accuracy_gain": min_accuracy_gain,
+            "max_cost_increase_pct": max_cost_increase_pct,
+            "max_latency_increase_pct": max_latency_increase_pct,
+        },
     }
+
+
+async def get_recommendation(
+    use_case: str,
+    prompt: str,
+    current_model: str,
+    min_accuracy_gain: float = 0.0,
+    max_cost_increase_pct: float = 0.0,
+    max_latency_increase_pct: float = 0.0,
+) -> dict:
+    classifier = load_complexity_classifier()
+    complexity, complexity_confidence, complexity_source = infer_complexity(prompt, use_case, classifier)
+    clarity, clarity_source = await infer_clarity(prompt, use_case)
+
+    try:
+        return await build_knn_recommendation(
+            use_case=use_case,
+            prompt=prompt,
+            current_model=current_model,
+            complexity=complexity,
+            complexity_confidence=complexity_confidence,
+            complexity_source=complexity_source,
+            clarity=clarity,
+            clarity_source=clarity_source,
+            min_accuracy_gain=min_accuracy_gain,
+            max_cost_increase_pct=max_cost_increase_pct,
+            max_latency_increase_pct=max_latency_increase_pct,
+        )
+    except Exception as exc:
+        return await build_slice_recommendation(
+            use_case=use_case,
+            prompt=prompt,
+            current_model=current_model,
+            complexity=complexity,
+            complexity_confidence=complexity_confidence,
+            complexity_source=complexity_source,
+            clarity=clarity,
+            clarity_source=clarity_source,
+            min_accuracy_gain=min_accuracy_gain,
+            max_cost_increase_pct=max_cost_increase_pct,
+            max_latency_increase_pct=max_latency_increase_pct,
+            fallback_warning=f"KNN recommendation failed, so slice fallback was used: {exc}",
+        )
+
+
+async def build_knn_recommendation(
+    use_case: str,
+    prompt: str,
+    current_model: str,
+    complexity: str,
+    complexity_confidence: Optional[float],
+    complexity_source: str,
+    clarity: str,
+    clarity_source: str,
+    min_accuracy_gain: float = 0.0,
+    max_cost_increase_pct: float = 0.0,
+    max_latency_increase_pct: float = 0.0,
+) -> dict:
+    from services.embedding_service import get_or_compute_embedding
+    from services.knn_search import (
+        AGGREGATION_FALLBACK_K,
+        FALLBACK_K,
+        FALLBACK_SIMILARITY,
+        aggregate_knn_signals,
+        search_neighbors,
+    )
+    from services.model_registry import get_model_ids_for_use_case
+    from services.supabase_client import supabase
+
+    vector, prompt_hash, was_cached = await get_or_compute_embedding(prompt, supabase)
+    neighbors = search_neighbors(supabase, vector, use_case)
+    if len(neighbors) < MIN_KNN_NEIGHBORS:
+        neighbors = search_neighbors(
+            supabase,
+            vector,
+            use_case,
+            k=FALLBACK_K,
+            min_similarity=FALLBACK_SIMILARITY,
+        )
+
+    if len(neighbors) < MIN_KNN_NEIGHBORS:
+        raise ValueError(f"KNN found only {len(neighbors)} usable neighbors")
+
+    allowed_models = get_model_ids_for_use_case(use_case)
+    def aggregate_allowed(rows: List[dict]) -> Dict[str, dict]:
+        return {
+            model_id: signals
+            for model_id, signals in aggregate_knn_signals(rows).items()
+            if model_id in allowed_models
+        }
+
+    knn_signals = aggregate_allowed(neighbors)
+    if not knn_signals:
+        neighbors = search_neighbors(
+            supabase,
+            vector,
+            use_case,
+            k=AGGREGATION_FALLBACK_K,
+            min_similarity=FALLBACK_SIMILARITY,
+        )
+        knn_signals = aggregate_allowed(neighbors)
+
+    ranked = score_and_rank_knn_candidates(knn_signals)
+    if not ranked:
+        raise ValueError("KNN neighbors were too sparse after per-model aggregation")
+
+    best = ranked[0]
+    recommended_stats = build_knn_model_stats(best)
+    current_row = next((row for row in ranked if row["model_id"] == current_model), None)
+    current_stats = build_knn_model_stats(current_row) if current_row else None
+    current_model_found = current_stats is not None
+
+    recommended_stats["accuracy_delta"] = (
+        None if current_stats is None else round(recommended_stats["avg_accuracy"] - current_stats["avg_accuracy"], 2)
+    )
+    recommended_stats["accuracy_delta_pct"] = (
+        None
+        if current_stats is None
+        else round(percent_delta(recommended_stats["avg_accuracy"], current_stats["avg_accuracy"]), 1)
+    )
+    recommended_stats["cost_delta_pct"] = (
+        None
+        if current_stats is None
+        else round(percent_delta(recommended_stats["median_cost"], current_stats["median_cost"]), 1)
+    )
+    recommended_stats["latency_delta_pct"] = (
+        None
+        if current_stats is None
+        else round(percent_delta(recommended_stats["median_latency_ms"], current_stats["median_latency_ms"]), 1)
+    )
+
+    switch_recommended, policy_reason = should_switch(
+        recommended_stats,
+        current_stats,
+        min_accuracy_gain=min_accuracy_gain,
+        max_cost_increase_pct=max_cost_increase_pct,
+        max_latency_increase_pct=max_latency_increase_pct,
+    )
+    final_suggestion_model = recommended_stats["model_id"] if switch_recommended else current_model
+    warnings: List[str] = []
+    if not current_model_found:
+        warnings.append(
+            f"Current model '{current_model}' was not found in the KNN neighbor set, so comparison deltas were skipped."
+        )
+
+    reason = build_reason(
+        switch_recommended=switch_recommended,
+        policy_reason=policy_reason,
+        recommended_stats=recommended_stats,
+        current_model=current_model,
+        current_model_found=current_model_found,
+        filter_level="semantic_knn",
+    )
+
+    result = {
+        "complexity": complexity,
+        "complexity_confidence": round(complexity_confidence, 3) if complexity_confidence is not None else None,
+        "complexity_source": complexity_source,
+        "quality_score": None,
+        "use_case": use_case,
+        "clarity": clarity,
+        "clarity_source": clarity_source,
+        "filter_level": "semantic_knn",
+        "recommendation_mode": "semantic_best_value",
+        "data_source": "knn",
+        "current_model": current_model,
+        "current_model_found": current_model_found,
+        "current_model_stats": current_stats,
+        "recommended_model": recommended_stats["model_id"],
+        "recommended_provider": recommended_stats["provider"],
+        "expected_accuracy": recommended_stats["avg_accuracy"],
+        "expected_cost": recommended_stats["median_cost"],
+        "expected_latency": recommended_stats["median_latency_ms"],
+        "accuracy_delta": recommended_stats["accuracy_delta"],
+        "accuracy_delta_pct": recommended_stats["accuracy_delta_pct"],
+        "cost_delta_pct": recommended_stats["cost_delta_pct"],
+        "latency_delta_pct": recommended_stats["latency_delta_pct"],
+        "sample_size": recommended_stats["sample_count"],
+        "slice_row_count": len(neighbors),
+        "models_considered": len(ranked),
+        "switch_recommended": switch_recommended,
+        "final_suggestion_model": final_suggestion_model,
+        "policy_reason": policy_reason,
+        "reason": reason,
+        "top_candidates": [build_knn_model_stats(row) for row in ranked[:5]],
+        "warnings": warnings,
+        "policy_thresholds": {
+            "min_accuracy_gain": min_accuracy_gain,
+            "max_cost_increase_pct": max_cost_increase_pct,
+            "max_latency_increase_pct": max_latency_increase_pct,
+        },
+    }
+    result["knn_neighbors_used"] = len(neighbors)
+    result["embedding_cached"] = was_cached
+    result["prompt_hash"] = prompt_hash
+    result["knn_confidence"] = best.get("confidence")
+
+    try:
+        asyncio.create_task(_write_routing_log(result, request_id=str(uuid.uuid4())[:8]))
+    except RuntimeError:
+        pass
+
+    return result
+
+
+async def _write_routing_log(result: dict, request_id: str) -> None:
+    try:
+        from services.supabase_client import supabase
+
+        supabase.table("routing_log").insert(
+            {
+                "request_id": request_id,
+                "prompt_hash": result.get("prompt_hash"),
+                "use_case": result.get("use_case"),
+                "complexity": result.get("complexity"),
+                "clarity": result.get("clarity"),
+                "recommended_model": result.get("recommended_model"),
+                "data_source": result.get("data_source"),
+                "knn_neighbors": result.get("knn_neighbors_used"),
+                "filter_level": result.get("filter_level"),
+                "expected_accuracy": result.get("expected_accuracy"),
+                "confidence": result.get("knn_confidence"),
+            }
+        ).execute()
+    except Exception as exc:
+        print(f"[ROUTING LOG ERROR] {exc}")
+
+
+async def _shadow_knn_recommendation(prompt: str, use_case: str, slice_result: dict) -> None:
+    """
+    Runs semantic KNN routing in shadow mode and logs agreement with the slice
+    recommender. It does not affect the user-facing recommendation response.
+    """
+    try:
+        from services.embedding_service import get_or_compute_embedding
+        from services.knn_search import aggregate_knn_signals, search_neighbors
+        from services.supabase_client import supabase
+
+        vector, _prompt_hash, was_cached = await get_or_compute_embedding(prompt, supabase)
+        neighbors = search_neighbors(supabase, vector, use_case)
+
+        if not neighbors:
+            print(f"[SHADOW KNN] no_neighbors use_case={use_case} cached={was_cached}")
+            return
+
+        signals = aggregate_knn_signals(neighbors)
+        if not signals:
+            print(f"[SHADOW KNN] sparse_neighbors use_case={use_case} neighbors={len(neighbors)}")
+            return
+
+        knn_top = max(signals.values(), key=lambda item: item["sim_weighted_accuracy"])
+        slice_top = slice_result.get("recommended_model", "?")
+        agree = knn_top["model_id"] == slice_top
+        print(
+            f"[SHADOW KNN] knn={knn_top['model_id']} "
+            f"acc={knn_top['sim_weighted_accuracy']} slice={slice_top} "
+            f"agree={agree} neighbors={len(neighbors)} cached={was_cached}"
+        )
+    except Exception as exc:
+        print(f"[SHADOW KNN ERROR] {exc}")
 
 
 async def get_recommendation_options() -> dict:

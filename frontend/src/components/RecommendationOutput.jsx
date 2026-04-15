@@ -54,7 +54,11 @@ function Delta({ label, value, positiveGood = false }) {
 export default function RecommendationOutput({ data }) {
   const currentStats = data.current_model_stats
   const warnings = data.warnings || []
-  const sourceLabel = data.data_source === 'supabase' ? 'Supabase' : 'Local CSV'
+  const sourceLabel = data.data_source === 'knn'
+    ? 'Semantic KNN'
+    : data.data_source === 'supabase'
+      ? 'Supabase'
+      : 'Local CSV'
 
   return (
     <motion.div

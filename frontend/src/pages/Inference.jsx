@@ -14,6 +14,7 @@ import {
   Coins,
   TimerReset,
   Database,
+  ShieldCheck,
   ChevronDown,
   Search,
 } from 'lucide-react'
@@ -36,6 +37,9 @@ export default function Inference() {
   const [catalog, setCatalog] = useState({ use_cases: [], models: [], data_source: 'loading' })
   const [modelMenuOpen, setModelMenuOpen] = useState(false)
   const [modelQuery, setModelQuery] = useState('')
+  const [minAccuracyGain, setMinAccuracyGain] = useState(0)
+  const [maxCostIncreasePct, setMaxCostIncreasePct] = useState(0)
+  const [maxLatencyIncreasePct, setMaxLatencyIncreasePct] = useState(0)
   const modelMenuRef = useRef(null)
 
   useEffect(() => {
@@ -116,7 +120,10 @@ export default function Inference() {
       const data = await getRecommendation({
         prompt,
         use_case: useCase,
-        current_model: currentModel
+        current_model: currentModel,
+        min_accuracy_gain: Number(minAccuracyGain) || 0,
+        max_cost_increase_pct: Number(maxCostIncreasePct) || 0,
+        max_latency_increase_pct: Number(maxLatencyIncreasePct) || 0
       })
       setResult(data)
     } catch (err) {
@@ -374,6 +381,101 @@ export default function Inference() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-cyan-300" />
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-[0.24em]">Switch Policy</label>
+                </div>
+                <p className="text-xs text-slate-400 font-medium">
+                  Defaults require better accuracy, lower cost, and lower latency.
+                </p>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <label className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+                    Min Accuracy Gain
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={minAccuracyGain}
+                    onChange={(e) => setMinAccuracyGain(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-950/30"
+                  />
+                  <span className="block text-xs text-slate-500">Accuracy points above current model.</span>
+                </label>
+
+                <label className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+                    Max Cost Increase
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={maxCostIncreasePct}
+                    onChange={(e) => setMaxCostIncreasePct(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-950/30"
+                  />
+                  <span className="block text-xs text-slate-500">Percent. Use 0 to require cheaper or same.</span>
+                </label>
+
+                <label className="space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+                    Max Latency Increase
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={maxLatencyIncreasePct}
+                    onChange={(e) => setMaxLatencyIncreasePct(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-cyan-400/40 focus:ring-4 focus:ring-cyan-950/30"
+                  />
+                  <span className="block text-xs text-slate-500">Percent. Use 0 to require faster or same.</span>
+                </label>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-xs font-bold text-slate-400">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinAccuracyGain(0)
+                    setMaxCostIncreasePct(0)
+                    setMaxLatencyIncreasePct(0)
+                  }}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-slate-300 transition-colors hover:bg-white/[0.08]"
+                >
+                  Balanced savings
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinAccuracyGain(2)
+                    setMaxCostIncreasePct(25)
+                    setMaxLatencyIncreasePct(50)
+                  }}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-slate-300 transition-colors hover:bg-white/[0.08]"
+                >
+                  Accuracy tolerant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinAccuracyGain(0)
+                    setMaxCostIncreasePct(0)
+                    setMaxLatencyIncreasePct(0)
+                  }}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-slate-300 transition-colors hover:bg-white/[0.08]"
+                >
+                  Strict efficiency
+                </button>
               </div>
             </div>
 

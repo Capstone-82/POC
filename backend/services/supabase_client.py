@@ -42,7 +42,11 @@ async def get_benchmark_data(
     clarity: Optional[str] = None,
 ) -> List[dict]:
     """Query benchmark results with optional filters."""
-    query = supabase.table("benchmark_results").select("*")
+    columns = (
+        "id,model_id,provider,use_case,prompt_complexity,clarity,"
+        "accuracy_score,avg_accuracy_score,cost,latency_ms,prompt"
+    )
+    query = supabase.table("benchmark_results").select(columns)
     if use_case:
         query = query.eq("use_case", use_case)
     if complexity:

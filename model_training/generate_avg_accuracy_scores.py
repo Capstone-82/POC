@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
+import statistics
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -207,6 +209,42 @@ def _coerce_existing_score(value: Any) -> float | None:
         return None
 
 
+def compute_prompt_hash(prompt: str) -> str:
+    """SHA-256 of lowercased, whitespace-normalized prompt."""
+    normalized = re.sub(r"\s+", " ", (prompt or "").strip().lower())
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
+
+
+def compute_quality_flags(scores: list[float]) -> dict[str, Any]:
+    """
+    Compute evaluator agreement and confidence flags from named evaluator scores.
+    """
+    if len(scores) < 2:
+        return {
+            "score_stdev": None,
+            "eval_conflict_flag": False,
+            "high_conflict_flag": False,
+            "low_confidence": True,
+            "confidence_level": 0.3,
+            "eval_count": len(scores),
+        }
+
+    score_range = max(scores) - min(scores)
+    stdev = statistics.stdev(scores)
+    conflict = score_range >= 25
+    high_conflict = score_range >= 40
+    confidence = max(0.0, round(1.0 - stdev / 50.0, 3))
+
+    return {
+        "score_stdev": round(stdev, 3),
+        "eval_conflict_flag": conflict,
+        "high_conflict_flag": high_conflict,
+        "low_confidence": high_conflict or len(scores) < 2,
+        "confidence_level": confidence,
+        "eval_count": len(scores),
+    }
+
+
 def build_evaluator_prompt(use_case: str, prompt: str, response: str) -> str:
     normalized_use_case = (use_case or "text-generation").strip().lower()
     rubric = USE_CASE_PROMPTS.get(normalized_use_case, USE_CASE_PROMPTS["text-generation"])
@@ -368,7 +406,7 @@ def fetch_rows(
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     start = 0
-    selected_columns = "id,prompt,response,use_case,accuracy_score,avg_accuracy_score"
+    selected_columns = "id,prompt,response,use_case,accuracy_score,avg_accuracy_score,prompt_hash"
 
     while True:
         query = supabase.table(table).select(selected_columns).order("created_at", desc=False)
@@ -418,10 +456,6 @@ def evaluate_row(
     successful_new_scores = 0
     evaluator_failures: list[str] = []
 
-    current_score = _coerce_existing_score(row.get("accuracy_score"))
-    if current_score is not None and current_score != placeholder_score:
-        scores_for_average.append(current_score)
-
     for evaluator in evaluators:
         try:
             score = evaluate_with_model(
@@ -442,6 +476,8 @@ def evaluate_row(
         raise ValueError(f"All new evaluators failed. {failure_summary}")
 
     update_payload["avg_accuracy_score"] = round(sum(scores_for_average) / len(scores_for_average), 2)
+    update_payload.update(compute_quality_flags(scores_for_average))
+    update_payload["prompt_hash"] = compute_prompt_hash(prompt)
     update_payload["_meta_successful_new_scores"] = successful_new_scores
     update_payload["_meta_evaluator_failures"] = evaluator_failures
     return update_payload
@@ -470,7 +506,7 @@ def parse_args() -> argparse.Namespace:
         "--placeholder-score",
         type=float,
         default=DEFAULT_PLACEHOLDER_SCORE,
-        help="Existing accuracy_score value to ignore when averaging. Default: 50",
+        help="Deprecated; legacy accuracy_score is never included in avg_accuracy_score.",
     )
     parser.add_argument(
         "--force",
@@ -536,7 +572,7 @@ def main() -> int:
                 for use_case, models in DEFAULT_USE_CASE_EVALUATORS.items()
             )
         )
-    print(f"Placeholder score excluded from average: {args.placeholder_score}")
+    print("Legacy accuracy_score excluded from multi-evaluator average.")
 
     completed = 0
     failures = 0

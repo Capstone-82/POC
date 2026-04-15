@@ -16,5 +16,8 @@ async def recommend(req: InferenceRequest):
         use_case=req.use_case,
         prompt=req.prompt,
         current_model=req.current_model,
+        min_accuracy_gain=req.min_accuracy_gain,
+        max_cost_increase_pct=req.max_cost_increase_pct,
+        max_latency_increase_pct=req.max_latency_increase_pct,
     )
     return InferenceResponse(**result)

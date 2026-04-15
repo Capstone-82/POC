@@ -58,6 +58,9 @@ class InferenceRequest(BaseModel):
     prompt: str
     use_case: UseCase
     current_model: str
+    min_accuracy_gain: float = 0.0
+    max_cost_increase_pct: float = 0.0
+    max_latency_increase_pct: float = 0.0
 
 
 class ModelStats(BaseModel):
@@ -68,6 +71,12 @@ class ModelStats(BaseModel):
     median_accuracy: float
     median_cost: float
     median_latency_ms: float
+
+
+class PolicyThresholds(BaseModel):
+    min_accuracy_gain: float = 0.0
+    max_cost_increase_pct: float = 0.0
+    max_latency_increase_pct: float = 0.0
 
 
 class InferenceResponse(BaseModel):
@@ -101,3 +110,8 @@ class InferenceResponse(BaseModel):
     reason: str
     top_candidates: List[ModelStats]
     warnings: List[str] = []
+    policy_thresholds: Optional[PolicyThresholds] = None
+    knn_neighbors_used: Optional[int] = None
+    knn_confidence: Optional[float] = None
+    embedding_cached: Optional[bool] = None
+    prompt_hash: Optional[str] = None
