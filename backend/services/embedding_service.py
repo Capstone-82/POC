@@ -1,5 +1,21 @@
 """
-Prompt embedding service backed by sentence-transformers and Supabase caching.
+Prompt embedding service — OpenAI text-embedding-3-small (async HTTP via httpx).
+
+Why OpenAI instead of sentence-transformers / fastembed / ONNX:
+  All local embedding libraries (PyTorch, ONNX Runtime) fail on this Windows
+  machine with [WinError 1114] DLL initialisation failure when imported inside
+  uvicorn's async worker process.  The error is a Windows-specific interaction
+  between asyncio thread pool workers and native DLL loading (CUDA / MKL state).
+  It does NOT reproduce in a plain python -c "..." call but DOES reproduce inside
+  the server worker — making it very hard to fix at the OS level.
+
+  OpenAI text-embedding-3-small:
+    - Pure HTTP request via httpx (already installed, zero native DLLs).
+    - dimensions=384 → same vector size as all-MiniLM-L6-v2.
+    - No schema change needed for the prompt_embeddings table (vector(384)).
+    - Works from any async context without DLL issues.
+    - ~0.02 USD / 1M tokens (cheap; costs only on cache misses).
+    - OPENAI_API_KEY is already in .env.
 """
 from __future__ import annotations
 
@@ -9,37 +25,64 @@ import os
 import re
 from typing import Any
 
-os.environ.setdefault("USE_TF", "0")
-os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-
-_model = None
+import httpx
 
 
-def _get_model():
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
+OPENAI_EMBED_URL   = "https://api.openai.com/v1/embeddings"
+OPENAI_EMBED_MODEL = "text-embedding-3-small"
+EMBED_DIMENSIONS   = 384   # matches vector(384) in prompt_embeddings table
 
-        _model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-    return _model
 
+def _get_api_key() -> str:
+    key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError("OPENAI_API_KEY env var is not set")
+    return key
+
+
+# ─── Core helpers ─────────────────────────────────────────────────────────────
 
 def compute_prompt_hash(prompt: str) -> str:
+    """SHA-256 of lowercased, whitespace-normalised prompt (first 32 hex chars)."""
     normalized = re.sub(r"\s+", " ", (prompt or "").strip().lower())
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
 
 
-def embed_text(text: str) -> list[float]:
-    """Compute a 384-dimensional embedding for a string."""
-    return _get_model().encode(text, convert_to_numpy=True).tolist()
+async def embed_text_async(text: str) -> list[float]:
+    """
+    Call OpenAI text-embedding-3-small and return a 384-dim vector.
+    Uses httpx.AsyncClient for non-blocking HTTP inside the async event loop.
+    """
+    api_key = _get_api_key()
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(
+            OPENAI_EMBED_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type":  "application/json",
+            },
+            json={
+                "input":      text,
+                "model":      OPENAI_EMBED_MODEL,
+                "dimensions": EMBED_DIMENSIONS,
+            },
+        )
+        response.raise_for_status()
+        data = response.json()
+        return [float(v) for v in data["data"][0]["embedding"]]
 
+
+# ─── Supabase vector coercion ─────────────────────────────────────────────────
 
 def _coerce_embedding(value: Any) -> list[float] | None:
+    """
+    Supabase may return the pgvector column as a Python list, a JSON string,
+    or a Postgres-formatted string like "[0.1,0.2,...]".  Handle all three.
+    """
     if value is None:
         return None
     if isinstance(value, list):
-        return [float(item) for item in value]
+        return [float(x) for x in value]
     if isinstance(value, str):
         text = value.strip()
         if not text:
@@ -47,41 +90,56 @@ def _coerce_embedding(value: Any) -> list[float] | None:
         try:
             parsed = json.loads(text)
             if isinstance(parsed, list):
-                return [float(item) for item in parsed]
+                return [float(x) for x in parsed]
         except json.JSONDecodeError:
             pass
         if text.startswith("[") and text.endswith("]"):
-            return [float(item.strip()) for item in text[1:-1].split(",") if item.strip()]
+            return [float(x.strip()) for x in text[1:-1].split(",") if x.strip()]
     return None
 
 
-async def get_or_compute_embedding(prompt: str, supabase_client: Any) -> tuple[list[float], str, bool]:
+# ─── Public API ───────────────────────────────────────────────────────────────
+
+async def get_or_compute_embedding(
+    prompt: str,
+    supabase_client: Any,
+) -> tuple[list[float], str, bool]:
     """
-    Return (embedding_vector, prompt_hash, was_cached), writing cache misses to
-    the prompt_embeddings table.
+    Return (embedding_vector, prompt_hash, was_cached).
+
+    1. Hash the prompt (cheap, pure Python).
+    2. Check Supabase prompt_embeddings cache.
+    3. Cache hit  → return vector immediately (no OpenAI call).
+    4. Cache miss → call OpenAI, store result, return vector.
     """
     prompt_hash = compute_prompt_hash(prompt)
 
-    result = (
-        supabase_client.table("prompt_embeddings")
-        .select("embedding")
-        .eq("prompt_hash", prompt_hash)
-        .limit(1)
-        .execute()
-    )
-    rows = result.data or []
-    if rows and rows[0].get("embedding"):
-        cached_vector = _coerce_embedding(rows[0]["embedding"])
-        if cached_vector:
-            return cached_vector, prompt_hash, True
+    # ── Cache lookup ──────────────────────────────────────────────────────────
+    try:
+        result = (
+            supabase_client.table("prompt_embeddings")
+            .select("embedding")
+            .eq("prompt_hash", prompt_hash)
+            .limit(1)
+            .execute()
+        )
+        rows = result.data or []
+        if rows and rows[0].get("embedding"):
+            cached = _coerce_embedding(rows[0]["embedding"])
+            if cached:
+                return cached, prompt_hash, True
+    except Exception as cache_exc:
+        print(f"[EMBEDDING CACHE READ ERROR] {cache_exc}")
 
-    vector = embed_text(prompt)
-    supabase_client.table("prompt_embeddings").upsert(
-        {
-            "prompt_hash": prompt_hash,
-            "embedding": vector,
-        },
-        on_conflict="prompt_hash",
-    ).execute()
+    # ── Compute via OpenAI + store ────────────────────────────────────────────
+    vector = await embed_text_async(prompt)
+
+    try:
+        supabase_client.table("prompt_embeddings").upsert(
+            {"prompt_hash": prompt_hash, "embedding": vector},
+            on_conflict="prompt_hash",
+        ).execute()
+    except Exception as write_exc:
+        print(f"[EMBEDDING CACHE WRITE ERROR] {write_exc}")
 
     return vector, prompt_hash, False

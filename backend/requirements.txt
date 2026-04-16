@@ -15,7 +15,8 @@ google-genai==1.10.0
 # Data processing
 pandas==2.2.3
 scikit-learn==1.3.2
-fastembed>=0.3.6
+# Embeddings — OpenAI text-embedding-3-small via httpx (no native DLLs)
+# OPENAI_API_KEY must be set in .env  (already present)
 
 # Utilities
 python-dotenv==1.1.0
