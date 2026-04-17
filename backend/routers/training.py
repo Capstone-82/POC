@@ -1,21 +1,26 @@
-import uuid
-import json
 import asyncio
-from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks, HTTPException
-from fastapi.responses import StreamingResponse
-import pandas as pd
+import json
+import uuid
 from io import StringIO
 
-from models.schemas import SinglePromptRequest, JobResponse, ClarityLevel, UseCase, PromptComplexity
-from jobs.store import create_job, push_event, get_event, close_job
-from services.evaluator import evaluate_all_responses
+import pandas as pd
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
+
+from jobs.store import close_job, create_job, get_event, push_event
+from models.schemas import ClarityLevel, JobResponse, PromptComplexity, SinglePromptRequest, UseCase
 from services.bedrock import call_all_models
+from services.embedding_service import compute_prompt_hash, get_or_compute_embedding
+from services.evaluator import evaluate_all_responses
+from services.model_registry import select_rotating_models_for_prompt
+from services.supabase_client import save_prompt_log, save_row, supabase
 from services.vertex import call_all_vertex_models
-from services.supabase_client import save_row, save_prompt_log
-from services.model_registry import get_model_ids_for_use_case
 
 router = APIRouter()
 CSV_FILE_DELAY_MS = 3000
+ROTATION_MIN_MODELS = 3
+ROTATION_MAX_MODELS = 5
+VALID_CLARITY = {"CLEAR", "PARTIAL", "UNCLEAR"}
 
 
 def create_training_job(prompts: list[dict], background_tasks: BackgroundTasks | None = None) -> str:
@@ -35,25 +40,21 @@ def create_training_job(prompts: list[dict], background_tasks: BackgroundTasks |
     return job_id
 
 
-# ─── SINGLE PROMPT ───────────────────────────────────────────
-
 @router.post("/run", response_model=JobResponse)
 async def run_single(req: SinglePromptRequest, background_tasks: BackgroundTasks):
     job_id = create_training_job(
-        prompts=[{
-            "prompt": req.prompt,
-            "prompt_complexity": req.prompt_complexity.value,
-            "use_case": req.use_case.value,
-            "clarity": req.clarity.value,
-        }],
+        prompts=[
+            {
+                "prompt": req.prompt,
+                "prompt_complexity": req.prompt_complexity.value,
+                "use_case": req.use_case.value,
+                "clarity": req.clarity.value,
+            }
+        ],
         background_tasks=background_tasks,
     )
     return {"job_id": job_id}
 
-
-# ─── CSV UPLOAD ──────────────────────────────────────────────
-
-VALID_CLARITY = {"CLEAR", "PARTIAL", "UNCLEAR"}
 
 @router.post("/upload", response_model=JobResponse)
 async def run_csv(
@@ -62,7 +63,6 @@ async def run_csv(
     prompt_complexity: str = Form("mid"),
     use_case: str = Form("text-generation"),
 ):
-    # Validate prompt_complexity
     try:
         complexity_enum = PromptComplexity(prompt_complexity)
     except ValueError:
@@ -71,7 +71,6 @@ async def run_csv(
             detail=f"Invalid prompt_complexity '{prompt_complexity}'. Must be one of: low, mid, high",
         )
 
-    # Validate use_case
     try:
         use_case_enum = UseCase(use_case)
     except ValueError:
@@ -83,40 +82,16 @@ async def run_csv(
     contents = await file.read()
     df = pd.read_csv(StringIO(contents.decode("utf-8")))
 
-    # Validate required columns
     if "prompt" not in df.columns:
         raise HTTPException(status_code=400, detail="CSV must have a 'prompt' column")
     if "clarity" not in df.columns:
         raise HTTPException(status_code=400, detail="CSV must have a 'clarity' column")
 
-    prompts = []
-    for _, row in df.iterrows():
-        p = row.get("prompt")
-        if pd.isna(p) or str(p).strip() == "":
-            continue
-
-        # Validate clarity value
-        clarity_val = str(row.get("clarity", "CLEAR")).strip().upper()
-        if clarity_val not in VALID_CLARITY:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid clarity value '{clarity_val}'. Must be one of: CLEAR, PARTIAL, UNCLEAR",
-            )
-
-        prompts.append({
-            "prompt": str(p).strip(),
-            "prompt_complexity": complexity_enum.value,
-            "use_case": use_case_enum.value,
-            "clarity": clarity_val,
-        })
-
+    prompts = _extract_prompt_rows(df, complexity_enum.value, use_case_enum.value)
     if not prompts:
         raise HTTPException(status_code=400, detail="No valid prompts found in CSV")
 
-    job_id = create_training_job(
-        prompts=prompts,
-        background_tasks=background_tasks,
-    )
+    job_id = create_training_job(prompts=prompts, background_tasks=background_tasks)
     return {"job_id": job_id}
 
 
@@ -159,37 +134,17 @@ async def run_multi_csv(
         if "clarity" not in df.columns:
             raise HTTPException(status_code=400, detail=f"CSV '{file.filename}' must have a 'clarity' column")
 
-        prompts = []
-        for _, row in df.iterrows():
-            p = row.get("prompt")
-            if pd.isna(p) or str(p).strip() == "":
-                continue
-
-            clarity_val = str(row.get("clarity", "CLEAR")).strip().upper()
-            if clarity_val not in VALID_CLARITY:
-                raise HTTPException(
-                    status_code=400,
-                    detail=(
-                        f"Invalid clarity value '{clarity_val}' in '{file.filename}'. "
-                        "Must be one of: CLEAR, PARTIAL, UNCLEAR"
-                    ),
-                )
-
-            prompts.append({
-                "prompt": str(p).strip(),
-                "prompt_complexity": complexity_enum.value,
-                "use_case": use_case_enum.value,
-                "clarity": clarity_val,
-            })
-
+        prompts = _extract_prompt_rows(df, complexity_enum.value, use_case_enum.value)
         if not prompts:
             continue
 
         total_prompts += len(prompts)
-        file_batches.append({
-            "file_name": file.filename or f"file_{len(file_batches) + 1}.csv",
-            "prompts": prompts,
-        })
+        file_batches.append(
+            {
+                "file_name": file.filename or f"file_{len(file_batches) + 1}.csv",
+                "prompts": prompts,
+            }
+        )
 
     if not file_batches:
         raise HTTPException(status_code=400, detail="No valid prompts found in uploaded CSV files")
@@ -206,7 +161,30 @@ async def run_multi_csv(
     return {"job_id": job_id}
 
 
-# ─── SSE STREAM ─────────────────────────────────────────────
+def _extract_prompt_rows(df: pd.DataFrame, prompt_complexity: str, use_case: str) -> list[dict]:
+    prompts = []
+    for _, row in df.iterrows():
+        prompt_value = row.get("prompt")
+        if pd.isna(prompt_value) or str(prompt_value).strip() == "":
+            continue
+
+        clarity_val = str(row.get("clarity", "CLEAR")).strip().upper()
+        if clarity_val not in VALID_CLARITY:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid clarity value '{clarity_val}'. Must be one of: CLEAR, PARTIAL, UNCLEAR",
+            )
+
+        prompts.append(
+            {
+                "prompt": str(prompt_value).strip(),
+                "prompt_complexity": prompt_complexity,
+                "use_case": use_case,
+                "clarity": clarity_val,
+            }
+        )
+    return prompts
+
 
 @router.get("/stream/{job_id}")
 async def stream(job_id: str):
@@ -229,8 +207,6 @@ async def stream(job_id: str):
     )
 
 
-# ─── PROCESS A SINGLE PROMPT (called in parallel) ───────────
-
 async def _process_one_prompt(
     prompt_data: dict,
     prompt_index: int,
@@ -239,119 +215,140 @@ async def _process_one_prompt(
 ):
     """
     Process one prompt end-to-end:
-      1. Log prompt to prompt_logs table in Supabase
-      2. Fire ALL models in parallel (Bedrock + Vertex)
-      3. Filter null responses
-      4. Evaluate all successful responses in parallel (with rate limiting)
-      5. Save to DB + push SSE events
+      1. Compute prompt_hash and persist prompt-level metadata
+      2. Generate embedding for prompt_embeddings
+      3. Select a rotating 3-5 model subset for the use-case
+      4. Run inference on only that subset
+      5. Compute optional evaluator scores
+      6. Persist benchmark rows and stream progress
     """
     prompt = prompt_data["prompt"]
     prompt_complexity = prompt_data["prompt_complexity"]
     use_case = prompt_data["use_case"]
     clarity = prompt_data["clarity"]
+    prompt_hash = compute_prompt_hash(prompt)
 
-    # ── STEP 1: Log prompt to prompt_logs table ──────────────────
     try:
-        await save_prompt_log({
-            "prompt": prompt,
-            "use_case": use_case,
-            "clarity": clarity,
-        })
-    except Exception as e:
-        print(f"[PROMPT_LOG ERROR] Failed to log prompt: {e}")
+        await save_prompt_log(
+            {
+                "prompt_hash": prompt_hash,
+                "prompt": prompt,
+                "use_case": use_case,
+                "clarity": clarity,
+            }
+        )
+    except Exception as exc:
+        print(f"[PROMPT_LOG ERROR] Failed to log prompt: {exc}")
 
-    # ── STEP 2: Fire use-case-specific models in parallel ────────
-    allowed_ids = get_model_ids_for_use_case(use_case)
+    try:
+        await get_or_compute_embedding(prompt, supabase)
+    except Exception as exc:
+        print(f"[EMBEDDING ERROR] Failed to cache embedding: {exc}")
+
+    selected_model_ids = set(
+        select_rotating_models_for_prompt(
+            use_case=use_case,
+            prompt_hash=prompt_hash,
+            prompt_complexity=prompt_complexity,
+            clarity=clarity,
+            min_models=ROTATION_MIN_MODELS,
+            max_models=ROTATION_MAX_MODELS,
+        )
+    )
+
     bedrock_results, vertex_results = await asyncio.gather(
-        call_all_models(prompt, allowed_short_ids=allowed_ids),
-        call_all_vertex_models(prompt, allowed_short_ids=allowed_ids),
+        call_all_models(prompt, allowed_short_ids=selected_model_ids),
+        call_all_vertex_models(prompt, allowed_short_ids=selected_model_ids),
     )
     model_results = bedrock_results + vertex_results
 
-    # ── STEP 3: Separate successful vs failed ────────────────────
     successful_results = []
     failed_results = []
-    for r in model_results:
-        if not r["response"] or str(r["response"]).strip() == "":
-            failed_results.append(r)
+    for result in model_results:
+        if not result["response"] or str(result["response"]).strip() == "":
+            failed_results.append(result)
         else:
-            successful_results.append(r)
+            successful_results.append(result)
 
-    # ── STEP 4: Evaluate ALL successful responses in parallel ────
     score_map = {}
     if successful_results:
         response_payload = [
-            {"model_id": r["model_id"], "response": r["response"]}
-            for r in successful_results
+            {"model_id": result["model_id"], "response": result["response"]}
+            for result in successful_results
         ]
         accuracy_scores = await evaluate_all_responses(
             prompt=prompt,
             responses=response_payload,
             use_case=use_case,
         )
-        score_map = {s["model_id"]: s["accuracy_score"] for s in accuracy_scores}
+        score_map = {score["model_id"]: score["accuracy_score"] for score in accuracy_scores}
 
-    # ── STEP 5: Save to DB + push SSE events ─────────────────────
     save_tasks = []
     for result in successful_results:
         accuracy = score_map.get(result["model_id"], 0)
         row = {
-            "provider":             result["provider"],
-            "model_id":             result["model_id"],
-            "prompt":               prompt,
-            "prompt_complexity":    prompt_complexity,
-            "use_case":             use_case,
-            "clarity":              clarity,
-            "response":             result["response"],
-            "accuracy_score":       accuracy,
-            "cost":                 result["cost"],
-            "tokens":               result["tokens"],
-            "latency_ms":           result["latency_ms"],
+            "prompt_hash": prompt_hash,
+            "provider": result["provider"],
+            "model_id": result["model_id"],
+            "prompt": prompt,
+            "prompt_complexity": prompt_complexity,
+            "use_case": use_case,
+            "clarity": clarity,
+            "response": result["response"],
+            "accuracy_score": accuracy,
+            "cost": result["cost"],
+            "tokens": result["tokens"],
+            "latency_ms": result["latency_ms"],
         }
         save_tasks.append(save_row(row))
 
-    # Fire all DB saves in parallel
     if save_tasks:
         await asyncio.gather(*save_tasks)
 
-    # Push SSE events (sequential to maintain order for the frontend)
     for result in successful_results:
         accuracy = score_map.get(result["model_id"], 0)
-        await push_event(job_id, {
-            "type":                "progress",
-            "prompt_index":        prompt_index,
-            "total":               total,
-            "model_id":            result["model_id"],
-            "provider":            result["provider"],
-            "prompt_complexity":   prompt_complexity,
-            "use_case":            use_case,
-            "clarity":             clarity,
-            "accuracy_score":      accuracy,
-            "cost":                result["cost"],
-            "tokens":              result["tokens"],
-            "latency_ms":          result["latency_ms"],
-        })
+        await push_event(
+            job_id,
+            {
+                "type": "progress",
+                "prompt_index": prompt_index,
+                "total": total,
+                "model_id": result["model_id"],
+                "provider": result["provider"],
+                "prompt_complexity": prompt_complexity,
+                "use_case": use_case,
+                "clarity": clarity,
+                "accuracy_score": accuracy,
+                "cost": result["cost"],
+                "tokens": result["tokens"],
+                "latency_ms": result["latency_ms"],
+                "prompt_hash": prompt_hash,
+                "selected_model_count": len(selected_model_ids),
+            },
+        )
 
-    # Flag failed responses
     for result in failed_results:
-        await push_event(job_id, {
-            "type":                "model_failed",
-            "prompt_index":        prompt_index,
-            "total":               total,
-            "model_id":            result["model_id"],
-            "provider":            result["provider"],
-            "prompt_complexity":   prompt_complexity,
-            "use_case":            use_case,
-            "clarity":             clarity,
-            "accuracy_score":      0,
-            "cost":                0,
-            "tokens":              0,
-            "latency_ms":          result["latency_ms"],
-            "reason":              "Model returned null/empty response",
-        })
+        await push_event(
+            job_id,
+            {
+                "type": "model_failed",
+                "prompt_index": prompt_index,
+                "total": total,
+                "model_id": result["model_id"],
+                "provider": result["provider"],
+                "prompt_complexity": prompt_complexity,
+                "use_case": use_case,
+                "clarity": clarity,
+                "accuracy_score": 0,
+                "cost": 0,
+                "tokens": 0,
+                "latency_ms": result["latency_ms"],
+                "reason": "Model returned null/empty response",
+                "prompt_hash": prompt_hash,
+                "selected_model_count": len(selected_model_ids),
+            },
+        )
 
-
-# ─── CORE ORCHESTRATOR — ALL PROMPTS IN PARALLEL ────────────
 
 async def _process_prompt_batch(
     prompts: list[dict],
@@ -372,13 +369,6 @@ async def _process_prompt_batch(
 
 
 async def process_prompts(prompts: list[dict], job_id: str):
-    """
-    FULL PARALLEL pipeline:
-      N prompts × use-case-specific models = fired simultaneously
-      → gather responses → Gemini 2.5 Pro evaluates via 4 API keys → save to DB
-
-    Each prompt is processed by _process_one_prompt concurrently.
-    """
     try:
         total = len(prompts)
         await _process_prompt_batch(
@@ -388,14 +378,16 @@ async def process_prompts(prompts: list[dict], job_id: str):
             start_index=0,
         )
         await push_event(job_id, {"type": "done", "prompt_index": total, "total": total})
-
-    except Exception as e:
-        await push_event(job_id, {
-            "type":          "error",
-            "message":       str(e),
-            "prompt_index":  0,
-            "total":         len(prompts),
-        })
+    except Exception as exc:
+        await push_event(
+            job_id,
+            {
+                "type": "error",
+                "message": str(exc),
+                "prompt_index": 0,
+                "total": len(prompts),
+            },
+        )
 
 
 async def process_prompt_files(
@@ -409,15 +401,18 @@ async def process_prompt_files(
 
     try:
         for file_index, file_batch in enumerate(file_batches, start=1):
-            await push_event(job_id, {
-                "type": "file_started",
-                "file_index": file_index,
-                "total_files": total_files,
-                "file_name": file_batch["file_name"],
-                "file_prompt_count": len(file_batch["prompts"]),
-                "processed_prompts": processed,
-                "total": total_prompts,
-            })
+            await push_event(
+                job_id,
+                {
+                    "type": "file_started",
+                    "file_index": file_index,
+                    "total_files": total_files,
+                    "file_name": file_batch["file_name"],
+                    "file_prompt_count": len(file_batch["prompts"]),
+                    "processed_prompts": processed,
+                    "total": total_prompts,
+                },
+            )
 
             await _process_prompt_batch(
                 prompts=file_batch["prompts"],
@@ -428,36 +423,47 @@ async def process_prompt_files(
 
             processed += len(file_batch["prompts"])
 
-            await push_event(job_id, {
-                "type": "file_done",
-                "file_index": file_index,
-                "total_files": total_files,
-                "file_name": file_batch["file_name"],
-                "processed_prompts": processed,
-                "total": total_prompts,
-            })
-
-            if file_index < total_files and delay_ms > 0:
-                await push_event(job_id, {
-                    "type": "file_delay",
+            await push_event(
+                job_id,
+                {
+                    "type": "file_done",
                     "file_index": file_index,
-                    "next_file_index": file_index + 1,
-                    "delay_ms": delay_ms,
+                    "total_files": total_files,
+                    "file_name": file_batch["file_name"],
                     "processed_prompts": processed,
                     "total": total_prompts,
-                })
+                },
+            )
+
+            if file_index < total_files and delay_ms > 0:
+                await push_event(
+                    job_id,
+                    {
+                        "type": "file_delay",
+                        "file_index": file_index,
+                        "next_file_index": file_index + 1,
+                        "delay_ms": delay_ms,
+                        "processed_prompts": processed,
+                        "total": total_prompts,
+                    },
+                )
                 await asyncio.sleep(delay_ms / 1000)
 
-        await push_event(job_id, {
-            "type": "done",
-            "prompt_index": processed,
-            "total": total_prompts,
-        })
-
-    except Exception as e:
-        await push_event(job_id, {
-            "type": "error",
-            "message": str(e),
-            "prompt_index": processed,
-            "total": total_prompts,
-        })
+        await push_event(
+            job_id,
+            {
+                "type": "done",
+                "prompt_index": processed,
+                "total": total_prompts,
+            },
+        )
+    except Exception as exc:
+        await push_event(
+            job_id,
+            {
+                "type": "error",
+                "message": str(exc),
+                "prompt_index": processed,
+                "total": total_prompts,
+            },
+        )

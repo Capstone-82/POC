@@ -71,6 +71,11 @@ class ModelStats(BaseModel):
     median_accuracy: float
     median_cost: float
     median_latency_ms: float
+    win_rate: Optional[float] = None
+    syntax_pass_rate: Optional[float] = None
+    correctness_rate: Optional[float] = None
+    confidence: Optional[float] = None
+    value_score: Optional[float] = None
 
 
 class PolicyThresholds(BaseModel):
@@ -97,6 +102,10 @@ class InferenceResponse(BaseModel):
     expected_accuracy: float
     expected_cost: float
     expected_latency: float
+    expected_win_rate: Optional[float] = None
+    expected_syntax_pass_rate: Optional[float] = None
+    expected_correctness_rate: Optional[float] = None
+    win_rate_delta: Optional[float] = None
     accuracy_delta: Optional[float] = None
     accuracy_delta_pct: Optional[float] = None
     cost_delta_pct: Optional[float] = None

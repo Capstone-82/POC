@@ -7,12 +7,12 @@ from statistics import median, stdev
 from typing import Any
 
 
-MIN_NEIGHBOR_SIMILARITY = 0.72
+MIN_NEIGHBOR_SIMILARITY = 0.60   # lowered from 0.72 until 1536-dim backfill completes
 DEFAULT_K = 20
 FALLBACK_K = 40
 AGGREGATION_FALLBACK_K = 240
-FALLBACK_SIMILARITY = 0.60
-MIN_MODEL_NEIGHBORS = 3
+FALLBACK_SIMILARITY = 0.50
+MIN_MODEL_NEIGHBORS = 1          # lowered from 3 until backfill gives more neighbors per model
 
 
 def search_neighbors(

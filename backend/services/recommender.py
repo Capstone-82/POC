@@ -10,14 +10,14 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Dict, List, Optional, Tuple
 
-from services.supabase_client import get_benchmark_data, get_prompt_logs
+from services.supabase_client import get_benchmark_data, get_model_win_rates, get_prompt_logs
 
 VALID_COMPLEXITIES = {"low", "mid", "high"}
 VALID_CLARITIES = {"CLEAR", "PARTIAL", "UNCLEAR"}
 
 MIN_SAMPLES_PER_MODEL = 5
 ACCURACY_TOLERANCE = 2.0
-MIN_ACCURACY_GAIN = 2.0
+MIN_WIN_RATE_ADVANTAGE = 0.10
 MIN_COST_IMPROVEMENT_PCT = 15.0
 MIN_LATENCY_IMPROVEMENT_PCT = 20.0
 MIN_KNN_NEIGHBORS = 5
@@ -27,6 +27,51 @@ CLASSIFIER_PATH = (
 )
 LOCAL_BENCHMARK_CSV = Path(__file__).resolve().parents[2] / "model_training" / "benchmark_results.csv"
 LOCAL_PROMPT_LOGS_CSV = Path(__file__).resolve().parents[2] / "model_training" / "prompt_logs_rows.csv"
+
+SCORE_WEIGHTS: Dict[str, Dict[str, float]] = {
+    "code-generation": {
+        "win_rate": 0.40,
+        "syntax_rate": 0.20,
+        "cost": 0.25,
+        "latency": 0.10,
+        "confidence": 0.05,
+    },
+    "reasoning": {
+        "win_rate": 0.50,
+        "correctness": 0.20,
+        "cost": 0.20,
+        "latency": 0.05,
+        "confidence": 0.05,
+    },
+    "text-generation": {
+        "win_rate": 0.45,
+        "cost": 0.25,
+        "latency": 0.20,
+        "confidence": 0.10,
+    },
+    "data-analysis": {
+        "win_rate": 0.45,
+        "cost": 0.30,
+        "latency": 0.20,
+        "confidence": 0.05,
+    },
+    "question-answering": {
+        "win_rate": 0.45,
+        "correctness": 0.20,
+        "cost": 0.25,
+        "latency": 0.05,
+        "confidence": 0.05,
+    },
+    "_default": {
+        "win_rate": 0.45,
+        "cost": 0.30,
+        "latency": 0.20,
+        "confidence": 0.05,
+    },
+}
+
+PAIRWISE_FALLBACK_CONFIDENCE = 0.35
+PAIRWISE_MISSING_PENALTY = 0.85
 
 
 def normalize_prompt(prompt: str) -> str:
@@ -303,6 +348,12 @@ def normalize_lower_better(value: float, min_value: float, max_value: float) -> 
     return 1.0 - ((value - min_value) / (max_value - min_value))
 
 
+def normalize_higher_better(value: float, min_value: float, max_value: float) -> float:
+    if math.isclose(min_value, max_value):
+        return 1.0
+    return (value - min_value) / (max_value - min_value)
+
+
 def pick_best_value_model(summary: List[dict]) -> dict:
     top_accuracy = max(item["avg_accuracy"] for item in summary)
     shortlist = [item for item in summary if item["avg_accuracy"] >= top_accuracy - ACCURACY_TOLERANCE]
@@ -340,11 +391,28 @@ def build_model_stats(row: dict) -> dict:
         "median_accuracy": round(float(row["median_accuracy"]), 2),
         "median_cost": round(float(row["median_cost"]), 6),
         "median_latency_ms": round(float(row["median_latency_ms"]), 1),
+        "win_rate": (
+            None if row.get("win_rate") is None else round(float(row["win_rate"]), 3)
+        ),
+        "syntax_pass_rate": (
+            None if row.get("syntax_pass_rate") is None else round(float(row["syntax_pass_rate"]), 3)
+        ),
+        "correctness_rate": (
+            None if row.get("correctness_rate") is None else round(float(row["correctness_rate"]), 3)
+        ),
+        "confidence": (
+            None if row.get("confidence") is None else round(float(row["confidence"]), 3)
+        ),
+        "value_score": (
+            None if row.get("value_score") is None else round(float(row["value_score"]), 4)
+        ),
     }
 
 
 def build_knn_model_stats(row: dict) -> dict:
-    accuracy = float(row.get("sim_weighted_accuracy", row.get("avg_accuracy", 0.0)))
+    accuracy = float(
+        row.get("sim_weighted_accuracy", row.get("fallback_accuracy", row.get("avg_accuracy", 0.0)))
+    )
     return {
         "model_id": row["model_id"],
         "provider": row.get("provider", ""),
@@ -353,48 +421,181 @@ def build_knn_model_stats(row: dict) -> dict:
         "median_accuracy": round(accuracy, 2),
         "median_cost": round(float(row.get("p50_cost", row.get("median_cost", 0.0))), 6),
         "median_latency_ms": round(float(row.get("p50_latency", row.get("median_latency_ms", 0.0))), 1),
+        "win_rate": None if row.get("win_rate") is None else round(float(row["win_rate"]), 3),
+        "syntax_pass_rate": (
+            None if row.get("syntax_pass_rate") is None else round(float(row["syntax_pass_rate"]), 3)
+        ),
+        "correctness_rate": (
+            None if row.get("correctness_rate") is None else round(float(row["correctness_rate"]), 3)
+        ),
+        "confidence": None if row.get("confidence") is None else round(float(row["confidence"]), 3),
+        "value_score": None if row.get("value_score") is None else round(float(row["value_score"]), 4),
     }
 
 
-def score_and_rank_knn_candidates(candidates: Dict[str, dict]) -> List[dict]:
+def aggregate_knn_signals_v2(
+    neighbors: List[dict],
+    use_case: str,
+    win_rates: Dict[str, Dict[str, Any]],
+) -> Dict[str, dict]:
+    grouped: Dict[str, List[dict]] = {}
+    for row in neighbors:
+        model_id = str(row.get("model_id", "")).strip()
+        if model_id:
+            grouped.setdefault(model_id, []).append(row)
+
+    aggregated: Dict[str, dict] = {}
+    for model_id, rows in grouped.items():
+        from services.knn_search import MIN_MODEL_NEIGHBORS as _MIN_N
+        if len(rows) < _MIN_N:
+            continue
+
+        sims = [float(row.get("similarity", 0.0)) for row in rows]
+        costs = [float(row.get("cost", 0.0)) for row in rows]
+        latencies = [float(row.get("latency_ms", 0.0)) for row in rows]
+        accuracies = [
+            float(row.get("avg_accuracy_score"))
+            for row in rows
+            if row.get("avg_accuracy_score") is not None
+        ]
+        total_sim = sum(sims)
+        if total_sim <= 0:
+            continue
+
+        accuracy_pairs = [
+            (float(row.get("similarity", 0.0)), float(row.get("avg_accuracy_score")))
+            for row in rows
+            if row.get("avg_accuracy_score") is not None
+        ]
+        weighted_accuracy_total = sum(sim for sim, _ in accuracy_pairs)
+        fallback_accuracy = (
+            sum(sim * acc for sim, acc in accuracy_pairs) / weighted_accuracy_total
+            if weighted_accuracy_total > 0
+            else 0.0
+        )
+
+        syntax_values = [
+            1.0 if bool(row.get("syntax_pass")) else 0.0
+            for row in rows
+            if row.get("syntax_pass") is not None
+        ]
+        correctness_values = [
+            1.0 if bool(row.get("is_correct")) else 0.0
+            for row in rows
+            if row.get("is_correct") is not None
+        ]
+        avg_similarity = sum(sims) / len(sims)
+        sample_factor = min(len(rows) / 5.0, 1.0)
+
+        pairwise_stats = win_rates.get(model_id, {})
+        pairwise_win_rate = pairwise_stats.get("win_rate")
+        pairwise_confidence = float(pairwise_stats.get("confidence", 0.0) or 0.0)
+
+        aggregated[model_id] = {
+            "model_id": model_id,
+            "provider": rows[0].get("provider", ""),
+            "fallback_accuracy": round(fallback_accuracy, 2),
+            "sim_weighted_accuracy": round(fallback_accuracy, 2),
+            "win_rate": pairwise_win_rate,
+            "syntax_pass_rate": (
+                round(sum(syntax_values) / len(syntax_values), 3) if syntax_values else None
+            ),
+            "correctness_rate": (
+                round(sum(correctness_values) / len(correctness_values), 3) if correctness_values else None
+            ),
+            "p50_cost": round(float(median(costs)), 6),
+            "p50_latency": round(float(median(latencies)), 1),
+            "sample_n": len(rows),
+            "avg_similarity": round(avg_similarity, 4),
+            "pairwise_confidence": round(pairwise_confidence, 4),
+            "decisive_matches": int(pairwise_stats.get("decisive_matches", 0) or 0),
+            "tie_rate": float(pairwise_stats.get("tie_rate", 0.0) or 0.0),
+            "confidence_signal": round(
+                avg_similarity
+                * sample_factor
+                * (pairwise_confidence if pairwise_win_rate is not None else PAIRWISE_FALLBACK_CONFIDENCE),
+                4,
+            ),
+        }
+
+        if use_case == "code-generation" and aggregated[model_id]["syntax_pass_rate"] is not None:
+            if float(aggregated[model_id]["syntax_pass_rate"]) < 0.85:
+                aggregated[model_id]["confidence_signal"] *= 0.85
+
+    return aggregated
+
+
+def score_and_rank_knn_candidates(candidates: Dict[str, dict], use_case: str) -> List[dict]:
     ranked = [dict(item) for item in candidates.values()]
     if not ranked:
         return []
 
-    acc_values = [float(item["sim_weighted_accuracy"]) for item in ranked]
+    weights = SCORE_WEIGHTS.get(use_case, SCORE_WEIGHTS["_default"])
+    quality_values = []
+    for item in ranked:
+        if item.get("win_rate") is not None:
+            quality_values.append(float(item["win_rate"]))
+        else:
+            fallback_quality = float(item.get("fallback_accuracy", item.get("sim_weighted_accuracy", 0.0))) / 100.0
+            quality_values.append(fallback_quality * PAIRWISE_MISSING_PENALTY)
     cost_values = [float(item["p50_cost"]) for item in ranked]
     latency_values = [float(item["p50_latency"]) for item in ranked]
-    variance_values = [float(item.get("score_variance", 0.0)) for item in ranked]
+    confidence_values = [float(item.get("confidence_signal", 0.0)) for item in ranked]
+    syntax_values = [
+        float(item["syntax_pass_rate"]) for item in ranked if item.get("syntax_pass_rate") is not None
+    ]
+    correctness_values = [
+        float(item["correctness_rate"]) for item in ranked if item.get("correctness_rate") is not None
+    ]
 
-    acc_min, acc_max = min(acc_values), max(acc_values)
+    quality_min, quality_max = min(quality_values), max(quality_values)
     cost_min, cost_max = min(cost_values), max(cost_values)
     latency_min, latency_max = min(latency_values), max(latency_values)
-    variance_min, variance_max = min(variance_values), max(variance_values)
+    confidence_min, confidence_max = min(confidence_values), max(confidence_values)
+    syntax_min = min(syntax_values) if syntax_values else 0.0
+    syntax_max = max(syntax_values) if syntax_values else 1.0
+    correctness_min = min(correctness_values) if correctness_values else 0.0
+    correctness_max = max(correctness_values) if correctness_values else 1.0
 
-    for item in ranked:
-        acc_norm = 1.0 if math.isclose(acc_min, acc_max) else (
-            (float(item["sim_weighted_accuracy"]) - acc_min) / (acc_max - acc_min)
-        )
+    for item, quality_signal in zip(ranked, quality_values):
+        quality_norm = normalize_higher_better(quality_signal, quality_min, quality_max)
         cost_norm = normalize_lower_better(float(item["p50_cost"]), cost_min, cost_max)
         latency_norm = normalize_lower_better(float(item["p50_latency"]), latency_min, latency_max)
-        confidence = normalize_lower_better(
-            float(item.get("score_variance", 0.0)),
-            variance_min,
-            variance_max,
+        confidence_norm = normalize_higher_better(
+            float(item.get("confidence_signal", 0.0)),
+            confidence_min,
+            confidence_max,
         )
-        item["confidence"] = round(confidence, 3)
-        item["value_score"] = round(
-            0.55 * acc_norm
-            + 0.25 * cost_norm
-            + 0.15 * latency_norm
-            + 0.05 * confidence,
-            4,
+        syntax_norm = (
+            normalize_higher_better(float(item["syntax_pass_rate"]), syntax_min, syntax_max)
+            if item.get("syntax_pass_rate") is not None
+            else 0.5
         )
+        correctness_norm = (
+            normalize_higher_better(float(item["correctness_rate"]), correctness_min, correctness_max)
+            if item.get("correctness_rate") is not None
+            else 0.5
+        )
+
+        if item.get("win_rate") is None:
+            confidence_norm *= PAIRWISE_MISSING_PENALTY
+
+        value_score = 0.0
+        value_score += weights.get("win_rate", 0.0) * quality_norm
+        value_score += weights.get("cost", 0.0) * cost_norm
+        value_score += weights.get("latency", 0.0) * latency_norm
+        value_score += weights.get("confidence", 0.0) * confidence_norm
+        value_score += weights.get("syntax_rate", 0.0) * syntax_norm
+        value_score += weights.get("correctness", 0.0) * correctness_norm
+
+        item["confidence"] = round(confidence_norm, 3)
+        item["value_score"] = round(value_score, 4)
+        item["quality_signal"] = round(quality_signal, 4)
 
     ranked.sort(
         key=lambda item: (
             -item["value_score"],
-            -float(item["sim_weighted_accuracy"]),
+            -float(item.get("quality_signal", 0.0)),
             float(item["p50_cost"]),
             float(item["p50_latency"]),
         )
@@ -410,29 +611,30 @@ def should_switch(
     max_latency_increase_pct: float = 0.0,
 ) -> Tuple[bool, str]:
     if current is None:
-        return True, "No current model comparison was available, so this is the best value option in the matched benchmark slice."
+        return True, "No current model comparison was available, so the top-ranked candidate is recommended."
 
-    accuracy_gain = recommended["accuracy_delta"]
-    cost_delta_pct = recommended["cost_delta_pct"]
-    latency_delta_pct = recommended["latency_delta_pct"]
+    win_rate_delta = recommended.get("win_rate_delta")
+    cost_delta_pct = recommended.get("cost_delta_pct")
+    latency_delta_pct = recommended.get("latency_delta_pct")
+
+    if win_rate_delta is not None and win_rate_delta >= MIN_WIN_RATE_ADVANTAGE:
+        return True, f"Win rate advantage is material at +{win_rate_delta:.1%}."
 
     if (
-        accuracy_gain is not None
-        and accuracy_gain >= min_accuracy_gain
-        and cost_delta_pct is not None
-        and cost_delta_pct <= max_cost_increase_pct
-        and latency_delta_pct is not None
-        and latency_delta_pct <= max_latency_increase_pct
+        cost_delta_pct is not None
+        and cost_delta_pct <= -MIN_COST_IMPROVEMENT_PCT
+        and (win_rate_delta is None or win_rate_delta >= -0.05)
     ):
-        return (
-            True,
-            "Candidate meets the selected thresholds for accuracy gain, cost, and latency.",
-        )
+        return True, f"Cost is lower by {abs(cost_delta_pct):.1f}% with comparable quality."
 
-    return (
-        False,
-        "Switching requires a candidate to meet the selected accuracy, cost, and latency thresholds.",
-    )
+    if (
+        latency_delta_pct is not None
+        and latency_delta_pct <= -MIN_LATENCY_IMPROVEMENT_PCT
+        and (win_rate_delta is None or win_rate_delta >= -0.05)
+    ):
+        return True, f"Latency is lower by {abs(latency_delta_pct):.1f}% with comparable quality."
+
+    return False, "The recommended model is not materially better on win rate, cost, or latency."
 
 
 def build_reason(
@@ -480,6 +682,9 @@ async def build_slice_recommendation(
     all_rows, data_source = await load_benchmark_rows_with_fallback(use_case=use_case)
     if not all_rows:
         raise ValueError("No benchmark data was found for this use case.")
+    win_rates = await get_model_win_rates(use_case=use_case, complexity=complexity)
+    if not win_rates:
+        win_rates = await get_model_win_rates(use_case=use_case, complexity="all")
 
     filter_tiers = [
         (
@@ -511,13 +716,44 @@ async def build_slice_recommendation(
     if not summary:
         raise ValueError("No sufficiently supported benchmark slice was found for this prompt.")
 
-    best_row = pick_best_value_model(summary)
-    recommended_stats = build_model_stats(best_row)
+    slice_candidates: Dict[str, dict] = {}
+    for row in summary:
+        pairwise_stats = win_rates.get(row["model_id"], {})
+        slice_candidates[row["model_id"]] = {
+            "model_id": row["model_id"],
+            "provider": row["provider"],
+            "fallback_accuracy": row["avg_accuracy"],
+            "sim_weighted_accuracy": row["avg_accuracy"],
+            "win_rate": pairwise_stats.get("win_rate"),
+            "syntax_pass_rate": None,
+            "correctness_rate": None,
+            "p50_cost": row["median_cost"],
+            "p50_latency": row["median_latency_ms"],
+            "sample_n": row["sample_count"],
+            "pairwise_confidence": float(pairwise_stats.get("confidence", 0.0) or 0.0),
+            "decisive_matches": int(pairwise_stats.get("decisive_matches", 0) or 0),
+            "tie_rate": float(pairwise_stats.get("tie_rate", 0.0) or 0.0),
+            "confidence_signal": min(row["sample_count"] / 10.0, 1.0)
+            * (
+                float(pairwise_stats.get("confidence", 0.0) or 0.0)
+                if pairwise_stats.get("win_rate") is not None
+                else PAIRWISE_FALLBACK_CONFIDENCE
+            ),
+        }
 
-    current_row = next((row for row in summary if row["model_id"] == current_model), None)
-    current_stats = build_model_stats(current_row) if current_row else None
+    ranked_summary = score_and_rank_knn_candidates(slice_candidates, use_case=use_case)
+    best_row = ranked_summary[0]
+    recommended_stats = build_knn_model_stats(best_row)
+
+    current_row = next((row for row in ranked_summary if row["model_id"] == current_model), None)
+    current_stats = build_knn_model_stats(current_row) if current_row else None
     current_model_found = current_stats is not None
 
+    recommended_stats["win_rate_delta"] = (
+        None
+        if current_stats is None or recommended_stats.get("win_rate") is None or current_stats.get("win_rate") is None
+        else round(recommended_stats["win_rate"] - current_stats["win_rate"], 3)
+    )
     recommended_stats["accuracy_delta"] = (
         None if current_stats is None else round(recommended_stats["avg_accuracy"] - current_stats["avg_accuracy"], 2)
     )
@@ -593,6 +829,10 @@ async def build_slice_recommendation(
         "expected_accuracy": recommended_stats["avg_accuracy"],
         "expected_cost": recommended_stats["median_cost"],
         "expected_latency": recommended_stats["median_latency_ms"],
+        "expected_win_rate": recommended_stats.get("win_rate"),
+        "expected_syntax_pass_rate": recommended_stats.get("syntax_pass_rate"),
+        "expected_correctness_rate": recommended_stats.get("correctness_rate"),
+        "win_rate_delta": recommended_stats.get("win_rate_delta"),
         "accuracy_delta": recommended_stats["accuracy_delta"],
         "accuracy_delta_pct": recommended_stats["accuracy_delta_pct"],
         "cost_delta_pct": recommended_stats["cost_delta_pct"],
@@ -604,7 +844,7 @@ async def build_slice_recommendation(
         "final_suggestion_model": final_suggestion_model,
         "policy_reason": policy_reason,
         "reason": reason,
-        "top_candidates": [build_model_stats(row) for row in summary[:5]],
+        "top_candidates": [build_knn_model_stats(row) for row in ranked_summary[:5]],
         "warnings": warnings,
         "policy_thresholds": {
             "min_accuracy_gain": min_accuracy_gain,
@@ -675,14 +915,21 @@ async def build_knn_recommendation(
         AGGREGATION_FALLBACK_K,
         FALLBACK_K,
         FALLBACK_SIMILARITY,
-        aggregate_knn_signals,
         search_neighbors,
     )
     from services.model_registry import get_model_ids_for_use_case
     from services.supabase_client import supabase
 
     vector, prompt_hash, was_cached = await get_or_compute_embedding(prompt, supabase)
+
+    # Fix 3: fetch win_rates for specific complexity, fall back to 'all' if empty
+    win_rates = await get_model_win_rates(use_case=use_case, complexity=complexity)
+    if not win_rates:
+        win_rates = await get_model_win_rates(use_case=use_case, complexity="all")
+    print(f"[KNN] win_rates loaded: {len(win_rates)} models for {use_case}/{complexity}")
+
     neighbors = search_neighbors(supabase, vector, use_case)
+    # Fix 1: never hard-raise on low neighbor count — widen search progressively
     if len(neighbors) < MIN_KNN_NEIGHBORS:
         neighbors = search_neighbors(
             supabase,
@@ -691,15 +938,21 @@ async def build_knn_recommendation(
             k=FALLBACK_K,
             min_similarity=FALLBACK_SIMILARITY,
         )
-
     if len(neighbors) < MIN_KNN_NEIGHBORS:
-        raise ValueError(f"KNN found only {len(neighbors)} usable neighbors")
+        # Last resort: maximum k, minimum similarity threshold
+        neighbors = search_neighbors(
+            supabase,
+            vector,
+            use_case,
+            k=AGGREGATION_FALLBACK_K,
+            min_similarity=0.0,
+        )
 
     allowed_models = get_model_ids_for_use_case(use_case)
     def aggregate_allowed(rows: List[dict]) -> Dict[str, dict]:
         return {
             model_id: signals
-            for model_id, signals in aggregate_knn_signals(rows).items()
+            for model_id, signals in aggregate_knn_signals_v2(rows, use_case=use_case, win_rates=win_rates).items()
             if model_id in allowed_models
         }
 
@@ -714,9 +967,23 @@ async def build_knn_recommendation(
         )
         knn_signals = aggregate_allowed(neighbors)
 
-    ranked = score_and_rank_knn_candidates(knn_signals)
+    ranked = score_and_rank_knn_candidates(knn_signals, use_case=use_case)
+    # Fix 5: don't raise — explicitly fall back to slice with informative warning
     if not ranked:
-        raise ValueError("KNN neighbors were too sparse after per-model aggregation")
+        return await build_slice_recommendation(
+            use_case=use_case,
+            prompt=prompt,
+            current_model=current_model,
+            complexity=complexity,
+            complexity_confidence=complexity_confidence,
+            complexity_source=complexity_source,
+            clarity=clarity,
+            clarity_source=clarity_source,
+            min_accuracy_gain=min_accuracy_gain,
+            max_cost_increase_pct=max_cost_increase_pct,
+            max_latency_increase_pct=max_latency_increase_pct,
+            fallback_warning="KNN neighbors were too sparse after aggregation; slice fallback used.",
+        )
 
     best = ranked[0]
     recommended_stats = build_knn_model_stats(best)
@@ -724,6 +991,11 @@ async def build_knn_recommendation(
     current_stats = build_knn_model_stats(current_row) if current_row else None
     current_model_found = current_stats is not None
 
+    recommended_stats["win_rate_delta"] = (
+        None
+        if current_stats is None or recommended_stats.get("win_rate") is None or current_stats.get("win_rate") is None
+        else round(recommended_stats["win_rate"] - current_stats["win_rate"], 3)
+    )
     recommended_stats["accuracy_delta"] = (
         None if current_stats is None else round(recommended_stats["avg_accuracy"] - current_stats["avg_accuracy"], 2)
     )
@@ -785,6 +1057,10 @@ async def build_knn_recommendation(
         "expected_accuracy": recommended_stats["avg_accuracy"],
         "expected_cost": recommended_stats["median_cost"],
         "expected_latency": recommended_stats["median_latency_ms"],
+        "expected_win_rate": recommended_stats.get("win_rate"),
+        "expected_syntax_pass_rate": recommended_stats.get("syntax_pass_rate"),
+        "expected_correctness_rate": recommended_stats.get("correctness_rate"),
+        "win_rate_delta": recommended_stats.get("win_rate_delta"),
         "accuracy_delta": recommended_stats["accuracy_delta"],
         "accuracy_delta_pct": recommended_stats["accuracy_delta_pct"],
         "cost_delta_pct": recommended_stats["cost_delta_pct"],

@@ -30,7 +30,7 @@ import httpx
 
 OPENAI_EMBED_URL   = "https://api.openai.com/v1/embeddings"
 OPENAI_EMBED_MODEL = "text-embedding-3-small"
-EMBED_DIMENSIONS   = 384   # matches vector(384) in prompt_embeddings table
+EMBED_DIMENSIONS   = 1536  # matches vector(1536) in prompt_embeddings table
 
 
 def _get_api_key() -> str:
@@ -50,7 +50,7 @@ def compute_prompt_hash(prompt: str) -> str:
 
 async def embed_text_async(text: str) -> list[float]:
     """
-    Call OpenAI text-embedding-3-small and return a 384-dim vector.
+    Call OpenAI text-embedding-3-small and return a 1536-dim vector.
     Uses httpx.AsyncClient for non-blocking HTTP inside the async event loop.
     """
     api_key = _get_api_key()

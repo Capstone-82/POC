@@ -182,7 +182,7 @@ export default function Training() {
            </h1>
            <p className="text-gray-400 font-medium leading-relaxed">
              Orchestrate massive parallel evaluation across 22 LLMs on AWS Bedrock and GCP Vertex. 
-             Choose your use case and complexity, upload prompts with clarity labels, and let Gemini 2.5 Pro judge responses.
+             Choose your use case and complexity, upload prompts with clarity labels, and let Llama 4 Maverick judge responses.
            </p>
         </div>
         

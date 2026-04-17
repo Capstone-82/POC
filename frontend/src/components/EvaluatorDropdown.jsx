@@ -1,9 +1,9 @@
 import { ChevronDown, BrainCircuit } from 'lucide-react'
 
 const EVALUATORS = [
-  { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Default)' },
-  { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-  { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+  { value: 'llama4-maverick', label: 'Llama 4 Maverick (Default)' },
+  { value: 'nova-premier', label: 'Nova Premier' },
+  { value: 'mistral-large', label: 'Mistral Large' },
 ]
 
 export default function EvaluatorDropdown({ value, onChange }) {

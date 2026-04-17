@@ -1,0 +1,21 @@
+prompt,use_case,model
+"Write a Python function to merge two sorted lists",code-generation,nova-pro
+"Explain quantum entanglement in simple terms",text-generation,
+"Generate a SQL query that finds the top 5 customers by revenue",code-generation,llama3-3-70b
+"What are the tradeoffs between REST and GraphQL APIs?",reasoning,
+"Write a cover letter for a senior software engineer position at a fintech company",text-generation,nova-pro
+"Debug this Python code: def fib(n): return fib(n-1) + fib(n-2)",code-generation,
+"Summarize the key ideas of the CAP theorem for a distributed systems engineer",reasoning,llama4-maverick
+"Write a bash script to monitor CPU usage and alert when above 90%",code-generation,
+"Explain the difference between process and thread in operating systems",reasoning,
+"Draft an email to a client explaining a 2-week project delay due to scope changes",text-generation,nova-pro
+"Implement binary search in Python with proper docstring and type hints",code-generation,llama3-3-70b
+"What is the time complexity of Dijkstra's algorithm and why?",reasoning,
+"Write a regex pattern to validate email addresses",code-generation,
+"Create a Python class that implements a thread-safe singleton pattern",code-generation,nova-pro
+"Explain transformer architecture to a software engineer with no ML background",text-generation,
+"Write unit tests for a function that validates credit card numbers",code-generation,llama4-maverick
+"What are SOLID principles and give a real-world example for each?",reasoning,
+"Generate a FastAPI endpoint that authenticates users with JWT tokens",code-generation,
+"Summarize the differences between TCP and UDP for a junior developer",text-generation,nova-pro
+"Write a Python script that reads a large CSV and processes it in chunks",code-generation,llama3-3-70b

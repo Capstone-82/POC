@@ -7,7 +7,16 @@ ALTER TABLE benchmark_results
     ADD COLUMN IF NOT EXISTS confidence_level FLOAT,
     ADD COLUMN IF NOT EXISTS eval_count INTEGER,
     ADD COLUMN IF NOT EXISTS prompt_hash TEXT,
-    ADD COLUMN IF NOT EXISTS invalid BOOLEAN DEFAULT FALSE;
+    ADD COLUMN IF NOT EXISTS invalid BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS syntax_pass BOOLEAN,
+    ADD COLUMN IF NOT EXISTS syntax_checked BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS consistency_score FLOAT,
+    ADD COLUMN IF NOT EXISTS win_rate FLOAT,
+    ADD COLUMN IF NOT EXISTS domain TEXT,
+    ADD COLUMN IF NOT EXISTS has_ref_answer BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS reference_answer TEXT,
+    ADD COLUMN IF NOT EXISTS is_correct BOOLEAN,
+    ADD COLUMN IF NOT EXISTS prompt_version INTEGER DEFAULT 1;
 
 CREATE INDEX IF NOT EXISTS idx_br_prompt_hash
     ON benchmark_results (prompt_hash);
@@ -90,6 +99,56 @@ CREATE TABLE IF NOT EXISTS model_priors (
     last_updated TIMESTAMPTZ DEFAULT now(),
     PRIMARY KEY (model_id, use_case, prompt_complexity)
 );
+
+CREATE TABLE IF NOT EXISTS pairwise_results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    prompt_hash TEXT NOT NULL,
+    use_case TEXT NOT NULL,
+    complexity TEXT,
+    model_a TEXT NOT NULL,
+    model_b TEXT NOT NULL,
+    response_a TEXT,
+    response_b TEXT,
+    winner TEXT NOT NULL,
+    winner_model TEXT NOT NULL,
+    loser_model TEXT NOT NULL,
+    judge_model TEXT NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pairwise_prompt_hash
+    ON pairwise_results (prompt_hash);
+
+CREATE INDEX IF NOT EXISTS idx_pairwise_use_case_complexity
+    ON pairwise_results (use_case, complexity);
+
+CREATE INDEX IF NOT EXISTS idx_pairwise_models
+    ON pairwise_results (model_a, model_b);
+
+CREATE INDEX IF NOT EXISTS idx_pairwise_winner_model
+    ON pairwise_results (winner_model);
+
+CREATE TABLE IF NOT EXISTS model_win_rates (
+    model_id TEXT NOT NULL,
+    use_case TEXT NOT NULL,
+    complexity TEXT NOT NULL,
+    win_rate FLOAT,
+    total_matches INTEGER NOT NULL,
+    total_participations INTEGER,
+    decisive_matches INTEGER,
+    wins INTEGER NOT NULL,
+    losses INTEGER NOT NULL,
+    ties INTEGER NOT NULL,
+    tie_rate FLOAT,
+    judge_count INTEGER,
+    confidence FLOAT,
+    last_updated TIMESTAMPTZ DEFAULT now(),
+    PRIMARY KEY (model_id, use_case, complexity)
+);
+
+CREATE INDEX IF NOT EXISTS idx_model_win_rates_lookup
+    ON model_win_rates (use_case, complexity, win_rate DESC);
 
 CREATE TABLE IF NOT EXISTS routing_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
