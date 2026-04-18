@@ -11,15 +11,13 @@ from jobs.store import close_job, create_job, get_event, push_event
 from models.schemas import ClarityLevel, JobResponse, PromptComplexity, SinglePromptRequest, UseCase
 from services.bedrock import call_all_models
 from services.embedding_service import compute_prompt_hash, get_or_compute_embedding
-from services.evaluator import evaluate_all_responses
 from services.model_registry import select_rotating_models_for_prompt
+from services.pairwise_pipeline import refresh_model_win_rates_for_use_cases, run_pairwise_for_prompt_hashes
 from services.supabase_client import save_prompt_log, save_row, supabase
-from services.vertex import call_all_vertex_models
 
 router = APIRouter()
 CSV_FILE_DELAY_MS = 3000
-ROTATION_MIN_MODELS = 3
-ROTATION_MAX_MODELS = 5
+SELECTED_MODELS_PER_PROMPT = 3
 VALID_CLARITY = {"CLEAR", "PARTIAL", "UNCLEAR"}
 
 
@@ -217,16 +215,30 @@ async def _process_one_prompt(
     Process one prompt end-to-end:
       1. Compute prompt_hash and persist prompt-level metadata
       2. Generate embedding for prompt_embeddings
-      3. Select a rotating 3-5 model subset for the use-case
+      3. Select a rotating 3-model subset for the use-case
       4. Run inference on only that subset
-      5. Compute optional evaluator scores
-      6. Persist benchmark rows and stream progress
+      5. Persist benchmark rows and stream progress
     """
     prompt = prompt_data["prompt"]
     prompt_complexity = prompt_data["prompt_complexity"]
     use_case = prompt_data["use_case"]
     clarity = prompt_data["clarity"]
     prompt_hash = compute_prompt_hash(prompt)
+
+    await push_event(
+        job_id,
+        {
+            "type": "prompt_step",
+            "prompt_index": prompt_index,
+            "total": total,
+            "prompt_hash": prompt_hash,
+            "use_case": use_case,
+            "prompt_complexity": prompt_complexity,
+            "clarity": clarity,
+            "step": "hash_computed",
+            "message": "Prompt hash computed.",
+        },
+    )
 
     try:
         await save_prompt_log(
@@ -239,11 +251,41 @@ async def _process_one_prompt(
         )
     except Exception as exc:
         print(f"[PROMPT_LOG ERROR] Failed to log prompt: {exc}")
+    else:
+        await push_event(
+            job_id,
+            {
+                "type": "prompt_step",
+                "prompt_index": prompt_index,
+                "total": total,
+                "prompt_hash": prompt_hash,
+                "use_case": use_case,
+                "prompt_complexity": prompt_complexity,
+                "clarity": clarity,
+                "step": "prompt_logged",
+                "message": "Prompt metadata stored in prompt_logs.",
+            },
+        )
 
     try:
         await get_or_compute_embedding(prompt, supabase)
     except Exception as exc:
         print(f"[EMBEDDING ERROR] Failed to cache embedding: {exc}")
+    else:
+        await push_event(
+            job_id,
+            {
+                "type": "prompt_step",
+                "prompt_index": prompt_index,
+                "total": total,
+                "prompt_hash": prompt_hash,
+                "use_case": use_case,
+                "prompt_complexity": prompt_complexity,
+                "clarity": clarity,
+                "step": "embedding_cached",
+                "message": "Prompt embedding created or loaded.",
+            },
+        )
 
     selected_model_ids = set(
         select_rotating_models_for_prompt(
@@ -251,16 +293,42 @@ async def _process_one_prompt(
             prompt_hash=prompt_hash,
             prompt_complexity=prompt_complexity,
             clarity=clarity,
-            min_models=ROTATION_MIN_MODELS,
-            max_models=ROTATION_MAX_MODELS,
+            min_models=SELECTED_MODELS_PER_PROMPT,
+            max_models=SELECTED_MODELS_PER_PROMPT,
         )
     )
 
-    bedrock_results, vertex_results = await asyncio.gather(
-        call_all_models(prompt, allowed_short_ids=selected_model_ids),
-        call_all_vertex_models(prompt, allowed_short_ids=selected_model_ids),
+    await push_event(
+        job_id,
+        {
+            "type": "models_selected",
+            "prompt_index": prompt_index,
+            "total": total,
+            "prompt_hash": prompt_hash,
+            "use_case": use_case,
+            "prompt_complexity": prompt_complexity,
+            "clarity": clarity,
+            "selected_models": sorted(selected_model_ids),
+            "selected_model_count": len(selected_model_ids),
+        },
     )
-    model_results = bedrock_results + vertex_results
+
+    await push_event(
+        job_id,
+        {
+            "type": "prompt_step",
+            "prompt_index": prompt_index,
+            "total": total,
+            "prompt_hash": prompt_hash,
+            "use_case": use_case,
+            "prompt_complexity": prompt_complexity,
+            "clarity": clarity,
+            "step": "inference_started",
+            "message": "Running selected models.",
+        },
+    )
+
+    model_results = await call_all_models(prompt, allowed_short_ids=selected_model_ids)
 
     successful_results = []
     failed_results = []
@@ -270,22 +338,8 @@ async def _process_one_prompt(
         else:
             successful_results.append(result)
 
-    score_map = {}
-    if successful_results:
-        response_payload = [
-            {"model_id": result["model_id"], "response": result["response"]}
-            for result in successful_results
-        ]
-        accuracy_scores = await evaluate_all_responses(
-            prompt=prompt,
-            responses=response_payload,
-            use_case=use_case,
-        )
-        score_map = {score["model_id"]: score["accuracy_score"] for score in accuracy_scores}
-
     save_tasks = []
     for result in successful_results:
-        accuracy = score_map.get(result["model_id"], 0)
         row = {
             "prompt_hash": prompt_hash,
             "provider": result["provider"],
@@ -295,7 +349,6 @@ async def _process_one_prompt(
             "use_case": use_case,
             "clarity": clarity,
             "response": result["response"],
-            "accuracy_score": accuracy,
             "cost": result["cost"],
             "tokens": result["tokens"],
             "latency_ms": result["latency_ms"],
@@ -305,8 +358,22 @@ async def _process_one_prompt(
     if save_tasks:
         await asyncio.gather(*save_tasks)
 
+    await push_event(
+        job_id,
+        {
+            "type": "prompt_step",
+            "prompt_index": prompt_index,
+            "total": total,
+            "prompt_hash": prompt_hash,
+            "use_case": use_case,
+            "prompt_complexity": prompt_complexity,
+            "clarity": clarity,
+            "step": "benchmark_saved",
+            "message": "Benchmark rows stored for selected models.",
+        },
+    )
+
     for result in successful_results:
-        accuracy = score_map.get(result["model_id"], 0)
         await push_event(
             job_id,
             {
@@ -318,7 +385,6 @@ async def _process_one_prompt(
                 "prompt_complexity": prompt_complexity,
                 "use_case": use_case,
                 "clarity": clarity,
-                "accuracy_score": accuracy,
                 "cost": result["cost"],
                 "tokens": result["tokens"],
                 "latency_ms": result["latency_ms"],
@@ -339,7 +405,6 @@ async def _process_one_prompt(
                 "prompt_complexity": prompt_complexity,
                 "use_case": use_case,
                 "clarity": clarity,
-                "accuracy_score": 0,
                 "cost": 0,
                 "tokens": 0,
                 "latency_ms": result["latency_ms"],
@@ -348,6 +413,11 @@ async def _process_one_prompt(
                 "selected_model_count": len(selected_model_ids),
             },
         )
+
+    return {
+        "prompt_hash": prompt_hash,
+        "use_case": use_case,
+    }
 
 
 async def _process_prompt_batch(
@@ -365,18 +435,72 @@ async def _process_prompt_batch(
         )
         for i, prompt_data in enumerate(prompts, start=1)
     ]
-    await asyncio.gather(*tasks)
+    return await asyncio.gather(*tasks)
+
+
+async def _run_post_generation_pipeline(job_id: str, prompt_results: list[dict]) -> None:
+    prompt_hashes = sorted({result["prompt_hash"] for result in prompt_results if result and result.get("prompt_hash")})
+    use_cases = sorted({result["use_case"] for result in prompt_results if result and result.get("use_case")})
+
+    if not prompt_hashes:
+        return
+
+    await push_event(
+        job_id,
+        {
+            "type": "postprocess_started",
+            "stage": "pairwise",
+            "prompt_count": len(prompt_hashes),
+        },
+    )
+
+    pairwise_summary = await asyncio.to_thread(run_pairwise_for_prompt_hashes, prompt_hashes)
+    for pair_result in pairwise_summary.get("pair_results", []):
+        await push_event(
+            job_id,
+            {
+                "type": "pairwise_result",
+                **pair_result,
+            },
+        )
+    await push_event(
+        job_id,
+        {
+            "type": "postprocess_done",
+            "stage": "pairwise",
+            **{key: value for key, value in pairwise_summary.items() if key != "pair_results"},
+        },
+    )
+
+    await push_event(
+        job_id,
+        {
+            "type": "postprocess_started",
+            "stage": "win_rates",
+            "use_cases": use_cases,
+        },
+    )
+    rows_written = await asyncio.to_thread(refresh_model_win_rates_for_use_cases, use_cases)
+    await push_event(
+        job_id,
+        {
+            "type": "postprocess_done",
+            "stage": "win_rates",
+            "rows_written": rows_written,
+        },
+    )
 
 
 async def process_prompts(prompts: list[dict], job_id: str):
     try:
         total = len(prompts)
-        await _process_prompt_batch(
+        prompt_results = await _process_prompt_batch(
             prompts=prompts,
             job_id=job_id,
             total_prompts=total,
             start_index=0,
         )
+        await _run_post_generation_pipeline(job_id, prompt_results)
         await push_event(job_id, {"type": "done", "prompt_index": total, "total": total})
     except Exception as exc:
         await push_event(
@@ -414,12 +538,13 @@ async def process_prompt_files(
                 },
             )
 
-            await _process_prompt_batch(
+            prompt_results = await _process_prompt_batch(
                 prompts=file_batch["prompts"],
                 job_id=job_id,
                 total_prompts=total_prompts,
                 start_index=processed,
             )
+            await _run_post_generation_pipeline(job_id, prompt_results)
 
             processed += len(file_batch["prompts"])
 

@@ -23,12 +23,6 @@ TEXT_GENERATION_MODELS = {
     "mistral-large",
     "mistral-small",
     "pixtral-large-2",
-    "gemini-3-1-pro",
-    "gemini-3-1-flash-lite",
-    "gemini-2-5-pro",
-    "gemini-2-5-flash",
-    "gemini-2-0-flash",
-    "gemini-2-0-flash-lite",
 }
 
 CODE_GENERATION_MODELS = {
@@ -42,10 +36,6 @@ CODE_GENERATION_MODELS = {
     "magistral-small",
     "deepseek-r1",
     "ministral-3-8b",
-    "gemini-3-1-pro",
-    "gemini-2-5-pro",
-    "gemini-2-5-flash",
-    "gemini-2-0-flash",
 }
 
 REASONING_MODELS = {
@@ -57,10 +47,6 @@ REASONING_MODELS = {
     "pixtral-large-2",
     "mistral-large",
     "nova-pro",
-    "gemini-3-1-pro",
-    "gemini-2-5-pro",
-    "gemini-2-5-flash",
-    "gemini-2-0-flash",
 }
 
 USE_CASE_MODELS = {
@@ -85,12 +71,6 @@ MODEL_PROVIDER = {
     "mistral-large": "Mistral AI",
     "mistral-small": "Mistral AI",
     "deepseek-r1": "DeepSeek",
-    "gemini-3-1-pro": "Google",
-    "gemini-3-1-flash-lite": "Google",
-    "gemini-2-5-pro": "Google",
-    "gemini-2-5-flash": "Google",
-    "gemini-2-0-flash": "Google",
-    "gemini-2-0-flash-lite": "Google",
 }
 
 DEFAULT_ROTATION_TARGET = {

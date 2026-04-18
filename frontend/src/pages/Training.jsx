@@ -13,9 +13,9 @@ const COMPLEXITY_OPTIONS = [
 ]
 
 const USE_CASE_OPTIONS = [
-  { value: 'text-generation', label: 'Text Generation', desc: 'Summarization, chat, content', icon: TextIcon, color: 'blue', models: 17 },
-  { value: 'code-generation', label: 'Code Generation', desc: 'HumanEval, SWE-bench tasks',   icon: Code2,    color: 'purple', models: 14 },
-  { value: 'reasoning',       label: 'Reasoning',       desc: 'AIME, GPQA, chain-of-thought', icon: Brain,    color: 'orange', models: 12 },
+  { value: 'text-generation', label: 'Text Generation', desc: 'Summarization, chat, content', icon: TextIcon, color: 'blue', models: 11 },
+  { value: 'code-generation', label: 'Code Generation', desc: 'HumanEval, SWE-bench tasks',   icon: Code2,    color: 'purple', models: 10 },
+  { value: 'reasoning',       label: 'Reasoning',       desc: 'AIME, GPQA, chain-of-thought', icon: Brain,    color: 'orange', models: 8 },
 ]
 
 const CLARITY_OPTIONS = [
@@ -90,6 +90,10 @@ export default function Training() {
           setLogs(prev => [...prev, data])
         }
 
+        if (['prompt_step', 'models_selected', 'pairwise_result', 'postprocess_started', 'postprocess_done'].includes(data.type)) {
+          setLogs(prev => [...prev, data])
+        }
+
         if (data.type === 'file_started') {
           setFileProgress({
             status: 'processing',
@@ -128,6 +132,7 @@ export default function Training() {
         }
 
         if (data.type === 'model_failed') {
+          setLogs(prev => [...prev, data])
           setFailedLogs(prev => [...prev, data])
         }
 
@@ -161,7 +166,8 @@ export default function Training() {
     setRunning(false)
   }
 
-  const totalResults = logs.length
+  const totalResults = logs.filter(log => log.type === 'progress').length
+  const totalPairwise = logs.filter(log => log.type === 'pairwise_result').length
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-12 space-y-12">
@@ -181,8 +187,8 @@ export default function Training() {
              Model <span className="gradient-text">Matrix</span> Benchmarks
            </h1>
            <p className="text-gray-400 font-medium leading-relaxed">
-             Orchestrate massive parallel evaluation across 22 LLMs on AWS Bedrock and GCP Vertex. 
-             Choose your use case and complexity, upload prompts with clarity labels, and let Llama 4 Maverick judge responses.
+             Run the Bedrock-first dataset pipeline with prompt hashing, embeddings, rotating model selection, and pairwise judging.
+             Choose your use case and complexity, upload prompts with clarity labels, then inspect each prompt as it moves through the pipeline.
            </p>
         </div>
         
@@ -585,7 +591,7 @@ export default function Training() {
                    <div className="flex flex-col">
                       <h4 className="text-green-300 font-black tracking-tight text-lg">Benchmark Success</h4>
                       <p className="text-green-400/60 text-sm font-medium">
-                        Successfully processed {totalResults} model outputs and synced to Supabase cluster.
+                        Successfully processed {totalResults} model outputs, recorded {totalPairwise} pairwise decisions, and synced the pipeline to Supabase.
                         {failedLogs.length > 0 && ` (${failedLogs.length} model failures excluded)`}
                       </p>
                    </div>
