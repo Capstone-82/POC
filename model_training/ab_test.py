@@ -81,7 +81,8 @@ RETRY_DELAY_S = 1.5
 RANDOM_SEED   = 42
 
 OUTPUT_COLUMNS = [
-    "prompt", "use_case", "group", "model_used", "recommended_model",
+    "prompt", "use_case", "group", "csv_model", "model_used", "recommended_model",
+    "recommendation_mode",
     "eval_llama4_score", "eval_mistral_score", "eval_nova_score",
     "avg_accuracy_score", "score_stdev", "latency_ms", "cost",
 ]
@@ -119,44 +120,6 @@ async def _post(
     print(f"  [ERROR] {label} gave up after {MAX_RETRIES + 1} attempts")
     return None
 
-
-# ─── Core functions ───────────────────────────────────────────────────────────
-
-async def get_recommendation(
-    session: aiohttp.ClientSession,
-    prompt: str,
-    use_case: str,
-    current_model: str,
-) -> Optional[str]:
-    """
-    Call POST /api/inference/recommend.
-    Returns the recommended_model short_id, or None on failure.
-    Gemini models are filtered out (Vertex billing disabled) and the next
-    non-Gemini candidate from top_candidates is used instead.
-    """
-    payload = {
-        "prompt":        prompt,
-        "use_case":      use_case,
-        "current_model": current_model,
-    }
-    result = await _post(session, RECOMMENDER_API_URL, payload, label="recommend")
-    if result is None:
-        return None
-
-    recommended = result.get("recommended_model") or result.get("final_suggestion_model")
-
-    # If the top recommendation is Gemini, walk top_candidates for a Bedrock one
-    if recommended in GEMINI_SHORT_IDS:
-        candidates = result.get("top_candidates", [])
-        for candidate in candidates:
-            alt = candidate.get("model_id", "")
-            if alt and alt not in GEMINI_SHORT_IDS:
-                print(f"  [INFO] Gemini '{recommended}' skipped → using '{alt}'")
-                return alt
-        print(f"  [WARN] All KNN candidates are Gemini — falling back to current model")
-        return None  # caller will use csv_model
-
-    return recommended
 
 
 async def run_model(
@@ -244,17 +207,41 @@ async def process_row(
     use_case     = (row.get("use_case") or "text-generation").strip()
     csv_model    = (row.get("model") or "").strip() or DEFAULT_MODEL
 
-    recommended_model = None
-    model_used        = csv_model  # default for group A and on failure
+    recommended_model   = None
+    recommendation_mode = None
+    model_used          = csv_model  # default for group A and on failure
 
     # ── Group B: get recommendation ───────────────────────────────────────────
     if group == "B":
-        rec = await get_recommendation(session, prompt, use_case, csv_model)
-        if rec:
-            recommended_model = rec
-            model_used        = rec
+        rec_result = await _post(
+            session, RECOMMENDER_API_URL,
+            {"prompt": prompt, "use_case": use_case, "current_model": csv_model},
+            label="recommend",
+        )
+        if rec_result:
+            rec = rec_result.get("recommended_model") or rec_result.get("final_suggestion_model")
+            recommendation_mode = rec_result.get("recommendation_mode")
+
+            # If the top recommendation is Gemini, walk top_candidates for a Bedrock one
+            if rec and rec in GEMINI_SHORT_IDS:
+                candidates = rec_result.get("top_candidates", [])
+                for candidate in candidates:
+                    alt = candidate.get("model_id", "")
+                    if alt and alt not in GEMINI_SHORT_IDS:
+                        print(f"  [INFO] Gemini '{rec}' skipped → using '{alt}'")
+                        rec = alt
+                        break
+                else:
+                    print(f"  [WARN] All KNN candidates are Gemini — falling back to csv_model")
+                    rec = None
+
+            if rec:
+                recommended_model = rec
+                model_used        = rec
+            else:
+                print(f"  [WARN] Row {index}: recommendation failed, using {csv_model}")
         else:
-            print(f"  [WARN] Row {index}: recommendation failed, using {csv_model}")
+            print(f"  [WARN] Row {index}: recommend API failed, using {csv_model}")
 
     # ── Run inference ─────────────────────────────────────────────────────────
     run_result  = await run_model(session, prompt, model_used, use_case)
@@ -286,18 +273,20 @@ async def process_row(
           f"lat={latency_ms}ms | cost=${cost}")
 
     return {
-        "prompt":             prompt,
-        "use_case":           use_case,
-        "group":              group,
-        "model_used":         model_used,
-        "recommended_model":  recommended_model or "",
-        "eval_llama4_score":  eval_result.get("eval_llama4_score"),
-        "eval_mistral_score": eval_result.get("eval_mistral_score"),
-        "eval_nova_score":    eval_result.get("eval_nova_score"),
-        "avg_accuracy_score": eval_result.get("avg_accuracy_score"),
-        "score_stdev":        eval_result.get("score_stdev"),
-        "latency_ms":         latency_ms,
-        "cost":               cost,
+        "prompt":              prompt,
+        "use_case":            use_case,
+        "group":               group,
+        "csv_model":           csv_model,
+        "model_used":          model_used,
+        "recommended_model":   recommended_model or "",
+        "recommendation_mode": recommendation_mode or "",
+        "eval_llama4_score":   eval_result.get("eval_llama4_score"),
+        "eval_mistral_score":  eval_result.get("eval_mistral_score"),
+        "eval_nova_score":     eval_result.get("eval_nova_score"),
+        "avg_accuracy_score":  eval_result.get("avg_accuracy_score"),
+        "score_stdev":         eval_result.get("score_stdev"),
+        "latency_ms":          latency_ms,
+        "cost":                cost,
     }
 
 
@@ -389,7 +378,7 @@ def _save_to_supabase(results: list[dict], run_id: str) -> None:
         records = [
             {
                 "run_id":             run_id,
-                "prompt":             r.get("prompt", "")[:2000],  # truncate very long prompts
+                "prompt":             r.get("prompt", "")[:2000],
                 "use_case":           r.get("use_case"),
                 "group_label":        r.get("group"),
                 "model_used":         r.get("model_used"),
@@ -442,10 +431,10 @@ def _print_summary(results: list[dict]) -> None:
     a_cost = safe_mean([r["cost"] for r in a_rows])
     b_cost = safe_mean([r["cost"] for r in b_rows])
 
-    # Accept rate = fraction of B rows where recommended_model != baseline model
+    # Switch rate = fraction of B rows where the router picked a DIFFERENT model than the CSV baseline
     b_switched = sum(
         1 for r in b_rows
-        if r.get("recommended_model") and r["recommended_model"] != r.get("model_used", "")
+        if r.get("recommended_model") and r["recommended_model"] != r.get("csv_model", "")
     )
 
     print("=" * 60)
@@ -461,6 +450,20 @@ def _print_summary(results: list[dict]) -> None:
     if a_acc is not None and b_acc is not None:
         delta = round(b_acc - a_acc, 3)
         print(f"\n  Accuracy delta (B - A): {'+' if delta >= 0 else ''}{delta}")
+
+    if b_rows:
+        switch_pct = round(b_switched / len(b_rows) * 100, 1)
+        print(f"  B switched from CSV model:   {b_switched}/{len(b_rows)} ({switch_pct}%)")
+
+    # Group B: recommendation modes
+    mode_dist = {}
+    for r in b_rows:
+        m = r.get("recommendation_mode") or "unknown"
+        mode_dist[m] = mode_dist.get(m, 0) + 1
+    if mode_dist:
+        print(f"\n  Group B recommendation modes:")
+        for m, cnt in sorted(mode_dist.items(), key=lambda x: -x[1]):
+            print(f"    {m:<30} {cnt} rows ({cnt/max(len(b_rows),1)*100:.1f}%)")
 
     model_dist_b = {}
     for r in b_rows:

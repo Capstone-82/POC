@@ -1,21 +1,40 @@
-prompt,use_case,group,model_used,recommended_model,eval_llama4_score,eval_mistral_score,eval_nova_score,avg_accuracy_score,score_stdev,latency_ms,cost
-Write a Python function to merge two sorted lists,code-generation,B,llama3-3-70b,llama3-3-70b,100.0,95.0,92.0,95.67,4.04,2468,0.000364
-Explain quantum entanglement in simple terms,text-generation,A,llama3-3-70b,,92.0,95.0,92.0,93.0,1.73,4343,0.00039
-Generate a SQL query that finds the top 5 customers by revenue,code-generation,A,llama3-3-70b,,98.0,95.0,98.0,97.0,1.73,3250,0.000323
-What are the tradeoffs between REST and GraphQL APIs?,reasoning,A,llama3-3-70b,,95.0,95.0,92.0,94.0,1.73,5784,0.000567
-Write a cover letter for a senior software engineer position at a fintech company,text-generation,B,llama3-2-90b,llama3-2-90b,92.0,90.0,92.0,91.33,1.15,10836,0.000461
-Debug this Python code: def fib(n): return fib(n-1) + fib(n-2),code-generation,B,nova-pro,nova-pro,95.0,95.0,97.0,95.67,1.15,6416,0.001682
-Summarize the key ideas of the CAP theorem for a distributed systems engineer,reasoning,B,llama4-maverick,llama4-maverick,98.0,95.0,95.0,96.0,1.73,3403,0.000462
-Write a bash script to monitor CPU usage and alert when above 90%,code-generation,A,llama3-3-70b,,88.0,90.0,92.0,90.0,2.0,2942,0.00035
-Explain the difference between process and thread in operating systems,reasoning,A,llama3-3-70b,,98.0,95.0,95.0,96.0,1.73,4250,0.000454
-Draft an email to a client explaining a 2-week project delay due to scope changes,text-generation,A,nova-pro,,95.0,95.0,95.0,95.0,0.0,5276,0.001042
-Implement binary search in Python with proper docstring and type hints,code-generation,A,llama3-3-70b,,98.0,95.0,98.0,97.0,1.73,3583,0.000406
-What is the time complexity of Dijkstra's algorithm and why?,reasoning,B,nova-premier,nova-premier,95.0,95.0,95.0,95.0,0.0,8063,0.00642
-Write a regex pattern to validate email addresses,code-generation,A,llama3-3-70b,,95.0,90.0,95.0,93.33,2.89,2467,0.000343
-Create a Python class that implements a thread-safe singleton pattern,code-generation,A,nova-pro,,100.0,95.0,98.0,97.67,2.52,7099,0.001981
-Explain transformer architecture to a software engineer with no ML background,text-generation,B,llama3-2-90b,llama3-2-90b,92.0,94.0,92.0,92.67,1.15,15573,0.000621
-Write unit tests for a function that validates credit card numbers,code-generation,B,llama3-3-70b,llama3-3-70b,92.0,95.0,95.0,94.0,1.73,3720,0.000489
-What are SOLID principles and give a real-world example for each?,reasoning,A,llama3-3-70b,,95.0,90.0,88.0,91.0,3.61,5105,0.000755
-Generate a FastAPI endpoint that authenticates users with JWT tokens,code-generation,B,nova-premier,nova-premier,64.0,90.0,65.0,73.0,14.73,14634,0.012918
-Summarize the differences between TCP and UDP for a junior developer,text-generation,B,llama4-maverick,llama4-maverick,95.0,95.0,92.0,94.0,1.73,2715,0.000431
-Write a Python script that reads a large CSV and processes it in chunks,code-generation,A,llama3-3-70b,,93.0,95.0,95.0,94.33,1.15,3339,0.000432
+prompt,use_case,group,csv_model,model_used,recommended_model,recommendation_mode,eval_llama4_score,eval_mistral_score,eval_nova_score,avg_accuracy_score,score_stdev,latency_ms,cost
+Write a Python function that finds the longest palindromic substring in a given string,code-generation,B,llama3-3-70b,devstral-2,devstral-2,semantic_best_value,98.0,95.0,98.0,97.0,1.73,9579,0.001685
+Implement a rate limiter using the token bucket algorithm in Python,code-generation,A,nova-pro,nova-pro,,,98.0,95.0,95.0,96.0,1.73,9300,0.003037
+Write a recursive descent parser for simple arithmetic expressions (+-*/) in Python,code-generation,A,llama4-maverick,llama4-maverick,,,100.0,95.0,95.0,96.67,2.89,5234,0.000936
+Create a Python decorator that retries a function up to N times with exponential backoff,code-generation,A,llama3-3-70b,llama3-3-70b,,,92.0,95.0,95.0,94.0,1.73,4543,0.000508
+Write a SQL query to find employees who earn more than their department average,code-generation,B,llama3-3-70b,ministral-3-8b,ministral-3-8b,semantic_best_value,98.0,95.0,98.0,97.0,1.73,1895,0.000106
+Implement a LRU cache from scratch in Python without using functools,code-generation,B,nova-pro,devstral-2,devstral-2,semantic_best_value,100.0,95.0,98.0,97.67,2.52,15511,0.003089
+Write a Python async function to download multiple URLs concurrently with a connection pool limit of 5,code-generation,B,llama3-3-70b,ministral-3-8b,ministral-3-8b,semantic_best_value,98.0,95.0,92.0,95.0,3.0,4048,0.000255
+Generate a Dockerfile for a FastAPI app with multi-stage build and non-root user,code-generation,A,llama4-maverick,llama4-maverick,,,98.0,95.0,98.0,97.0,1.73,3825,0.000651
+Write a Python function to detect cycles in a directed graph using DFS,code-generation,A,llama3-3-70b,llama3-3-70b,,,98.0,95.0,98.0,97.0,1.73,4111,0.000645
+Create a REST API endpoint in FastAPI that handles file uploads with size validation and virus scanning,code-generation,A,llama3-3-70b,llama3-3-70b,,,95.0,90.0,90.0,91.67,2.89,4372,0.000566
+Implement merge sort in Python and explain the time/space complexity in comments,code-generation,A,nova-pro,nova-pro,,,95.0,95.0,92.0,94.0,1.73,6717,0.002165
+Write a Python context manager that provides a database transaction with automatic rollback on error,code-generation,B,llama3-3-70b,ministral-3-8b,ministral-3-8b,semantic_best_value,87.0,90.0,72.0,83.0,9.64,4597,0.000309
+Build a simple pub/sub message broker class in Python with topic-based routing,code-generation,A,llama4-maverick,llama4-maverick,,,95.0,95.0,95.0,95.0,0.0,2893,0.00067
+Write a bash one-liner to find the 10 largest files in the current directory tree and their sizes,code-generation,A,llama3-3-70b,llama3-3-70b,,,98.0,100.0,88.0,95.33,6.43,2342,0.000226
+Create a Python generator that yields fibonacci numbers lazily without recursion,code-generation,B,llama3-3-70b,ministral-3-8b,ministral-3-8b,semantic_best_value,98.0,95.0,97.0,96.67,1.53,1621,8.7e-05
+Explain the CAP theorem and why it matters for distributed database design,reasoning,B,nova-pro,nova-pro,nova-pro,semantic_best_value,98.0,95.0,95.0,96.0,1.73,8399,0.001968
+What are the tradeoffs between optimistic and pessimistic locking in concurrent systems?,reasoning,A,llama4-maverick,llama4-maverick,,,95.0,95.0,95.0,95.0,0.0,4212,0.000611
+A company can either invest $100K in project A with 60% chance of $200K return or project B with 30% chance of $500K return. Which is better and why?,reasoning,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,98.0,100.0,95.0,97.67,2.52,1632,0.001034
+Compare event-driven architecture vs request-response for a real-time trading platform. Which would you choose?,reasoning,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,100.0,95.0,92.0,95.67,4.04,6351,0.002264
+Why does TCP use a three-way handshake instead of a two-way handshake? What would break?,reasoning,A,nova-pro,nova-pro,,,95.0,95.0,92.0,94.0,1.73,6032,0.001722
+Is it possible to build a system that is both strongly consistent and highly available during network partitions? Justify your answer,reasoning,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,95.0,98.0,95.0,96.0,1.73,4975,0.001474
+Explain why B-trees are preferred over binary search trees for database indexing on disk,reasoning,B,llama4-maverick,nova-pro,nova-pro,semantic_best_value,98.0,95.0,98.0,97.0,1.73,5384,0.002685
+A sorting algorithm runs in O(n log n) average case but O(n^2) worst case. Under what conditions would you still prefer it over a guaranteed O(n log n) algorithm?,reasoning,A,llama3-3-70b,llama3-3-70b,,,95.0,95.0,92.0,94.0,1.73,4584,0.000448
+What happens when you type a URL into a browser and press Enter? Explain each step from DNS to rendering,reasoning,A,llama3-3-70b,llama3-3-70b,,,95.0,95.0,88.0,92.67,4.04,6398,0.00076
+Compare microservices vs monolith for a startup with 3 engineers building an MVP. What would you recommend?,reasoning,B,nova-pro,nova-pro,nova-pro,semantic_best_value,95.0,95.0,92.0,94.0,1.73,4000,0.002151
+Explain the Byzantine Generals Problem and how practical BFT consensus algorithms solve it,reasoning,A,llama3-3-70b,llama3-3-70b,,,87.0,95.0,92.0,91.33,4.04,7663,0.000752
+Why is floating point arithmetic not associative? Give a concrete example where (a+b)+c != a+(b+c),reasoning,A,llama4-maverick,llama4-maverick,,,95.0,95.0,92.0,94.0,1.73,2448,0.000497
+Write a professional email to a client explaining that a critical production bug will delay the launch by one week,text-generation,A,nova-pro,nova-pro,,,98.0,95.0,95.0,96.0,1.73,3607,0.00096
+"Summarize the key differences between REST, GraphQL, and gRPC for a junior developer joining the team",text-generation,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,92.0,95.0,92.0,93.0,1.73,5459,0.001746
+Draft a technical blog post introduction about how vector databases power modern RAG systems,text-generation,B,llama3-3-70b,nova-lite,nova-lite,semantic_best_value,92.0,95.0,92.0,93.0,1.73,1971,4.9e-05
+Write a clear and concise README.md for an open-source Python CLI tool that converts CSV files to JSON,text-generation,B,llama4-maverick,nova-lite,nova-lite,semantic_best_value,95.0,95.0,95.0,95.0,0.0,3481,0.000133
+Create a job description for a Senior Machine Learning Engineer at a Series B fintech startup,text-generation,B,nova-pro,nova-pro,nova-pro,semantic_best_value,92.0,95.0,95.0,94.0,1.73,9029,0.002515
+Explain Kubernetes pod scheduling to a developer who only knows Docker,text-generation,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,95.0,95.0,95.0,95.0,0.0,8357,0.002441
+Write a compelling product description for a wireless noise-cancelling headphone under $100,text-generation,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,95.0,95.0,92.0,94.0,1.73,6641,0.001976
+Draft a sprint retrospective summary noting improvements in deployment frequency but regressions in code review turnaround,text-generation,A,llama3-3-70b,llama3-3-70b,,,92.0,94.0,92.0,92.67,1.15,3029,0.000302
+"Explain the difference between supervised, unsupervised, and reinforcement learning with one real-world example each",text-generation,B,llama4-maverick,nova-lite,nova-lite,semantic_best_value,95.0,95.0,95.0,95.0,0.0,3800,0.000139
+Write a concise incident postmortem for a 45-minute API outage caused by a misconfigured load balancer,text-generation,B,nova-pro,nova-pro,nova-pro,semantic_best_value,92.0,95.0,92.0,93.0,1.73,5434,0.001769
+Summarize the pros and cons of serverless architecture for a CTO evaluating AWS Lambda vs ECS Fargate,text-generation,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,92.0,95.0,92.0,93.0,1.73,6745,0.002202
+"Create onboarding documentation for a new backend engineer joining a team that uses FastAPI, PostgreSQL, and Redis",text-generation,B,llama3-3-70b,nova-pro,nova-pro,semantic_best_value,98.0,95.0,85.0,92.67,6.81,12036,0.003293

@@ -7,12 +7,12 @@ from statistics import median, stdev
 from typing import Any
 
 
-MIN_NEIGHBOR_SIMILARITY = 0.60   # lowered from 0.72 until 1536-dim backfill completes
-DEFAULT_K = 20
-FALLBACK_K = 40
+MIN_NEIGHBOR_SIMILARITY = 0.25   # 1536-dim OpenAI embeddings have lower cosine sim than 384-dim
+DEFAULT_K = 50                   # increased from 20 to capture more neighbors per model
+FALLBACK_K = 100
 AGGREGATION_FALLBACK_K = 240
-FALLBACK_SIMILARITY = 0.50
-MIN_MODEL_NEIGHBORS = 1          # lowered from 3 until backfill gives more neighbors per model
+FALLBACK_SIMILARITY = 0.15
+MIN_MODEL_NEIGHBORS = 2          # require at least 2 neighbors per model for stability
 
 
 def search_neighbors(

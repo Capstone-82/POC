@@ -30,41 +30,47 @@ LOCAL_PROMPT_LOGS_CSV = Path(__file__).resolve().parents[2] / "model_training" /
 
 SCORE_WEIGHTS: Dict[str, Dict[str, float]] = {
     "code-generation": {
-        "win_rate": 0.40,
-        "syntax_rate": 0.20,
-        "cost": 0.25,
-        "latency": 0.10,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "syntax_rate": 0.10,
+        "cost": 0.20,
+        "latency": 0.15,
         "confidence": 0.05,
     },
     "reasoning": {
-        "win_rate": 0.50,
-        "correctness": 0.20,
-        "cost": 0.20,
-        "latency": 0.05,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "correctness": 0.15,
+        "cost": 0.15,
+        "latency": 0.15,
         "confidence": 0.05,
     },
     "text-generation": {
-        "win_rate": 0.45,
-        "cost": 0.25,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "cost": 0.20,
         "latency": 0.20,
         "confidence": 0.10,
     },
     "data-analysis": {
-        "win_rate": 0.45,
-        "cost": 0.30,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "cost": 0.25,
         "latency": 0.20,
         "confidence": 0.05,
     },
     "question-answering": {
-        "win_rate": 0.45,
-        "correctness": 0.20,
-        "cost": 0.25,
-        "latency": 0.05,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "correctness": 0.15,
+        "cost": 0.20,
+        "latency": 0.10,
         "confidence": 0.05,
     },
     "_default": {
-        "win_rate": 0.45,
-        "cost": 0.30,
+        "win_rate": 0.25,
+        "knn_accuracy": 0.25,
+        "cost": 0.25,
         "latency": 0.20,
         "confidence": 0.05,
     },
@@ -538,6 +544,13 @@ def score_and_rank_knn_candidates(candidates: Dict[str, dict], use_case: str) ->
         else:
             fallback_quality = float(item.get("fallback_accuracy", item.get("sim_weighted_accuracy", 0.0))) / 100.0
             quality_values.append(fallback_quality * PAIRWISE_MISSING_PENALTY)
+
+    # KNN accuracy signal — the whole point of semantic search
+    accuracy_values = [
+        float(item.get("sim_weighted_accuracy", item.get("fallback_accuracy", 0.0)))
+        for item in ranked
+    ]
+
     cost_values = [float(item["p50_cost"]) for item in ranked]
     latency_values = [float(item["p50_latency"]) for item in ranked]
     confidence_values = [float(item.get("confidence_signal", 0.0)) for item in ranked]
@@ -549,6 +562,7 @@ def score_and_rank_knn_candidates(candidates: Dict[str, dict], use_case: str) ->
     ]
 
     quality_min, quality_max = min(quality_values), max(quality_values)
+    accuracy_min, accuracy_max = min(accuracy_values), max(accuracy_values)
     cost_min, cost_max = min(cost_values), max(cost_values)
     latency_min, latency_max = min(latency_values), max(latency_values)
     confidence_min, confidence_max = min(confidence_values), max(confidence_values)
@@ -557,8 +571,9 @@ def score_and_rank_knn_candidates(candidates: Dict[str, dict], use_case: str) ->
     correctness_min = min(correctness_values) if correctness_values else 0.0
     correctness_max = max(correctness_values) if correctness_values else 1.0
 
-    for item, quality_signal in zip(ranked, quality_values):
+    for item, quality_signal, accuracy_signal in zip(ranked, quality_values, accuracy_values):
         quality_norm = normalize_higher_better(quality_signal, quality_min, quality_max)
+        accuracy_norm = normalize_higher_better(accuracy_signal, accuracy_min, accuracy_max)
         cost_norm = normalize_lower_better(float(item["p50_cost"]), cost_min, cost_max)
         latency_norm = normalize_lower_better(float(item["p50_latency"]), latency_min, latency_max)
         confidence_norm = normalize_higher_better(
@@ -582,6 +597,7 @@ def score_and_rank_knn_candidates(candidates: Dict[str, dict], use_case: str) ->
 
         value_score = 0.0
         value_score += weights.get("win_rate", 0.0) * quality_norm
+        value_score += weights.get("knn_accuracy", 0.0) * accuracy_norm
         value_score += weights.get("cost", 0.0) * cost_norm
         value_score += weights.get("latency", 0.0) * latency_norm
         value_score += weights.get("confidence", 0.0) * confidence_norm

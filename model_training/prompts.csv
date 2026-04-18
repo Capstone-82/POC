@@ -1,21 +1,40 @@
 prompt,use_case,model
-"Write a Python function to merge two sorted lists",code-generation,nova-pro
-"Explain quantum entanglement in simple terms",text-generation,
-"Generate a SQL query that finds the top 5 customers by revenue",code-generation,llama3-3-70b
-"What are the tradeoffs between REST and GraphQL APIs?",reasoning,
-"Write a cover letter for a senior software engineer position at a fintech company",text-generation,nova-pro
-"Debug this Python code: def fib(n): return fib(n-1) + fib(n-2)",code-generation,
-"Summarize the key ideas of the CAP theorem for a distributed systems engineer",reasoning,llama4-maverick
-"Write a bash script to monitor CPU usage and alert when above 90%",code-generation,
-"Explain the difference between process and thread in operating systems",reasoning,
-"Draft an email to a client explaining a 2-week project delay due to scope changes",text-generation,nova-pro
-"Implement binary search in Python with proper docstring and type hints",code-generation,llama3-3-70b
-"What is the time complexity of Dijkstra's algorithm and why?",reasoning,
-"Write a regex pattern to validate email addresses",code-generation,
-"Create a Python class that implements a thread-safe singleton pattern",code-generation,nova-pro
-"Explain transformer architecture to a software engineer with no ML background",text-generation,
-"Write unit tests for a function that validates credit card numbers",code-generation,llama4-maverick
-"What are SOLID principles and give a real-world example for each?",reasoning,
-"Generate a FastAPI endpoint that authenticates users with JWT tokens",code-generation,
-"Summarize the differences between TCP and UDP for a junior developer",text-generation,nova-pro
-"Write a Python script that reads a large CSV and processes it in chunks",code-generation,llama3-3-70b
+"Write a Python function that finds the longest palindromic substring in a given string",code-generation,llama3-3-70b
+"Implement a rate limiter using the token bucket algorithm in Python",code-generation,nova-pro
+"Write a recursive descent parser for simple arithmetic expressions (+-*/) in Python",code-generation,llama4-maverick
+"Create a Python decorator that retries a function up to N times with exponential backoff",code-generation,
+"Write a SQL query to find employees who earn more than their department average",code-generation,llama3-3-70b
+"Implement a LRU cache from scratch in Python without using functools",code-generation,nova-pro
+"Write a Python async function to download multiple URLs concurrently with a connection pool limit of 5",code-generation,
+"Generate a Dockerfile for a FastAPI app with multi-stage build and non-root user",code-generation,llama4-maverick
+"Write a Python function to detect cycles in a directed graph using DFS",code-generation,
+"Create a REST API endpoint in FastAPI that handles file uploads with size validation and virus scanning",code-generation,llama3-3-70b
+"Implement merge sort in Python and explain the time/space complexity in comments",code-generation,nova-pro
+"Write a Python context manager that provides a database transaction with automatic rollback on error",code-generation,
+"Build a simple pub/sub message broker class in Python with topic-based routing",code-generation,llama4-maverick
+"Write a bash one-liner to find the 10 largest files in the current directory tree and their sizes",code-generation,
+"Create a Python generator that yields fibonacci numbers lazily without recursion",code-generation,llama3-3-70b
+"Explain the CAP theorem and why it matters for distributed database design",reasoning,nova-pro
+"What are the tradeoffs between optimistic and pessimistic locking in concurrent systems?",reasoning,llama4-maverick
+"A company can either invest $100K in project A with 60% chance of $200K return or project B with 30% chance of $500K return. Which is better and why?",reasoning,
+"Compare event-driven architecture vs request-response for a real-time trading platform. Which would you choose?",reasoning,llama3-3-70b
+"Why does TCP use a three-way handshake instead of a two-way handshake? What would break?",reasoning,nova-pro
+"Is it possible to build a system that is both strongly consistent and highly available during network partitions? Justify your answer",reasoning,
+"Explain why B-trees are preferred over binary search trees for database indexing on disk",reasoning,llama4-maverick
+"A sorting algorithm runs in O(n log n) average case but O(n^2) worst case. Under what conditions would you still prefer it over a guaranteed O(n log n) algorithm?",reasoning,
+"What happens when you type a URL into a browser and press Enter? Explain each step from DNS to rendering",reasoning,llama3-3-70b
+"Compare microservices vs monolith for a startup with 3 engineers building an MVP. What would you recommend?",reasoning,nova-pro
+"Explain the Byzantine Generals Problem and how practical BFT consensus algorithms solve it",reasoning,
+"Why is floating point arithmetic not associative? Give a concrete example where (a+b)+c != a+(b+c)",reasoning,llama4-maverick
+"Write a professional email to a client explaining that a critical production bug will delay the launch by one week",text-generation,nova-pro
+"Summarize the key differences between REST, GraphQL, and gRPC for a junior developer joining the team",text-generation,llama3-3-70b
+"Draft a technical blog post introduction about how vector databases power modern RAG systems",text-generation,
+"Write a clear and concise README.md for an open-source Python CLI tool that converts CSV files to JSON",text-generation,llama4-maverick
+"Create a job description for a Senior Machine Learning Engineer at a Series B fintech startup",text-generation,nova-pro
+"Explain Kubernetes pod scheduling to a developer who only knows Docker",text-generation,
+"Write a compelling product description for a wireless noise-cancelling headphone under $100",text-generation,llama3-3-70b
+"Draft a sprint retrospective summary noting improvements in deployment frequency but regressions in code review turnaround",text-generation,
+"Explain the difference between supervised, unsupervised, and reinforcement learning with one real-world example each",text-generation,llama4-maverick
+"Write a concise incident postmortem for a 45-minute API outage caused by a misconfigured load balancer",text-generation,nova-pro
+"Summarize the pros and cons of serverless architecture for a CTO evaluating AWS Lambda vs ECS Fargate",text-generation,
+"Create onboarding documentation for a new backend engineer joining a team that uses FastAPI, PostgreSQL, and Redis",text-generation,llama3-3-70b
