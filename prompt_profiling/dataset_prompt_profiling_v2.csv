@@ -1,0 +1,1009 @@
+id,prompt,phrasing_style,domain,d1,d2,d3,d4,d5
+day2_t1_gap_001,what does mqtt stand for and why do iot devices use it instead of http,explicit,IoT & Smart Factory,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_002,"the syslog file attached is showing error code 0x4F on the assembly arm PLC, what does that mean",implicit,IoT & Smart Factory,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_003,modbus rtu vs modbus tcp what is the main difference,vague,IoT & Smart Factory,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_004,how do I reboot a generic smart sensor if it loses factory network connection,explicit,IoT & Smart Factory,0.0,0.25,0.25,0.0,0.0
+day2_t1_gap_005,"our factory floor monitors are lagging compared to the control room, are we supposed to use websockets or long polling for this",implicit,IoT & Smart Factory,0.25,0.5,0.0,0.0,0.0
+day2_t1_gap_006,why is my smart gateway blinking red twice,vague,IoT & Smart Factory,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_007,"based on the factory sensor log attached, what was the highest recorded temperature of the cnc machine yesterday",explicit,IoT & Smart Factory,0.0,0.5,0.25,0.25,0.25
+day2_t1_gap_008,"shop floor tablets losing signal, 2.4ghz or 5ghz wifi",vague,IoT & Smart Factory,0.25,0.25,0.0,0.0,0.0
+day2_t1_gap_009,wifi vs ethernet for factory floor cnc machines pros cons list,vague,IoT & Smart Factory,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_010,"look at this screenshot of the SCADA dashboard, which sensor is currently reporting an offline state",implicit,IoT & Smart Factory,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_011,what is the difference between bounce rate and exit rate in google analytics 4,explicit,Marketing Tech,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_012,"our hubspot workflow failed on several leads last night, looking at the lead history attached, why did it stop at step 3",implicit,Marketing Tech,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_013,whats the standard size for a linkedin banner,vague,Marketing Tech,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_014,what is the difference between first-click and last-click attribution models in google analytics 4,explicit,Marketing Tech,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_015,"sales emails going to spam, fix spf or dkim first",vague,Marketing Tech,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_016,"hubspot contacts vs mailchimp subscribers, what is the core structural difference",vague,Marketing Tech,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_017,"I've attached our active campaign schema, where is the tag field defined in this payload",implicit,Marketing Tech,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_018,what is the difference between ltl and ftl shipping in logistics,explicit,Supply Chain,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_019,"we have a shipping delay warning on order 94827, can you look at this tracking history screenshot and tell me where the container is stuck",implicit,Supply Chain,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_020,what does sku stand for in warehouse management,vague,Supply Chain,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_021,how does sap ewm calculate the storage bin capacity for standard pallets,explicit,Supply Chain,0.0,0.5,0.25,0.0,0.0
+day2_t1_gap_022,"our supplier is offering exw terms but our shipping department prefers fob, looking at the contract draft with exw terms attached, which one leaves us with less transport liability",implicit,Supply Chain,0.25,0.25,0.0,0.25,0.25
+day2_t1_gap_023,fifo vs lifo inventory valuation differences,vague,Supply Chain,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_024,"using the manifest spreadsheet attached, find the total quantity of item code 4022 shipped to the rotterdam warehouse",explicit,Supply Chain,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_025,"our logistics partner sent an edi 810 instead of an edi 850, can you explain how these two transactions differ so I can fix our automated import",implicit,Supply Chain,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_026,who is the current VP of human resources at our company,explicit,General Enterprise,0.0,0.0,0.0,0.0,0.0
+day2_t1_gap_027,"I received the invoice attached for office supplies last week, where do I upload it to get reimbursement",implicit,General Enterprise,0.0,0.0,0.0,0.25,0.25
+day2_t1_gap_028,"hmo vs ppo health insurance plans, which has lower copays",vague,General Enterprise,0.25,0.0,0.25,0.0,0.0
+day2_t1_gap_029,what is the difference between sick leave and short-term disability policy at our firm,explicit,General Enterprise,0.25,0.0,0.25,0.0,0.0
+day2_t1_gap_030,"I need to request paternity leave but my manager says I have to use standard PTO first, can you check if that matches our company rules",implicit,General Enterprise,0.25,0.0,0.0,0.0,0.0
+day2_t1_gap_031,where do I find the office kitchen cleaning schedule,vague,General Enterprise,0.0,0.0,0.0,0.0,0.0
+day2_t1_gap_032,"looking at the company calendar PDF I attached, what are the official company holidays for the month of December",explicit,General Enterprise,0.0,0.0,0.25,0.25,0.25
+day2_t1_gap_033,"I'm planning an offsite team lunch next Thursday, can you list the steps to submit a pre-approval request in the expense system",implicit,General Enterprise,0.0,0.0,0.25,0.0,0.0
+day2_t1_gap_034,casual vs business casual dress code rules,vague,General Enterprise,0.25,0.0,0.0,0.0,0.0
+day2_t1_gap_035,"comparing the two medical plans in the attached benefits brochure, what is the annual deductible difference for an individual",explicit,General Enterprise,0.25,0.0,0.25,0.25,0.25
+day2_t1_gap_036,what is the difference between a rolling deployment and a blue-green deployment,explicit,DevOps,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_037,"our jenkins pipeline failed during the test stage, can you tell me why based on the build logs I attached",implicit,DevOps,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_038,how do I add a webhook to a github repo,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_039,what is the difference between prometheus pull and push scraping methods,explicit,DevOps,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_040,"our deploy is throwing cert validation errors, do we need to regenerate the self-signed cert or update the ca trust bundle",implicit,DevOps,0.25,0.25,0.0,0.0,0.0
+day2_t1_gap_041,what is the difference between aws s3 standard and s3 glacier flexible retrieval storage classes,explicit,Cloud Infrastructure,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_042,"we are getting 403 access denied when accessing the s3 bucket, can you look at this bucket settings JSON I've attached and find the error",implicit,Cloud Infrastructure,0.0,0.25,0.0,0.25,0.25
+day2_t1_gap_043,whats the maximum size of an aws s3 object,vague,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_044,what is the function of an internet gateway in an aws vpc,explicit,Cloud Infrastructure,0.0,0.25,0.25,0.0,0.0
+day2_t1_gap_045,"the dev team says our database latency is high, should we increase the provisioned iops or change the instance type to a memory-optimized one",implicit,Cloud Infrastructure,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_046,what is the difference between aws savings plans and reserved instances,explicit,FinOps,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_047,"our cloud bill spiked dramatically last month, looking at this cost explorer csv export attached, which service had the largest increase",implicit,FinOps,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_048,how is cloud unit cost calculated,vague,FinOps,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_049,what is the definition of amortized cost in cloud billing,explicit,FinOps,0.0,0.5,0.25,0.0,0.0
+day2_t1_gap_050,"we have a lot of untagged resources driving up costs, looking at the tagging file attached, should we apply these rules via organization settings or run an ad-hoc cleanup script first",implicit,FinOps,0.25,0.25,0.0,0.25,0.25
+day2_t1_gap_051,"our factory floor gateway log attached shows connection drops every hour, what's causing this?",implicit,IoT & Smart Factory,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_052,"modbus tcp vs rtu for plc data transfer, which is faster",vague,IoT & Smart Factory,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_053,what is the default port for opc ua discovery services,explicit,IoT & Smart Factory,0.0,0.5,0.0,0.0,0.0
+day2_t1_gap_054,what is the difference between a hard bounce and a soft bounce in hubspot email campaigns,explicit,Marketing Tech,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_055,"the active campaign export I uploaded shows zero clicks for yesterday, why would that happen",implicit,Marketing Tech,0.0,0.5,0.0,0.25,0.25
+day2_t1_gap_056,"google ads vs meta ads for local reach, which is cheaper",vague,Marketing Tech,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_057,difference between EDIFACT and ANSI X12 element separators,explicit,Supply Chain,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_058,"the tracking sheet I attached says pending for five days, what does that status mean",implicit,Supply Chain,0.0,0.25,0.0,0.25,0.25
+day2_t1_gap_059,where is the new warehouse return policy pdf saved,vague,Supply Chain,0.25,0.0,0.0,0.0,0.0
+day2_t1_gap_060,how do I submit an expense report for my travel expenses on expensify,explicit,General Enterprise,0.0,0.0,0.25,0.0,0.0
+day2_t1_gap_061,"my pay stub attached has a deduction labeled feedamerica, what is this deduction for",implicit,General Enterprise,0.0,0.0,0.0,0.25,0.25
+day2_t1_gap_062,who is the contact person for dental insurance questions,vague,General Enterprise,0.0,0.0,0.0,0.0,0.0
+day2_t1_gap_063,what is the difference between blue-green deployment and canary deployment,explicit,DevOps,0.25,0.5,0.25,0.0,0.0
+day2_t1_gap_064,"the github actions workflow yaml I uploaded fails on the checkout step, what did I do wrong",implicit,DevOps,0.0,0.25,0.0,0.25,0.25
+day2_t1_gap_065,why does our grafana keep losing the prom connection,vague,DevOps,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_066,what is the default timeout on aws api gateway,explicit,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+day2_t1_gap_067,"the terraform config I pasted shows an error on the s3 bucket resource, what is the issue",implicit,Cloud Infrastructure,0.0,0.25,0.0,0.25,0.25
+day2_t1_gap_068,"aws savings plans vs reserved instances, which is better for dev environments",vague,FinOps,0.25,0.25,0.25,0.0,0.0
+day2_t1_gap_069,"our cost dashboard has a spike in untagged ec2 resources this week, how do we find which team owns them",implicit,FinOps,0.25,0.25,0.25,0.0,0.0
+day2_t2_gap_001,"our kafka consumers keep falling behind and
+we dont know why, need to sort this",vague,Data Engineering,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_002,"costs keep creeping up, nobody knows who owns
+what in aws, half the tags are wrong",vague,FinOps,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_003,"audit team is on us about SOC 2 access reviews and
+nobody has the right list",vague,Security,0.75,0.75,0.5,0.0,0.0
+day2_t2_gap_004,"pipelines are failing randomly on the docker build step
+and it's blocking deployments",vague,DevOps,0.5,0.25,0.25,0.0,0.0
+day2_t2_gap_005,"I have uploaded our draft cloud architecture design for
+our new AWS multi-region payment gateway and a PDF containing the gap analysis
+from our pre-assessment. We need to align this with NIST SP 800-53 Rev 5
+controls, specifically focusing on Access Control (AC) and System and
+Communications Protection (SC) families. Please generate a comprehensive
+security engineering and compliance document that maps our current architecture
+elements to the relevant NIST controls, identifies specific technical gaps, and
+provides step-by-step remediation plans for our infrastructure team.",explicit,Security,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_006,"Our SageMaker spend went
+up 140% last month, mostly driven by training jobs and idle endpoints. I've
+attached our AWS Cost Explorer CSV report for the last 90 days, along with our
+active instance inventory. We need to find where the waste is occurring and
+align our setup with FinOps Foundation standards for the Optimize phase,
+specifically targeting unit economics for training runs and lifecycle rules for
+multi-model endpoints.",implicit,FinOps,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_007,"Based on the GitHub Actions workflow YAML I've pasted below, please
+create an optimized CI/CD build configuration using GitHub self-hosted runners.
+We need to implement caching for our npm dependencies, parallelize the test
+execution matrix across three runners, and add a step to run security linting
+via SonarQube before the build step starts.",explicit,DevOps,0.5,0.5,0.5,0.25,0.25
+day2_t2_gap_008,"Our Databricks
+Spark jobs are constantly failing with out-of-memory errors on large shuffles.
+I've attached the Spark UI execution log export for the failing job, which
+handles our daily clickstream aggregation. We're seeing massive skew on the
+session ID join. We need to resolve these shuffle spill issues and optimize the
+memory partitioning so this job actually finishes within our SLA.",implicit,Data Engineering,0.5,0.5,0.75,0.25,0.5
+day2_t2_gap_009,"I've attached our current Salesforce REST API
+integration schema. Using this payload structure, please write a comprehensive
+mapping spec for MuleSoft Anypoint Platform to transform this customer data into
+our downstream SAP OData service format, including error handling for missing
+required tax fields and phone number normalization.",explicit,System Integration,0.5,0.5,0.5,0.25,0.25
+day2_t2_gap_010,"Our marketing team wants to
+deploy a new LLM-based customer personalization agent using OpenAI's API. I've
+attached our draft vendor data processing agreement (DPA) and the system data
+flow diagram. We have major concerns around GDPR compliance, specifically
+Article 22 automated decision-making and cross-border data transfers of PII when
+user queries are logged. We need to identify the exact regulatory risks of this
+setup and how we can implement data masking and rate-limiting to mitigate
+them.",implicit,AI Governance,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_011,"Referencing our attached draft
+business continuity policy and the AWS multi-region disaster recovery
+architecture diagrams, please draft an ISO 27001 Annex A.17 compliance report.
+It must evaluate our failover procedures, Recovery Point Objective (RPO)
+guarantees, and operational procedures for testing our backups annually,
+pointing out any compliance gaps.",explicit,Security,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_012,"We're migrating our legacy
+virtual machines to AWS EC2 and I've attached our current server inventory sheet
+containing CPU, memory, and storage metrics. The application servers are highly
+transactional but have predictable load spikes. We need to figure out the right
+EC2 instance families, sizing, and EBS volume configurations to prevent
+performance degradation without overprovisioning.",implicit,Cloud Infrastructure,0.5,0.25,0.5,0.25,0.25
+day2_t2_gap_013,"Our clinical
+product team is building an LLM feature to automatically summarize
+patient-doctor conversations in our EHR system. Create a comprehensive clinical
+data security and compliance policy for this integration. The policy must cover
+patient data de-identification, explicit opt-in procedures, administrative
+safeguards under HIPAA, and technical controls for ensuring no PHI is cached on
+third-party model provider servers. Include a structured compliance checklist
+and an engineering workflow diagram description.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.5
+day2_t2_gap_014,"We have multiple Linux application servers running in
+our DMZ that are completely out of compliance with CIS Benchmarks Level 2. Our
+operations team is pushing back on disabling legacy protocols and restricting
+outgoing SSH traffic, claiming it will disrupt our API integrations. We need to
+resolve these conflicting security and operational needs without lowering our
+risk posture, specifically addressing firewall configuration, service hardening,
+and credential rotations.",implicit,Security,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_015,"Provide a detailed technical comparison of running our web
+application on a Kubernetes-managed container setup versus a serverless
+container environment. The comparison must look at deployment overhead, scaling
+latency, and cold-start impacts, and include a decision matrix to help our
+engineering leadership make a final choice.",explicit,Cloud Infrastructure,0.5,0.25,0.5,0.0,0.25
+day2_t2_gap_016,"We are struggling with a sudden surge in our Snowflake
+data warehousing costs, which spike every morning when our BI reports refresh.
+The analysts are executing unoptimized multi-table joins on raw tables, and the
+auto-suspend times for our virtual warehouses are currently set to 10 minutes.
+We need to cut down this monthly spend quickly while keeping the report runtimes
+under 3 minutes for the executive team.",implicit,FinOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_017,"Provide a checklist for a production readiness review of an ML model deployed
+to Triton Inference Server. The checklist should focus specifically on
+performance optimization parameters, concurrency configs, and health check
+monitoring requirements.",explicit,DevOps,0.5,0.5,0.25,0.0,0.25
+day2_t2_gap_018,"Our dbt runs are taking over two hours to
+complete on our BigQuery analytics warehouse. Several of our intermediate tables
+are being materialized as full tables instead of views or incremental models,
+and we are querying the same raw tables across multiple staging layers. We need
+to reduce this build time and optimize our pipeline execution order before our
+cloud resource budget gets drained.",implicit,Data Engineering,0.5,0.5,0.25,0.0,0.25
+day2_t2_gap_019,"Develop an
+organizational evaluation matrix for assessing bias and drift in third-party
+generative AI models. The evaluation must cover technical criteria for checking
+prompt injection susceptibility, statistical methods for measuring output
+distribution shift, and the internal governance workflow required when a model
+fails its drift threshold.",explicit,AI Governance,0.75,0.5,0.75,0.0,0.25
+day2_t2_gap_020,"Our real-time transactional system syncs data from our
+core database to three external microservices using Apache Kafka, but we've seen
+out-of-order execution during broker partition rebalances, causing data
+corruption in the target systems. We need to guarantee exactly-once processing
+and strict ordering for these transactional updates even when our primary broker
+nodes undergo unexpected failovers.",implicit,System Integration,0.75,0.5,0.5,0.0,0.25
+day2_t2_gap_021,"Our annual SOC 2 Type II audit is coming up
+and I've attached our current IAM policy configurations and the list of
+developer group memberships. We need a formal remediation document mapping these
+access patterns directly to the Trust Services Criteria CC6.3 requirements.
+Specifically, identify any accounts missing multi-factor authentication,
+highlight group memberships that violate the principle of least privilege, and
+outline a step-by-step remediation plan for our active directory administration
+team.",explicit,Security,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_022,"Our Kubernetes
+cluster costs on AWS EKS are spiraling out of control because our developers are
+setting excessive CPU and memory requests for their development namespaces. We
+are seeing node utilization drop below 15% during off-peak hours but we are
+still paying for the full EC2 instance capacity. We need to introduce cluster
+autoscaling strategies and default namespace limits to curtail this waste
+without causing deployment OOM errors.",implicit,FinOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_023,"deployments are crawling lately
+and keeping the dev team stuck, looks like a cache or package issue",vague,DevOps,0.5,0.25,0.25,0.0,0.0
+day2_t2_gap_024,"Based on the database schema I've pasted below
+for our transactional order table, please design an optimized PostgreSQL schema
+layout for a read-heavy reporting replica. We need to implement table
+partitioning by order date, add appropriate partial indexes on active statuses,
+and configure vacuum settings to handle frequent update operations.",explicit,Data Engineering,0.5,0.5,0.5,0.25,0.25
+day2_t2_gap_025,"We are integrating third-party generative AI
+models into our customer-facing messaging app to auto-draft replies. We have
+strict GDPR concerns regarding user conversations that contain PII like credit
+card numbers or physical addresses being processed or retained by these external
+APIs. We need to find the best way to implement client-side scanning and
+anonymization techniques before transmitting payloads to the external API
+endpoints.",implicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_026,"our storage
+costs on s3 are way up and we don't know what's in there anymore",vague,Cloud Infrastructure,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_027,"Design an API integration
+layout to sync customer ticket statuses between ServiceNow and Jira Service
+Management. The solution must detail the webhook configuration, handling of rate
+limits, authentication via OAuth 2.0, and a retry mechanism with exponential
+backoff for when one of the platforms experiences service disruptions.",explicit,System Integration,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_028,"I've attached our server event log extracts
+showing multiple unauthorized administrator login attempts on our legacy
+internal file servers. In accordance with the NIST Incident Handling Guide
+(SP 800-61 Rev. 2), we need to assess our operational state and align our
+technical isolation and analysis workflow to contain this threat while avoiding
+the accidental deletion of volatile forensic evidence.",implicit,Security,0.75,0.75,0.5,0.25,0.5
+day2_t2_gap_029,"our cloud bill is double what it was last quarter and nobody can
+explain it",vague,FinOps,0.5,0.25,0.25,0.0,0.0
+day2_t2_gap_030,"Using the attached Jenkinsfile from our microservice build pipeline,
+generate a complete migration strategy to move this workflow to GitLab CI. The
+final output must detail equivalents for all environment variables, build
+triggers, Docker registry authentications, and specify how we can implement
+parallel testing stages to reduce our overall pipeline execution times.",explicit,DevOps,0.5,0.5,0.75,0.25,0.5
+day2_t2_gap_031,"Our daily ETL pipeline in
+Apache Airflow is constantly missing its SLA because upstream source tables are
+updated at inconsistent times. This causes down-stream task failures when
+expected data partitions are empty. We need to restructure our DAG topology and
+configure sensor tasks or conditional triggers to handle these delivery delays
+without manually restarting tasks.",implicit,Data Engineering,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_032,"Create a formal model risk management policy in alignment with the
+NIST Artificial Intelligence Risk Management Framework (AI RMF 1.0). The policy
+must specify governance criteria for evaluating pre-trained open-source
+foundational models, describe specific testing procedures for toxic output
+detection, and define mandatory audit documentation rules for our engineering
+teams.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_033,"Our AWS footprint is growing fast and our security team
+is unhappy with how we manage our VPC architectures. I've attached our core
+Terraform networking configurations. We need to restructure this setups to
+enforce isolated private subnets, routing through a centralized Transit Gateway,
+and configure NAT Gateway endpoints to minimize regional traffic routing
+costs.",implicit,Cloud Infrastructure,0.5,0.5,0.75,0.25,0.5
+day2_t2_gap_034,"Using the attached OpenAPI
+specification for our backend billing service, please design a secure gateway
+integration via AWS API Gateway. We need to enforce API key authorization,
+configure rate-limiting policies to prevent denial-of-service attempts, and
+design custom request mapping templates to scrub internal system identifiers
+before responses are returned to public clients.",explicit,System Integration,0.75,0.5,0.5,0.25,0.5
+day2_t2_gap_035,"we
+had a credential leak in one of our repos and need a clean up strategy fast
+before anything gets compromised",vague,Security,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_036,"Produce a comprehensive cloud unit economics plan based on FinOps
+Foundation practices for our multi-tenant SaaS application. The plan must
+establish a methodology for attributing dynamic compute and storage usage to
+individual tenants, define key performance indicators to track cost per active
+user, and specify programmatic mechanisms to alert account teams of anomalous
+tenant spend spikes.",explicit,FinOps,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_037,"Our automated ML training
+pipelines are wasting significant resources because they re-run completely every
+night even when the source training data in our warehouses hasn't changed. We
+need to build a caching system that tracks data version hashes in MLflow and
+checks them before kicking off compute-intensive GPU training steps.",implicit,DevOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_038,"Referencing the attached JSON event schema for
+our IoT telemetry devices, please design an end-to-end data ingestion pipeline
+using Apache Flink. The solution must specify how to parse incoming records,
+handle late-arriving events using watermark offsets, and perform session-based
+window aggregations before loading the clean data into a timeseries database.",explicit,Data Engineering,0.5,0.5,0.5,0.25,0.5
+day2_t2_gap_039,"We
+are establishing a corporate AI red-teaming program and need to coordinate our
+testing workflows with ISO 27001 standards, particularly around vulnerability
+management and information classification. We need to establish clear protocol
+steps for identifying prompt injection exploits, logging model interactions, and
+storing sensitive training data artifacts.",implicit,AI Governance,0.75,0.75,0.5,0.0,0.25
+day2_t2_gap_040,"Create a technical setup checklist for
+configuring a secure, multi-region AWS Client VPN. The checklist must cover
+integration with Azure AD for identity management, split-tunneling setup to
+conserve bandwidth, and configuring security group rules to restrict user access
+to production databases.",explicit,Cloud Infrastructure,0.5,0.5,0.25,0.0,0.25
+day2_t2_gap_041,"Our message processing system is experiencing massive
+lag during peak business hours. Webhooks from Stripe are hitting our endpoint at
+high speed, causing our backend database to lock up due to concurrent connection
+spikes. We need a way to throttle these incoming payloads and process them
+asynchronously using a message queue.",implicit,System Integration,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_042,"Develop a formal business
+associate security guide that outlines the technical safeguards required under
+the HIPAA Security Rule for our cloud-based EHR platform. The document must
+define encryption standards for data in transit and at rest, administrative
+rules for audit logging, and automated procedures for terminating active
+sessions after a period of user inactivity.",explicit,Security,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_043,"We are
+migrating multiple workloads from on-premises servers to Microsoft Azure and I
+have attached our resource estimation spreadsheet. We are seeing high projected
+costs for SQL Database instances. We need to evaluate elastic pool alternatives
+and configure auto-scaling schedules to keep our licensing and resource costs
+within our budget allocation.",implicit,FinOps,0.5,0.5,0.75,0.25,0.5
+day2_t2_gap_044,"Write an end-to-end blue-green deployment strategy for
+a stateless application deployed to Amazon ECS. The strategy must detail the
+configuration of the Application Load Balancer target groups, specify health
+checks used during traffic shifting, and provide a rollback process for when
+error rates increase during a rollout.",explicit,DevOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_045,"We
+are designing a centralized cloud data lake containing web behavior logs of
+European Union citizens. We must restrict access to these raw metrics to comply
+with GDPR data minimization regulations. We need to find standard ways to
+construct a dynamic masking layer that automatically redacts raw PII for general
+analytics teams while preserving full decryption capabilities for compliance
+personnel.",implicit,Data Engineering,0.75,0.75,0.75,0.0,0.25
+day2_t2_gap_046,someone committed an aws credentials file into our public repo last night and we need to deal with this immediately before we get hacked,vague,Security,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_047,"our kafka consumers keep falling behind and we dont know why, need to sort this out before the morning peak",vague,Data Engineering,0.5,0.25,0.5,0.0,0.0
+day2_t2_gap_048,"our main build pipeline has been flaky all week and keeps failing on integration tests randomly, we can't ship like this",vague,DevOps,0.5,0.25,0.25,0.0,0.0
+day2_t2_gap_049,"I've uploaded our AWS cost allocation reports from the last three quarters. Our cloud egress fees are spiking and finance is breathing down our neck to align with the FinOps Foundation standards for shared cost allocation. We're bleeding money on cross-region data transfers between our EKS clusters and RDS instances, and we need to understand how to attribute these expenses correctly to individual business units and figure out how to stop the bleeding.",implicit,FinOps,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_050,"I've uploaded the gap assessment findings from our ISO 27001 stage 1 audit. The auditor flagged major issues with how we handle offboarding and immediate revocation of access tokens across our Okta and GitHub environments. We have some terminated contractors whose SSH keys are still active in production, and we need to remediate these access vulnerabilities immediately to satisfy Annex A.12 and A.18 requirements before the stage 2 audit next month.",implicit,Security,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_051,"I've attached our Snowflake table schemas and current dbt DAG. Every time our upstream Salesforce API changes its payload format, our downstream analytical pipelines break because of missing columns and type mismatches. We need to handle schema drift dynamically without our warehouse tables blowing up or having our Looker dashboards show stale data to the executive team.",implicit,Data Engineering,0.75,0.5,0.5,0.25,0.5
+day2_t2_gap_052,"I've uploaded our LLM API logging metadata and our customer data classification definitions. Our customer support team has been using public OpenAI APIs to summarize customer transcripts, and we discovered that sensitive PII has been sent over without scrubbers. We need to intercept these API calls to prevent further compliance exposure while still allowing the team to use these AI tools to close support tickets.",implicit,AI Governance,0.75,0.5,0.5,0.25,0.5
+day2_t2_gap_053,"Our Kubernetes clusters are taking too long to scale up during traffic spikes, and users are getting 504 gateway timeouts. We're using standard Horizontal Pod Autoscaling based on CPU utilization, but our Java services take 90 seconds to bootstrap, which means the spike has already overwhelmed the pods before the new ones are even healthy. We need to fix this bottleneck and make our clusters much more responsive to sudden load increases.",implicit,DevOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_054,"Our Route 53 latency routing isn't working as we expected for our multi-region setup in us-east-1 and eu-west-1. When our US application database goes down, our health checks aren't triggering fast enough, and European users are getting routed to a dead US endpoint instead of failing over to our European replicas. We need to understand how to configure our DNS health checks and database replication lag thresholds to guarantee seamless routing.",implicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_055,"We're experiencing sync issues between Salesforce and our legacy on-prem database. Salesforce outbound webhooks are firing, but our gateway drops messages when traffic is high, leading to missing invoices and order discrepancies. We need to resolve this integration bottleneck so that our database stays perfectly updated with customer records.",implicit,System Integration,0.5,0.25,0.25,0.0,0.25
+day2_t2_gap_056,"I've attached our draft internal data processing map and our API inventory. Under GDPR Article 15, we're getting overwhelmed with data deletion requests and need to automate the extraction and deletion of customer telemetry from our databases, HubSpot, and Stripe without accidentally wiping their financial records or legal hold items. We need to map out how to build a pipeline to handle these requests automatically.",implicit,Security,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_057,"I have attached our current draft of internal software development guidelines and a list of our active machine learning projects. We need to align our development with the NIST AI Risk Management Framework (AI RMF). Please draft a comprehensive corporate AI Governance Policy that establishes clear roles, risk assessment steps for LLM deployments, and ongoing audit requirements for our engineering teams.",explicit,AI Governance,0.75,0.75,0.75,0.25,0.5
+day2_t2_gap_058,"Create a reusable GitHub Actions workflow template for our microservices. The template must run SonarQube scans, build a Docker image, push it to AWS ECR, and update our Helm values file in a separate GitOps repository, using IAM OIDC roles instead of hardcoded AWS credentials.",explicit,DevOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_059,"Based on the draft SOC 2 audit report I've attached, write a formal remediation plan addressing the findings around CC6.1 (Logical Access Controls) and CC6.3 (Access Modification). The plan must include specific configuration changes for our AWS IAM and Okta integrations, assign responsibilities, and set remediation timelines.",explicit,Security,0.75,0.75,0.75,0.25,0.25
+day2_t2_gap_060,"Develop a detailed cost optimization proposal for our database footprint on AWS. We are currently running multiple self-managed PostgreSQL databases on EC2 and several Amazon RDS instances. I need a clear guide detailing how we can leverage Reserved Instances, Savings Plans, and automated storage tiering to reduce our DB spend by 30% without impacting application SLAs.",explicit,FinOps,0.5,0.5,0.5,0.0,0.25
+day2_t2_gap_061,"Write a comprehensive technical runbook for migrating our analytics data platform from an on-premise Apache Hive cluster to Google Cloud BigQuery. The runbook needs to provide detailed migration steps for historical data, SQL query translation, Schema optimization mapping, and dual-run validation procedures.",explicit,Data Engineering,0.5,0.5,0.75,0.0,0.25
+day2_t2_gap_062,"Provide a technical integration spec sheet outlining how to configure Auth0 as a federated identity provider for our legacy on-prem Active Directory Federation Services (ADFS), using SAML 2.0 protocol.",explicit,System Integration,0.5,0.5,0.25,0.0,0.25
+day2_t2_gap_063,"Based on the security architecture outline and cloud inventory sheet I've attached, write a formal cloud resource lifecycle policy that enforces cost optimization constraints across our AWS environments. This policy must strictly align with HIPAA compliance for data isolation and the FinOps Foundation Framework for cost visibility and accountability.",explicit,FinOps,0.75,0.75,0.75,0.25,0.25
+day2_t2_gap_064,"Draft a formal corporate standard for our engineering and product teams on using generative AI, specifically aligning with the ISO/IEC 42001 Artificial Intelligence Management System. The standard must outline risk categorization, data privacy controls, and monitoring requirements for deploying third-party LLMs.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+day2_t3_complex_001,"Attached are our current Google
+Analytics 4 event export configurations, our Salesforce CDP ingestion schema,
+and a draft of our post-cookie marketing strategy. We need a comprehensive
+marketing technology architecture roadmap that outlines how we transition our
+custom user-stitching pipeline to Google's Privacy Sandbox APIs (specifically
+Topics and Protected Audience) without losing multi-touch attribution fidelity
+across our paid search and Meta campaigns.",explicit,Marketing Tech,0.75,0.75,0.75,0.5,0.75
+day2_t3_complex_002,"Our CMO has requested a
+vendor comparison proposal for our enterprise CDP migration before our existing
+Segment contract renews next quarter. Please generate a detailed business case
+comparing Twilio Segment, Tealium, and mParticle, taking into account current
+live pricing models, their support for the latest EU-U.S. Data Privacy Framework
+(DPF) standards, and how each handles consent-state management under GDPR and
+the California Privacy Rights Act (CPRA). We need an executive-level analysis
+including a transition timeline, total cost of ownership models over three
+years, and a compliance verification matrix for our legal team.",explicit,Marketing Tech,1.0,1.0,1.0,1.0,0.5
+day2_t3_complex_003,"Our paid acquisition costs are up 50% across paid
+search and social, and since upgrading to the iOS 17 updates, our AppsFlyer data
+shows a massive discrepancy against actual backend signups. The marketing
+analytics team has been trying to figure out how to pivot our attribution
+modeling because SKAdNetwork is not capturing our multi-channel user journeys,
+especially with the upcoming total deprecation of third-party cookies. We need
+to restructure our entire tracking infrastructure across Meta Ads and Google Ads
+to utilize conversion APIs and first-party server-side tagging, and we must find
+a way to reconcile these data discrepancies before the board meets to discuss
+the H2 marketing budget.",implicit,Marketing Tech,0.75,0.75,0.75,0.75,0.5
+day2_t3_complex_004,"I have uploaded our historical Meta Ads performance data, our current
+cookie banner consent-ratio logs, and our existing server-to-server tracking
+configuration. Our conversion attribution has dropped significantly and we
+cannot figure out where the leakage is occurring between our consent platform
+and our backend database. Look at these attached configurations and identify
+exactly where our webhook handshakes are breaking or dropping user identifiers,
+and outline how we should adjust our server-side parameters to improve matching
+rates.",implicit,Marketing Tech,0.75,0.75,0.75,0.5,0.5
+day2_t3_complex_005,"Our Google
+Analytics 4 integration is dropping almost half of our attribution data since
+the new cookie banners rolled out last month and our performance marketing leads
+are flying blind on budget spend. We're about to launch a $5M campaign and have
+no idea how to fix our consent mode tagging to capture these lost conversions.",vague,Marketing Tech,1.0,0.75,0.75,0.75,0.25
+day2_t3_complex_006,"Please review the attached resume-matching
+algorithmic logic files, our current EEOC demographic distribution reports, and
+our internal hiring pipeline logs. Draft a compliance audit report that
+evaluates our automated employment decision systems (AEDS) against the NYC Local
+Law 144 bias audit requirements and the Illinois Artificial Intelligence Video
+Interview Act, highlighting any high-risk scoring disparities and recommending
+specific model adjustment strategies.",explicit,HR Tech,0.75,1.0,0.75,0.5,0.5
+day2_t3_complex_007,"We are seeing significant exposure across our international entities
+because our payroll integrations between Workday and localized ADP platforms in
+Europe and APAC are mismatching employee classifications, which has triggered a
+tax inquiry in Germany and regulatory warnings in Singapore. I’ve uploaded our
+current localized employment agreement structures, global contractor guidelines,
+and the payroll audit findings from our regional HR teams. We need to identify
+every gap causing compliance breaches under local labor codes, establish a
+corrected operational workflow for both FTEs and freelancers, and design a
+standardized control structure that prevents incorrect classification before any
+record is pushed to global payroll.",implicit,HR Tech,1.0,0.75,1.0,0.75,0.75
+day2_t3_complex_008,"Our legal and talent
+acquisition teams are at a standstill over our rollout of third-party AI
+assessment tools inside Workday Recruiter because of potential legal exposure
+under emerging state hiring laws. We need to understand how we can safely
+integrate these vendor modules, what technical controls are necessary to
+guarantee unbiased candidate scoring, and what we should put in our master
+services agreements with these AI vendors to insulate our business from
+regulatory penalties.",implicit,HR Tech,0.75,0.75,0.75,0.75,0.5
+day2_t3_complex_009,"Before we
+roll out our centralized global hiring portal, our legal counsel needs to
+resolve how we are going to handle candidate background checks and identity
+verification across 14 different jurisdictions without running afoul of GDPR and
+FCRA guidelines. We are currently reviewing API integrations for Checkr,
+Sterling, and HireRight, so we need to know how their current real-time
+international pricing tiers compare, which of them has the most robust
+compliance infrastructure for European candidates, and how we can construct a
+unified technical pipeline that dynamically routes candidate data based on
+residency.",implicit,HR Tech,1.0,1.0,1.0,1.0,0.5
+day2_t3_complex_010,"Our custom CV sorting script built into our ATS has
+started flagging and filtering out candidates who graduated from specific
+historically black colleges and universities. We need to figure out why this is
+happening and get this fixed immediately before we end up with an EEOC
+lawsuit.",vague,HR Tech,0.75,0.75,1.0,0.75,0.25
+day2_t3_complex_011,"Based on the attached ocean freight contract terms,
+our Q3 logistics billing history, and our SAP Transportation Management config
+files, compile a logistics cost leakage assessment. This should isolate all
+billing discrepancies, identify routing guide compliance failures, and provide a
+concrete carrier negotiation framework that our procurement team can use in our
+upcoming contract renewal cycle to recover lost margin.",explicit,Supply Chain,0.75,0.75,0.75,0.5,0.75
+day2_t3_complex_012,"We are experiencing severe inventory imbalances across our five
+regional distribution centers since we updated our lead-time formulas in SAP
+Integrated Business Planning. I have uploaded our historical stock-out files,
+our supplier performance logs, and our current distribution safety-stock
+configurations. We need to identify why our automated replenishment cycles are
+continuously failing to meet demand spikes in the Midwest region, map out a more
+resilient replenishment flow that account for carrier delays, and establish
+concrete inventory targets to prevent regional stock-outs without inflating our
+overall holding costs.",implicit,Supply Chain,1.0,0.75,1.0,0.5,0.5
+day2_t3_complex_013,"Our primary steel and aluminum suppliers in
+China and India are warning us that shipping container lead times will double
+next quarter, right as the EU Carbon Border Adjustment Mechanism (CBAM)
+reporting requirements go into effect. We have to determine how these twin
+logistics disruptions will alter our cost of goods sold, how we can pivot our
+raw material sourcing to Turkey or Mexico to mitigate the CBAM tariff penalties,
+and how to restructure our customs declarations to stay completely compliant
+with the new EU environment laws.",implicit,Supply Chain,0.75,1.0,0.75,0.75,0.5
+day2_t3_complex_014,"Our customs broker in Rotterdam just notified us that our entire
+chemical shipment is blocked due to new EU REACH safety regulations on imported
+industrial solvents. We have three manufacturing plants in Poland that will go
+dark next week if we don't bypass this customs bottleneck or find an alternative
+supplier immediately.",vague,Supply Chain,0.75,0.75,0.75,0.75,0.25
+day2_t3_complex_015,"Using the attached AWS Cost Usage Reports (CUR), Azure Enterprise
+Agreement consumption logs, and our internal Kubernetes resource allocation
+metrics, build a comprehensive multi-cloud architectural cost remediation
+proposal. The proposal must detail concrete optimization opportunities across
+both clouds, provide a governance framework for department-level chargebacks,
+and formulate a 3-year savings plan commitment strategy that balances AWS
+Savings Plans with Azure Reservations.",explicit,FinOps,1.0,0.75,1.0,0.5,0.75
+day2_t3_complex_016,"Our engineering teams are rapidly spinning up GPU
+clusters on AWS, Azure, and CoreWeave for AI inference without any centralized
+spend control or operational validation. We need to reconcile our cloud spending
+against real-time API and GPU reservation rates, identify where we can
+dynamically route inference workloads to the cheapest available region while
+complying with strict data residency laws, and establish guardrails to prevent
+developer teams from exceeding their allocated budgets.",implicit,FinOps,0.75,1.0,0.75,1.0,0.5
+day2_t3_complex_017,"The executive board wants to know why our
+ML training infrastructure costs on AWS and Azure spiked by $450k last month and
+what we're doing to prevent this from bankrupting our project budget before we
+launch next quarter. We need a detailed breakdown of our waste and a complete
+governance structure that we can implement globally to control developer cloud
+spend.",vague,FinOps,1.0,0.75,1.0,0.75,0.25
+day2_t3_complex_018,"Please review the attached third-party LLM model
+vendor security assessments, our draft corporate AI usage policy, and our
+engineering team's database integration schemas. Develop a formal AI Risk
+Governance framework and security compliance roadmap that aligns our enterprise
+model deployments with the EU AI Act (specifically high-risk classification
+criteria) and NIST AI Risk Management Framework (RMF) 1.0, and draft a technical
+annex containing risk-mitigation runbooks for our software engineers.",explicit,AI Governance,1.0,1.0,1.0,0.5,0.75
+day2_t3_complex_019,"Our dev team built a customer support chatbot using OpenAI APIs and
+fine-tuned it on some of our internal customer service transcripts. Here is our
+customer-facing privacy policy and our SOC 2 Type II report, can you check if
+we're violating our data handling obligations?",vague,AI Governance,0.75,1.0,0.75,0.5,0.5
+day2_t3_complex_020,"Our product team just integrated real-time
+customer data feeds into an unvetted Anthropic Claude API model for automated
+response generation without telling legal, and now we have a SOC 2 audit
+starting next week. We need to figure out our immediate regulatory liabilities
+under GDPR and the EU AI Act, and draft a response to handle the auditor's data
+governance questionnaires.",vague,AI Governance,1.0,1.0,1.0,1.0,0.25
+day2_t3_fin_004,"Generate a multi-cloud FinOps strategy comparing our current AWS Savings Plans against Azure Reservation real-time pricing and GCP Committed Use Discounts, factoring in the latest egress fee changes and competitive benchmark data from Gartner.",explicit,FinOps,1.0,1.0,1.0,1.0,0.5
+day2_t3_fin_009,"cloud bill is up 40% this month and the CTO is pissed, look at the attached CUR file and tell us what's eating the budget",vague,FinOps,0.75,0.75,0.75,0.5,0.25
+day2_t3_fin_014,"Our Snowflake costs are out of control because of these huge queries from the data science team, so find out how other fintechs are setting up their warehouse monitors and what the current spot pricing is for high-compute instances on AWS vs Azure.",implicit,FinOps,1.0,0.75,1.0,1.0,0.5
+day2_t3_gov_005,We have these 10 different LLM use cases across marketing and engineering and I need to know if they align with our internal data privacy policy and the latest NIST AI RMF guidelines before we scale them.,implicit,AI Governance,0.75,0.75,0.75,0.75,0.75
+day2_t3_gov_010,Create a formal AI model registry and risk mitigation architecture that satisfies both the SOC 2 Type II AI criteria and the upcoming EU AI Act transparency requirements.,explicit,AI Governance,1.0,1.0,1.0,0.75,0.5
+day2_t3_gov_015,"marketing just launched a chatbot that's hallucinating pricing, check the attached system prompts and the customer support logs to see if we're liable for the discounts it's promising",vague,AI Governance,1.0,1.0,1.0,0.5,0.5
+day2_t3_hr_002,"the new EU AI Act just dropped and HR is saying our Workday talent prediction module might be high risk, what do we do?",vague,HR Tech,1.0,1.0,1.0,0.75,0.25
+day2_t3_hr_007,"Review the attached employee handbook, the Q3 payroll audit, and the last three months of contractor invoices to produce a comprehensive misclassification risk assessment and remediation plan for our 1099 workers.",explicit,HR Tech,0.75,0.75,0.75,0.5,0.75
+day2_t3_hr_012,We are merging with a firm in Germany and I need to know how their current SAP SuccessFactors payroll setup and labor union agreements in the attached PDF files will impact our global equity distribution policy.,implicit,HR Tech,0.75,0.75,0.75,0.5,0.75
+day2_t3_hr_017,Draft a comprehensive bias mitigation and technical documentation report for our internal candidate ranking algorithm as required by the Illinois Artificial Intelligence Video Interview Act.,explicit,HR Tech,0.75,1.0,1.0,0.75,0.5
+day2_t3_hr_020,someone leaked the diversity stats from our hiring tool on Twitter and now the legal department needs a full breakdown of why the algorithm is flagging certain zip codes,vague,HR Tech,1.0,1.0,0.75,0.75,0.25
+day2_t3_mkt_001,"Based on the attached Google Analytics 4 export, the Meta Ads manager performance report, and our internal CRM conversion data, build a cross-channel attribution roadmap that accounts for the sunsetting of third-party cookies.",explicit,Marketing Tech,0.75,0.75,0.75,0.5,0.5
+day2_t3_mkt_006,"Our AppsFlyer numbers don't match our bank account and the board wants a breakdown of current ad fraud rates in our region, how competitors are handling the latest Meta attribution changes, and the current legal liability for bot-driven spend.",vague,Marketing Tech,1.0,1.0,1.0,1.0,0.25
+day2_t3_mkt_011,"Since Google started rolling out Privacy Sandbox, our retargeting efficiency on Chrome has tanked; I need to know how our competitors are pivoting their CDP strategies and what the current CPM floor looks like for cookieless traffic.",implicit,Marketing Tech,1.0,0.75,1.0,1.0,0.25
+day2_t3_mkt_016,The transition from UA to GA4 has left a massive gap in our year-over-year revenue attribution; we need to reconcile the event-based tracking with our legacy session-based models without losing historical context for the upcoming budget cycle.,implicit,Marketing Tech,0.75,0.75,0.75,0.75,0.5
+day2_t3_mkt_019,"Using the attached Adobe Experience Platform schemas and the last six months of customer journey data, figure out how we can share audience insights with retail partners while remaining HIPAA compliant.",implicit,Marketing Tech,1.0,1.0,1.0,0.5,0.75
+day2_t3_sc_003,"Our freight costs for the APAC region are consistently 20% over budget despite using the new carrier rates, check the attached SAP Ariba logs and the global shipping manifests to see where the mismatch is happening.",implicit,Supply Chain,0.75,0.75,0.75,0.5,0.5
+day2_t3_sc_008,The Red Sea situation is messing up our lead times and I need to know how this affects our inventory turnover targets across the EMEA warehouses compared to what our competitors are seeing.,implicit,Supply Chain,0.75,0.75,0.75,0.75,0.5
+day2_t3_sc_013,Develop a multi-tier supplier sustainability roadmap that aligns with the German Supply Chain Due Diligence Act (LkSG) and incorporates real-time ESG ratings for our top 50 vendors.,explicit,Supply Chain,0.75,0.75,0.75,0.75,0.5
+day2_t3_sc_018,"the customs broker is holding our shipments in Long Beach and says our HTS codes are wrong, go through the attached product specs and the last 3 years of shipping history to fix this",vague,Supply Chain,0.75,0.75,0.75,0.5,0.75
+t1_001,how do I export a user list from okta,explicit,Security,0.0,0.25,0.25,0.0,0.0
+t1_002,difference between aws savings plans and reserved instances?,explicit,FinOps,0.25,0.5,0.25,0.0,0.0
+t1_003,hey can someone explain what databricks actually does?,vague,Data Engineering,0.0,0.25,0.0,0.0,0.0
+t1_004,finance is asking why the snowflake bill doubled in march,implicit,FinOps,0.25,0.5,0.25,0.0,0.0
+t1_005,summarize this jira ticket description for me,explicit,General Enterprise,0.0,0.25,0.25,0.25,0.25
+t1_006,what is the difference between gpt-3.5 and gpt-4 in openai?,explicit,AI/LLM,0.25,0.5,0.25,0.0,0.0
+t1_007,my github actions build keeps failing with an out of memory error,implicit,DevOps,0.0,0.5,0.0,0.0,0.0
+t1_008,how to add a new contact in salesforce?,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_009,terraform vs cloudformation,vague,DevOps,0.25,0.25,0.25,0.0,0.0
+t1_010,whats the cheapest aws region for s3?,vague,FinOps,0.0,0.25,0.0,0.0,0.0
+t1_011,is there an outage with hubspot right now?,vague,System Integration,0.0,0.25,0.0,0.0,0.0
+t1_012,marketing says their leads aren't syncing from hubspot to salesforce again,implicit,System Integration,0.25,0.5,0.0,0.0,0.0
+t1_013,tell me what this error in my docker log means,explicit,DevOps,0.0,0.25,0.0,0.25,0.25
+t1_014,how does a vector database differ from a sql one?,explicit,AI/LLM,0.25,0.5,0.25,0.0,0.0
+t1_015,"this azure policy is blocking my resource group creation, why?",implicit,Cloud Infrastructure,0.25,0.25,0.0,0.25,0.25
+t1_016,what is a prompt injection attack?,explicit,AI/LLM,0.0,0.5,0.0,0.0,0.0
+t1_017,can you check this kubernetes yaml for simple syntax errors?,explicit,Cloud Infrastructure,0.0,0.5,0.25,0.25,0.25
+t1_018,someone in accounting wants to know what rlhf stands for,implicit,AI/LLM,0.0,0.0,0.0,0.0,0.0
+t1_019,why is my jenkins pipeline still pending?,vague,DevOps,0.25,0.25,0.0,0.0,0.0
+t1_020,security team is bugging me about MFA in okta settings,implicit,Security,0.25,0.25,0.0,0.0,0.0
+t1_021,ec2 vs eks,vague,Cloud Infrastructure,0.25,0.25,0.25,0.0,0.0
+t1_022,how to create a pipeline in gcp dataflow,explicit,Data Engineering,0.0,0.5,0.25,0.0,0.0
+t1_026,how do I change my profile picture in microsoft teams,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_027,the wifi on floor 3 is acting up again,vague,General Enterprise,0.0,0.0,0.0,0.0,0.0
+t1_028,compare aws fargate and lambda for a small scheduled script,explicit,Cloud Infrastructure,0.25,0.5,0.25,0.0,0.0
+t1_029,where do I find the holiday calendar for 2025,explicit,General Enterprise,0.0,0.0,0.0,0.0,0.0
+t1_030,why is the marketing dashboard in tableau showing zero for last week,implicit,Data Engineering,0.25,0.5,0.0,0.0,0.0
+t1_031,zoom vs teams for external webinars,vague,General Enterprise,0.25,0.25,0.25,0.0,0.0
+t1_032,how to create a project in jira,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_033,is my password for okta the same as my laptop login,vague,Security,0.0,0.25,0.0,0.0,0.0
+t1_034,can you check this sql code for any syntax errors,explicit,Data Engineering,0.0,0.25,0.25,0.25,0.25
+t1_035,what does the status code 429 mean in the openai api,explicit,AI/LLM,0.0,0.5,0.0,0.0,0.0
+t1_036,my laptop is making a loud buzzing sound from the fan,implicit,General Enterprise,0.0,0.0,0.0,0.0,0.0
+t1_037,how do I rotate a secret in hashicorp vault,explicit,Security,0.0,0.5,0.25,0.0,0.0
+t1_038,difference between aws s3 and ebs?,vague,Cloud Infrastructure,0.25,0.25,0.25,0.0,0.0
+t1_039,the dev team is asking for admin access to the gcp project for staging,implicit,Security,0.25,0.25,0.0,0.0,0.0
+t1_040,what is a token limit in an llm,explicit,AI/LLM,0.0,0.5,0.0,0.0,0.0
+t1_041,hubspot lead sync,vague,System Integration,0.0,0.5,0.0,0.0,0.0
+t1_042,how to add a new user to a slack channel,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_043,what is the default port for postgresql,explicit,Data Engineering,0.0,0.25,0.0,0.0,0.0
+t1_044,is there an outage with azure active directory right now?,vague,Security,0.0,0.5,0.0,0.0,0.0
+t1_045,summarize this email from hr about the new benefits package,explicit,General Enterprise,0.0,0.0,0.25,0.25,0.25
+t1_046,can you explain this line from the aws bill attached?,implicit,FinOps,0.25,0.25,0.0,0.25,0.25
+t1_047,how do I set up an out of office in outlook,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_048,github actions is slow,vague,DevOps,0.25,0.25,0.0,0.0,0.0
+t1_049,what is the difference between a rds cluster and an instance?,explicit,Cloud Infrastructure,0.25,0.5,0.25,0.0,0.0
+t1_050,can't access the staging server via ssh after the firewall update,implicit,DevOps,0.25,0.25,0.0,0.0,0.0
+t1_051,how to add a collaborator in github,explicit,DevOps,0.0,0.25,0.25,0.0,0.0
+t1_052,what is a p3 instance type in aws used for?,explicit,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+t1_053,someone explain what docker actually does lol,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+t1_054,finance says the ec2 costs are spiking on the data team account,implicit,FinOps,0.25,0.25,0.0,0.0,0.0
+t1_055,azure vs gcp for simple storage,vague,Cloud Infrastructure,0.25,0.25,0.25,0.0,0.0
+t1_056,what is the difference between gpt-4o and gpt-4-turbo?,explicit,AI/LLM,0.25,0.5,0.25,0.0,0.0
+t1_057,how to create a deal in salesforce,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_058,sales data is missing for the last two days in snowflake,implicit,Data Engineering,0.25,0.5,0.0,0.0,0.0
+t1_059,difference between terraform plan and apply,vague,DevOps,0.25,0.25,0.0,0.0,0.0
+t1_060,how to reset a user's MFA in okta,explicit,Security,0.0,0.25,0.25,0.0,0.0
+t1_061,is snowflake cheaper than bigquery for small datasets?,vague,FinOps,0.25,0.5,0.25,0.0,0.0
+t1_062,what is an okta master password?,explicit,Security,0.0,0.25,0.0,0.0,0.0
+t1_063,the sap integration is failing on the nightly job,implicit,System Integration,0.25,0.5,0.0,0.0,0.0
+t1_064,how do I generate a personal access token in github?,explicit,DevOps,0.0,0.25,0.25,0.0,0.0
+t1_065,what is a p0 in jira?,vague,General Enterprise,0.0,0.25,0.0,0.0,0.0
+t1_066,summarize this confluence page for me,explicit,General Enterprise,0.0,0.25,0.25,0.25,0.25
+t1_067,how to create an ecr repository in aws,explicit,Cloud Infrastructure,0.0,0.25,0.25,0.0,0.0
+t1_068,i think someone changed the s3 bucket permissions and now the site is down,implicit,Cloud Infrastructure,0.25,0.25,0.0,0.0,0.0
+t1_069,difference between vertex ai and sagemaker?,vague,AI/LLM,0.25,0.5,0.25,0.0,0.0
+t1_070,how to add a new lead in hubspot,explicit,System Integration,0.0,0.25,0.25,0.0,0.0
+t1_071,why is the snowflake warehouse still running if no one is using it?,implicit,FinOps,0.25,0.5,0.0,0.0,0.0
+t1_072,iam policy error,vague,Security,0.25,0.25,0.0,0.0,0.0
+t1_073,what is the purpose of an rto in disaster recovery?,explicit,General Enterprise,0.0,0.0,0.0,0.0,0.0
+t1_074,can you check this small json file for me?,implicit,General Enterprise,0.0,0.0,0.0,0.25,0.25
+t1_075,what is the maximum context length for gpt-4o-mini?,explicit,AI/LLM,0.0,0.5,0.0,0.0,0.0
+t1_076,what is an aws bucket policy?,explicit,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+t1_077,someone setup a recursive trigger in lambda and the bill is insane,implicit,FinOps,0.25,0.5,0.0,0.0,0.0
+t1_078,github vs gitlab?,vague,DevOps,0.25,0.25,0.25,0.0,0.0
+t1_079,how to add a column in snowflake,explicit,Data Engineering,0.0,0.5,0.25,0.0,0.0
+t1_080,is openai down for everyone,vague,AI/LLM,0.0,0.25,0.0,0.0,0.0
+t1_081,help me with this dockerfile error,implicit,DevOps,0.0,0.25,0.0,0.25,0.25
+t1_082,difference between salesforce leads and contacts,explicit,General Enterprise,0.25,0.25,0.25,0.0,0.0
+t1_083,marketing leads are not flowing into hubspot from our site,implicit,System Integration,0.25,0.5,0.0,0.0,0.0
+t1_084,why is temperature set to 0 in this config?,vague,AI/LLM,0.25,0.5,0.0,0.25,0.25
+t1_085,what does a 403 error in aws s3 mean,explicit,Security,0.0,0.5,0.0,0.0,0.0
+t1_086,jira subtasks vs stories,vague,General Enterprise,0.25,0.25,0.25,0.0,0.0
+t1_087,the databricks job keeps timing out at the 1 hour mark,implicit,Data Engineering,0.25,0.5,0.0,0.0,0.0
+t1_088,how to create a vpc in gcp,explicit,Cloud Infrastructure,0.0,0.25,0.25,0.0,0.0
+t1_089,okta login loop,vague,Security,0.0,0.25,0.0,0.0,0.0
+t1_090,can you summarize the notes from this meeting transcript?,explicit,General Enterprise,0.0,0.0,0.25,0.25,0.25
+t1_091,my aws credits are almost gone and I don't know why,implicit,FinOps,0.25,0.25,0.0,0.0,0.0
+t1_092,how to delete a branch in github,explicit,DevOps,0.0,0.25,0.25,0.0,0.0
+t1_093,jenkins build fail again,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+t1_094,whats the limit for gpt-4 tokens,vague,AI/LLM,0.0,0.5,0.0,0.0,0.0
+t1_095,my azure sql database is showing high cpu usage,implicit,Data Engineering,0.25,0.5,0.25,0.0,0.0
+t1_096,how to invite a user to my salesforce org,explicit,General Enterprise,0.0,0.25,0.25,0.0,0.0
+t1_097,webhook secret key check,vague,System Integration,0.0,0.25,0.0,0.0,0.0
+t1_098,what is the cost of an m5.large instance in aws?,explicit,FinOps,0.0,0.25,0.0,0.0,0.0
+t1_099,i need a quick summary of this hubspot dashboard screenshot,implicit,System Integration,0.0,0.5,0.25,0.25,0.25
+t1_100,explain terraform state to a five year old,explicit,DevOps,0.0,0.25,0.0,0.0,0.0
+t1_101,cloudtrail logs are taking up 50% of my storage costs,implicit,FinOps,0.25,0.5,0.0,0.0,0.0
+t1_102,azure portal is so slow,vague,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+t1_103,how to restart a failed task in kubernetes,explicit,Cloud Infrastructure,0.0,0.5,0.25,0.0,0.0
+t1_104,why is the bot responding with I am an AI in our internal slack?,implicit,AI/LLM,0.25,0.5,0.0,0.0,0.0
+t1_105,okta vs azure ad?,vague,Security,0.25,0.5,0.25,0.0,0.0
+t2_001,"Write an enterprise framework for establishing Unit Economics across our SaaS product lines, aligning with the FinOps Foundation standards. Detail how to define cost allocation metadata, track cost-per-active-user, and build dashboards for engineering directors.",explicit,FinOps,0.5,0.75,0.75,0.0,0.25
+t2_002,"Draft an AWS tagging migration plan based on the shared resource CSV. I have attached the list of our 150 untagged ec2 and rds resources with their owner fields. The plan should outline the phased approach for updating non-compliant resources, define mandatory tag keys, and outline the validation scripts needed.",explicit,FinOps,0.5,0.5,0.5,0.25,0.5
+t2_003,"We are scaling our deep learning inference jobs on Kubernetes and our cloud bills are exploding because of massive GPU waste. Developers are spawning notebooks and keeping them idle, while prod autoscaling is lagging. How can we align our engineering teams to track cost per inference and implement automated shutdown schedules without breaking our deployment velocity?",implicit,FinOps,0.75,0.5,0.75,0.0,0.25
+t2_004,"cloud costs are insane again, we need someone to sort this out",vague,FinOps,0.5,0.5,0.5,0.0,0.25
+t2_005,"Write a Terraform provisioning spec for a highly-available EKS cluster across three availability zones, including private subnets, node groups with auto-scaling, and VPC peering configurations.",explicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_006,"Draft a multi-region migration roadmap document for our core PostgreSQL databases currently running on-premise, outlining the replication strategy, cutover plan, and rollback procedures to minimize downtime.",explicit,Cloud Infrastructure,0.75,0.5,0.75,0.0,0.25
+t2_007,Our leadership wants to migrate our primary transactional workload from AWS RDS to Azure SQL because of a new enterprise agreement. We need to maintain our current uptime SLAs and ensure our database replication remains secure across both clouds during the transition phase. I've attached our current network diagram. What are the key architecture changes and risks we need to address?,implicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.25
+t2_008,Our application performance is tanking during peak traffic hours because our legacy Linux VMs are CPU-throttled and the disk I/O on our database instances is hitting IOPS limits. Users are complaining about timeout errors on checkout. How can we restructure our server layout and storage tiers on AWS to handle this load dynamically?,implicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_009,"Draft an enterprise policy for using third-party LLM APIs in our software development lifecycle, aligning with EU AI Act compliance standards. Cover developer approval workflows, risk categorization, and data retention guidelines.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+t2_010,"Several engineers have been paste-testing proprietary source code and client database schemas into public AI assistants to debug errors. Our leadership is terrified of data leaks and IP infringement. I've attached our internal code review snippets where this was flagged, along with our current corporate data storage regulations. How can we establish technical guardrails and developer approvals to protect our IP while still letting teams use generative AI?",implicit,AI Governance,0.75,0.5,0.5,0.25,0.5
+t2_011,"someone told me we need an ai register for compliance, is that real? what does it look like",vague,AI Governance,0.5,0.5,0.5,0.0,0.25
+t2_012,"Write a security hardening guide based on CIS Benchmarks Level 2 for our Ubuntu 22.04 LTS golden images, including explicit configurations for SSH access, firewall rules, and auditd logging.",explicit,Security,0.5,0.75,0.75,0.0,0.25
+t2_013,"Our external auditors just completed an initial gap assessment for our upcoming SOC 2 Type II audit, and they flagged major issues around how we revoke access for terminated employees and how we review administrative privileges on AWS and GitHub. How do we design an audit-ready review cycle and automatic offboarding system to satisfy these controls?",implicit,Security,0.75,0.75,0.75,0.0,0.25
+t2_014,"compliance team is on our case about access controls, need help",vague,Security,0.5,0.5,0.5,0.0,0.25
+t2_015,"Create a database schema migration spec to move our transactional data warehouse from a legacy PostgreSQL instance to Snowflake, detailing data type mappings, historical load phases, and validation checks.",explicit,Data Engineering,0.5,0.5,0.75,0.0,0.25
+t2_016,"Our daily batch data loading job in Snowflake is failing with out-of-memory errors on our medium warehouse. I've pasted the execution log below:
+[2024-11-12 04:12:15] ERROR: Query execution exceeded resource limit (OOM) on step 'HashJoin'.
+And here is the SQL query:
+SELECT * FROM daily_transactions t JOIN customer_master c ON t.cust_id = c.id WHERE t.load_date = CURRENT_DATE();
+How should we optimize the clustering keys and query join logic to prevent this failure?",implicit,Data Engineering,0.5,0.5,0.5,0.25,0.5
+t2_017,"We are merging customer profiles from our legacy Oracle CRM and our new Salesforce instance, but the data schemas are completely different and we have massive duplicates. Furthermore, we must ensure that any customer who has requested data erasure under GDPR is completely scrubbed from the final merged warehouse. I've uploaded the schema mapping file showing both table structures. How should we execute this merge while maintaining compliance?",implicit,Data Engineering,0.75,0.5,0.75,0.25,0.5
+t2_018,"Write an integration spec for synchronizing Jira software tickets with ServiceNow incident management, including API authentication methods, webhook configurations, and dynamic field mapping tables.",explicit,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_019,"Our Salesforce sync to our SQL Server warehouse is failing to capture real-time updates for customer contact fields, resulting in sales agents calling outdated numbers. I have attached the current integration script we run via Cron. How do we switch this to an event-driven mechanism to prevent these data discrepancies?",implicit,System Integration,0.5,0.5,0.5,0.25,0.25
+t2_020,"API integrations are breaking every time we push an update, need ideas",vague,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_021,"Draft a DevOps runbook for configuring automated Canary deployments using ArgoCD and Prometheus metrics, including concrete rollback criteria and Slack notification configurations.",explicit,DevOps,0.5,0.5,0.5,0.0,0.25
+t2_022,"Our machine learning team is spending thousands of dollars on training runs on SageMaker, but half the time we don't know which dataset version produced which model, making it impossible to debug performance regressions in production. I've attached our current training configuration YAML file. How can we integrate metadata tracking and automate cost controls during the training phase?",implicit,DevOps,0.75,0.5,0.75,0.25,0.5
+t2_023,"devs keep pushing broken builds to prod, its a mess",vague,DevOps,0.5,0.5,0.5,0.0,0.25
+t2_024,"Create a formal Disaster Recovery proposal for our core enterprise payment processing system, aligning with ISO 22301 standards. Detail our Recovery Time Objectives (RTO), Recovery Point Objectives (RPO), failover testing procedures, and communication trees.",explicit,General Enterprise,0.75,0.75,0.75,0.0,0.25
+t2_025,"We need to expand our SaaS platform to serve enterprise customers in Germany, but our current infrastructure is hosted in AWS US-East-1 and our security team is raising major concerns about compliance with GDPR's data transfer requirements. I've attached our data flow diagram showing how user PII currently traverses our API. How do we resolve these residency issues without maintaining two completely independent application codebases?",implicit,General Enterprise,0.75,0.75,0.75,0.25,0.5
+t2_026,"Create a formal framework for establishing Unit Economics across our SaaS product lines, aligning with the FinOps Foundation standards. Detail how we should define cost allocation metadata, track cost-per-active-user, and build dashboards for engineering directors.",explicit,FinOps,0.5,0.75,0.75,0.0,0.25
+t2_027,"We are running a massive deep learning inference cluster on Kubernetes, and our cloud bills are skyrocketing due to idle GPUs. Engineering teams are spinning up notebook servers and leaving them running over the weekend, while production auto-scaling is lagging. How can we align our teams to track cost per inference and set up automated lifecycle routines to stop this waste without killing developer velocity?",implicit,FinOps,0.75,0.5,0.75,0.0,0.25
+t2_028,Our executive leadership wants to move our transaction database from AWS RDS over to Azure SQL because of a new enterprise licensing deal. We have to keep our active-active replication secure across both clouds during the cutover window and maintain our 99.99% uptime SLA. I've attached our current network setup diagram. What are the key architecture updates and operational hazards we have to map out?,implicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.25
+t2_029,"Our legacy Linux VMs are throttling during our morning traffic spikes, and the disk throughput is hitting its limits on our persistent block storage. Customers are getting checkout errors and latency is awful. How should we reorganize our virtual machines and database storage on AWS to handle this load dynamically?",implicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_030,Our security team just caught several devs pasting corporate source code and client database schemas into public generative AI chatbots to speed up their debugging. Leadership is panicking about IP leaks and breach of contract. I've attached the code examples they pasted and our current data standard. How can we deploy technical controls and configure developer approvals to let teams use LLMs safely?,implicit,AI Governance,0.75,0.5,0.5,0.25,0.5
+t2_031,"Our auditors just sent back their initial review for our SOC 2 Type II prep, and they flagged us for not having a formal, audit-ready way to revoke employee system permissions immediately upon termination, especially across AWS and GitHub. How do we design an automated offboarding workflow and an access review cycle that will pass this audit?",implicit,Security,0.75,0.75,0.75,0.0,0.25
+t2_032,Our nightly data ingestion sequence in Snowflake is failing with out-of-memory errors on our medium virtual warehouse. I've pasted the raw execution log and the main transactional SQL join query below. How do we optimize the clustering keys and query execution to stop this crash?,implicit,Data Engineering,0.5,0.5,0.5,0.25,0.5
+t2_033,"We're in the middle of a migration combining customer profiles from an old Oracle CRM with our Salesforce cloud database, but the schemas are completely different and we have massive duplicates. Also, we must guarantee that any customer who requested data deletion under GDPR is completely removed from the target tables. I've attached the source and target schemas. How should we build this ETL pipeline to keep the data clean and legally compliant?",implicit,Data Engineering,0.75,0.5,0.75,0.25,0.5
+t2_034,"Our nightly batch transfer from Salesforce to our internal SQL Server database is constantly missing real-time changes to customer contact info, so sales reps keep calling dead numbers. I've attached our current Python integration script. How can we transition this to an event-driven system so updates sync immediately?",implicit,System Integration,0.5,0.5,0.5,0.25,0.25
+t2_035,"Our data science team is running expensive model training jobs on SageMaker, but we have no metadata tracking to match which dataset version generated which model artifact, making troubleshooting in production impossible. I've attached our current training build script. How can we automate lineage tracking and prevent untracked, run-away compute spend?",implicit,DevOps,0.75,0.5,0.75,0.25,0.5
+t2_036,"We need to expand our SaaS platform to serve enterprise customers in Germany, but currently all our database nodes are in AWS US-East-1. Our legal team is raising red flags about transferring EU citizen data out of the region under GDPR rules. I've attached our global routing setup. How do we resolve these data residency requirements without duplicating our entire application codebase?",implicit,General Enterprise,0.75,0.75,0.75,0.25,0.5
+t2_037,"We are expanding our product into Germany to land some enterprise deals, but currently all our database nodes are in AWS US-East-1. Our legal team is raising red flags about transferring EU citizen data out of the region under GDPR rules. I've attached our global routing setup. How do we resolve these data residency requirements without duplicating our entire application codebase?",implicit,General Enterprise,0.75,0.75,0.75,0.25,0.5
+t2_038,"Draft an enterprise plan for establishing a FinOps practice in our AWS environment, aligned with the FinOps Foundation Framework. Include phases for Inform, Optimize, and Operate, define clear roles across engineering and finance, and list key cost-allocation strategies.",explicit,FinOps,0.75,0.75,0.75,0.0,0.25
+t2_039,"Our cloud spend on AWS is growing twice as fast as our active user base and our engineering leads have no idea how much their microservices are costing. I have attached last month's AWS Cost Explorer CSV export. We need to figure out how to allocate these expenses back to individual product teams, clean up the untagged resources, and get engineers to take ownership of their resource utilization.",implicit,FinOps,0.5,0.5,0.5,0.25,0.5
+t2_040,"AWS bills are going crazy again and we have no idea who is spinning up these huge instances, someone needs to get this under control fast",vague,FinOps,0.5,0.5,0.5,0.0,0.25
+t2_041,"Create an AWS savings plan and reservation strategy document. The document needs to evaluate our current baseline compute usage, compare EC2 Instance Savings Plans with Compute Savings Plans, and outline a step-by-step purchasing and renewal schedule for our infrastructure team.",explicit,FinOps,0.5,0.5,0.75,0.0,0.25
+t2_042,"Build a technical guide for migrating our legacy on-premises Microsoft SQL Server databases to AWS RDS PostgreSQL. Cover schema conversion strategies using the AWS Schema Conversion Tool, data migration phases using AWS Database Migration Service (DMS), and post-migration validation checks.",explicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_043,"Our active-passive setup in Azure is costing us too much overhead, and failovers are taking over forty minutes due to manual database synchronization steps. I've uploaded our current multi-region network topology diagram. We want to achieve a hot-standby model with an RTO of under 5 minutes and RPO of under 1 minute without doubling our monthly running costs.",implicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.5
+t2_044,"the azure dev environment got hit with a ton of routing errors today, can someone look at our VNets and clean up the peering?",vague,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_045,"Draft a comprehensive hardening guide for our AWS cloud infrastructure based on the CIS Benchmarks Level 1 and Level 2. The guide must cover IAM password policies, security group configurations, S3 bucket encryption standards, and AWS CloudTrail logging requirements.",explicit,Cloud Infrastructure,0.75,0.75,0.75,0.0,0.25
+t2_046,"Write a comprehensive organizational policy for the procurement, deployment, and auditing of commercial LLMs and generative AI tools in our company. Align this with the NIST AI Risk Management Framework, detailing risk mitigation strategies, human-in-the-loop validation, and compliance tracking metrics.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+t2_047,"Our product teams are integrating OpenAI API endpoints into several customer-facing applications, but our legal team is blocking releases because they are worried about proprietary data leakage, prompt injection vulnerabilities, and licensing issues. I've attached our draft developer terms. We need to establish clear boundaries for developers, create approval paths for third-party models, and protect our intellectual property.",implicit,AI Governance,0.5,0.5,0.5,0.25,0.25
+t2_048,"Draft a formal evaluation framework for selecting enterprise-grade vector databases for our generative AI applications. The framework must detail specific evaluation criteria covering performance, security controls (like data-at-rest encryption), API capabilities, operational overhead, and hosting model flexibility (SaaS vs self-hosted on Kubernetes).",explicit,AI Governance,0.75,0.5,0.75,0.0,0.25
+t2_049,"Write a formal disaster recovery and business continuity plan that meets SOC 2 Trust Services Criteria for security and availability. The plan must specify backup schedules, failover architectures, communication protocols during incidents, and detailed procedures for annual simulation testing.",explicit,Security,0.75,0.75,0.75,0.0,0.25
+t2_050,"Our security audits show that developers are sharing high-privilege credentials across environments, and API keys are frequently committed to GitHub repos. I've shared our current IAM structure. We need to implement a mechanism for short-lived sessions, automate credential rotation, and intercept hardcoded secrets before they reach production.",implicit,Security,0.5,0.5,0.5,0.25,0.25
+t2_051,compliance is riding us about SOC 2 access reviews and i need a way to pull active users from AWS and Okta and find the gaps,vague,Security,0.5,0.5,0.5,0.0,0.25
+t2_052,"Create a detailed technical specification for our new data lake ingestion pipeline on AWS. The design needs to cover raw land zones in Amazon S3, schema enforcement using AWS Glue Data Catalog, batch transformations using AWS EMRA serverless Spark, and partitioning strategies to optimize query latency in Amazon Athena.",explicit,Data Engineering,0.5,0.5,0.75,0.0,0.25
+t2_053,"Our analytics team reports that nightly Snowflake data loads are frequently failing or completing too late, which delays morning dashboards. I have attached the failing Spark task logs and our current dbt graph. We need to optimize our incremental ingestion patterns, add schema validation steps to catch bad source data early, and implement automatic retries with alerts.",implicit,Data Engineering,0.5,0.5,0.5,0.25,0.5
+t2_054,"Our customer success team is worried that we are storing raw personally identifiable information in our Databricks workspace, which violates GDPR requirements for data minimization. I have attached the table schemas for our analytics database. We need to find a way to dynamically mask names and emails, audit who accesses these fields, and automatically delete user records within thirty days of a request.",implicit,Data Engineering,0.75,0.75,0.75,0.25,0.5
+t2_055,"Write an integration specification for connecting Salesforce Cloud with our internal ERP system via MuleSoft AnyPoint platform. The design must map account objects, establish mutual TLS authentication, detail queue-based retry mechanisms for network failures, and define standard error payloads.",explicit,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_056,"Our sales team is frustrated because updates to accounts in HubSpot aren't reflecting in our central database, leading to dual entry. I have attached our API payload formats and database schema. We want a webhook-based synchronization that handles high concurrent volumes, resolves conflicts when updates happen in both databases simultaneously, and logs sync failures.",implicit,System Integration,0.5,0.5,0.75,0.25,0.5
+t2_057,"the webhook integration between HubSpot and Jira keeps failing during high traffic spikes, can you show me how to queue these requests?",vague,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_058,"Draft a comprehensive MLOps deployment playbook for our ML engineering team using GitHub Actions and AWS SageMaker. The playbook must define the continuous training pipeline triggers, automated model validation checks, canary deployment strategies, and rollback mechanisms in case of live prediction performance degradation.",explicit,DevOps,0.75,0.5,0.75,0.0,0.25
+t2_059,"Our developers are spending hours waiting for Jenkins to run unit and integration tests for every small commit, and sometimes builds pass locally but fail in production because of environment inconsistencies. We need to restructure our build process to run steps in parallel, use Docker containers to guarantee parity across stages, and set up slack notifications for build failures.",implicit,DevOps,0.5,0.5,0.5,0.0,0.25
+t2_060,"devs keep pushing docker images with vulnerabilities to the registry and security is threatening to lock us down, how do we block these?",vague,DevOps,0.5,0.5,0.5,0.0,0.25
+t2_061,"Our internal wiki is filled with outdated information about our employee onboarding process, leading to new hires setting up their access permissions incorrectly and skipping mandatory training sessions. To satisfy SOC 2 CC6.3 access control criteria to ensure we pass our audits, we need to structure our onboarding flow, define clear roles for managers and IT teams, set up automated emails for new hires, and measure completion rates.",implicit,General Enterprise,0.75,0.75,0.75,0.0,0.25
+t2_062,"Our remote employees are reporting slow load times when accessing our central document storage on SharePoint, and our compliance audits show we have no way of tracking who downloads sensitive customer reports. I've shared our regional employee distribution sheet. We need to solve the latency issues for APAC users and ensure we have strict access tracking.",implicit,General Enterprise,0.75,0.5,0.5,0.25,0.5
+t2_063,"Draft an enterprise policy for cloud cost optimization aligned with the FinOps Foundation Framework. Define roles across engineering, finance, and procurement, set tagging standards for AWS and Azure, and establish a process for tracking untagged resources.",explicit,FinOps,0.75,0.75,0.75,0.0,0.25
+t2_064,"Create a procurement plan for AWS Savings Plans and Reserved Instances. Compare the flexibility of Compute Savings Plans against EC2 Instance Savings Plans, analyze our typical baseline usage, and map out a step-by-step commitment schedule for the next 12 months.",explicit,FinOps,0.5,0.5,0.75,0.0,0.25
+t2_065,"Create a detailed technical specification for our new data lake ingestion pipeline on AWS. The design needs to cover raw land zones in Amazon S3, schema enforcement using AWS Glue Data Catalog, batch transformations using AWS EMR serverless Spark, and partitioning strategies to optimize query latency in Amazon Athena.",explicit,Data Engineering,0.5,0.5,0.75,0.0,0.25
+t2_066,"Create a savings plan recommendation report for our AWS and Azure environments. We have a combined monthly spend of $120k, with 70% on compute and 30% on databases. Detail how we should structure our compute savings plans vs Azure reservations.",explicit,FinOps,0.5,0.5,0.5,0.0,0.25
+t2_067,"Draft an enterprise policy for cloud cost allocation aligned with the FinOps Foundation Framework. Outline how we should handle shared untagged resources (like shared Kubernetes clusters, enterprise support fees, and network data transfer) and define the chargeback workflow to individual business units.",explicit,FinOps,0.75,0.75,0.75,0.0,0.25
+t2_068,"Write a technical disaster recovery runbook for restoring our core AWS infrastructure if our primary region (us-east-1) experiences a total outage. The target region is us-west-2. We are using Terraform for VPC, RDS PostgreSQL, and ECS Fargate.",explicit,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+t2_069,"Create an architecture specification for a secure multi-account AWS environment using AWS Organizations and Control Tower. The design must fully comply with the CIS AWS Foundations Benchmark version 3.0, covering IAM identity center, logging, and security hub setup.",explicit,Cloud Infrastructure,0.75,0.75,0.75,0.0,0.25
+t2_070,"Draft an enterprise policy for building and deploying in-house LLM applications using the NIST AI Risk Management Framework (AI RMF). The document must address bias mitigation, telemetry requirements, user opt-out flows, and model registry lifecycle approvals.",explicit,AI Governance,0.75,0.75,0.75,0.0,0.25
+t2_071,"Create a comprehensive incident response runbook for handling an active ransomware attack targeting our on-premises Windows Active Directory and hybrid Azure AD environments. Detail containment, eradication, and communication procedures for the SOC.",explicit,Security,0.5,0.5,0.75,0.0,0.25
+t2_072,"Design a normalized PostgreSQL database schema for our retail order management system based on the sample business requirements I provided below. Please include all table definitions, index strategies for high-volume read queries, and foreign key relationships.
+
+Requirements:
+- Must support multiple retail stores
+- Customers can place orders with multiple items
+- Need to track stock levels at each location
+- Employees belong to a specific store but can manage orders from anywhere.",explicit,Data Engineering,0.5,0.5,0.5,0.25,0.25
+t2_073,"Build an API integration plan for connecting our Salesforce instance with our internal ERP system. Describe the authentication flow using OAuth 2.0, the polling mechanism for near-real-time updates, error handling strategies, and rate limiting management.",explicit,System Integration,0.5,0.5,0.75,0.0,0.25
+t2_074,"Create a CI/CD pipeline configuration spec for building and deploying our FastAPI service to AWS ECS Fargate using GitHub Actions. I have attached our current draft workflow file. Update it to include security vulnerability scanning with Trivy and unit test execution.
+
+Workflow Draft:
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'",explicit,DevOps,0.5,0.5,0.5,0.25,0.25
+t2_075,"Write a corporate business continuity plan for transitioning our operations to a fully distributed model during regional disruptions. Include communication protocols, IT hardware provisioning, remote secure access controls, and crisis management reporting flows.",explicit,General Enterprise,0.75,0.5,0.75,0.0,0.25
+t2_076,"Our cloud spend on GCP is getting out of hand, especially with BigQuery and GKE. Our billing dashboard (I've shared the CSV export) shows massive spikes in lookups and idle compute. How can we reconfigure our autoscaling, partition our tables, and set up automatic budget alerts to stop these overruns?
+
+Billing Logs Export:
+Date,Service,Cost,UsageType
+2023-10-01,BigQuery,$450.00,Analysis
+2023-10-01,ComputeEngine,$890.00,GKE-Cores
+2023-10-02,BigQuery,$1200.00,Analysis
+2023-10-02,ComputeEngine,$910.00,GKE-Cores
+2023-10-03,BigQuery,$320.00,Analysis",implicit,FinOps,0.75,0.5,0.75,0.25,0.5
+t2_077,"We are struggling to map our AWS resource costs back to our internal business units, which is a major issue as we try to align with the FinOps Foundation standards. We have dozens of untagged resources like shared Elasticache nodes and NAT Gateways. How should we set up our tag-or-terminate flows and allocate these shared infrastructure costs?",implicit,FinOps,0.5,0.75,0.5,0.0,0.25
+t2_078,"We are currently hosting our legacy web portal in an on-premises VMware environment, but the hardware is end-of-life. I've uploaded our physical hardware inventory details. How do we move these virtual machines over to AWS EC2, what storage classes should we use for our file shares, and how can we keep our downtime under two hours?
+
+Inventory List:
+- VM-Web-01: 4 vCPU, 16GB RAM, 100GB SSD (Debian 11)
+- VM-Web-02: 4 vCPU, 16GB RAM, 100GB SSD (Debian 11)
+- VM-DB-01: 16 vCPU, 64GB RAM, 1TB NVMe (RHEL 8, PostgreSQL 14)
+- VM-File-01: 2 vCPU, 8GB RAM, 4TB HDD (Windows Server 2019, NFS/SMB share)",implicit,Cloud Infrastructure,0.5,0.25,0.5,0.25,0.5
+t2_079,"Our AWS Lambda functions are suffering from massive latency spikes during traffic bursts, and our database connections to RDS MySQL are constantly exhausted. I've provided our serverless architecture details and the CloudWatch metrics logs. How do we solve this database connection bottleneck and reduce the cold start impact?
+
+Logs and Metrics:
+[2023-10-15T14:22:10Z] Lambda duration: 15400ms (Cold Start: true)
+[2023-10-15T14:22:15Z] Error: ConnectionPoolTimeoutException: Timeout waiting for connection from pool
+[2023-10-15T14:22:20Z] Active database connections: 100/100 (RDS MySQL DBInstance)",implicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.5
+t2_080,"Our product team is integrating Azure OpenAI into our public customer service chatbot, but legal has raised major concerns about prompt injections and toxic outputs. I have shared our current system prompt and safety filtering rules. How can we implement robust guardrails, establish review processes, and monitor for toxic user prompts?
+
+System Prompt:
+You are an enterprise helper assistant. You must never discuss salary, internal IP addresses, or competitor tools.
+
+Safety Filtering Rules (JSON):
+{
+  'hate_speech_threshold': 'medium',
+  'sexual_content_threshold': 'high',
+  'violence_threshold': 'high'
+}",implicit,AI Governance,0.75,0.5,0.75,0.25,0.5
+t2_081,"We are preparing for our very first SOC 2 Type II audit and need to fix several critical gaps in how we control access to production databases. We currently have developer accounts with read-write access to RDS, no centralized logging of database sessions, and manual access reviews. What controls do we need to set up to satisfy the trust services criteria?",implicit,Security,0.75,0.75,0.75,0.0,0.25
+t2_082,"Our daily Snowflake ELT pipeline is breaking because our source data schema (which I've attached below) changes without notice. We need to handle schema evolution gracefully, track bad rows in a dead-letter queue, and send real-time alerts to Slack. How should we build this ingestion flow using dbt and Snowflake?
+
+JSON Schema:
+{
+  'type': 'object',
+  'properties': {
+    'event_id': {'type': 'string'},
+    'timestamp': {'type': 'integer'},
+    'payload': {
+      'type': 'object',
+      'properties': {
+        'user_id': {'type': 'string'},
+        'action': {'type': 'string'}
+      }
+    }
+  }
+}",implicit,Data Engineering,0.5,0.5,0.5,0.25,0.5
+t2_083,"We are connecting Salesforce CRM with ServiceNow so that customer complaints in Salesforce automatically trigger IT support incidents in ServiceNow. We need to handle bidirectional syncing, map custom fields, avoid duplicate tickets when updates occur simultaneously, and manage API rate limits. What is the best way to architecture this sync process?",implicit,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_084,"Our production ML model's accuracy has steadily dropped since last month, and we suspect data drift. We are running on Kubernetes and use MLflow for tracking. How should we automate drift detection using open-source tools, set up our retraining trigger rules, and swap out the old model in production with zero downtime?",implicit,DevOps,0.75,0.5,0.75,0.0,0.25
+t2_085,"Our teams are struggling to collaborate effectively across our global office locations, and projects are slipping. I've shared our quarterly feedback survey results. How do we organize our asynchronous communication channels in Slack, schedule meetings across 4 time zones, and improve our cross-team knowledge sharing?
+
+Survey Feedback Snippets:
+- 'I feel left out of key decisions because half the team chats in Slack synchronously while I am asleep in London.'
+- 'We spend too much time in 8:00 AM EST meetings just giving status updates that could easily be written down.'
+- 'Our onboarding process is a nightmare because all setup info is scattered across 15 different Google Docs.'
+- 'It takes 3 days to get a simple architecture question answered because there's no central repo of decisions.'",implicit,General Enterprise,0.5,0.25,0.5,0.25,0.5
+t2_086,"Hey, compliance team is saying our chatgpt usage breaches company rules cuz devs are pasting proprietary code, what steps can we do to stop this?",vague,AI Governance,0.5,0.5,0.5,0.0,0.25
+t2_087,"audit team is bugging us about admin access on our servers, how do we clean up access and track who does what?",vague,Security,0.5,0.5,0.5,0.0,0.25
+t2_088,"our database queries are taking like 10 minutes to run and hosting costs are skyrocketing, need a quick way to diagnose why",vague,Data Engineering,0.5,0.5,0.5,0.0,0.25
+t2_089,"jira alerts are completely spamming our slack channels and nobody reads them anymore, whats a better setup?",vague,System Integration,0.5,0.5,0.5,0.0,0.25
+t2_090,"we just pushed an unencrypted AWS secret key to a public github repo and compliance is on fire, how do we rotate, purge history, and set up guardrails to prevent this under CIS controls?",vague,DevOps,0.75,0.75,0.75,0.0,0.25
+t3_001,legal is freaking out about our data residency situation across clouds with the new OpenAI integration,vague,AI Governance,0.75,0.75,0.75,0.75,0.25
+t3_002,the board wants to know how our engineering velocity stacks up against Snowflake and Databricks on the AI side,vague,Competitive Intelligence,0.75,0.75,0.75,0.75,0.25
+t3_003,CEO wants to see if we can save money by moving some model workloads from Azure to AWS but still keep latency low,vague,General Enterprise,0.75,0.75,0.75,0.75,0.25
+t3_004,audit says we are exposing customer PII via our self-hosted LLMs and we need this patched ASAP before compliance audits,vague,Security,0.75,1.0,0.75,0.5,0.5
+t3_005,we have some healthcare data we want to run through GCP Vertex but compliance is saying it violates HIPAA,vague,Regulatory Compliance,0.75,0.75,0.75,0.75,0.5
+t3_006,"our cloud bills just spiked 40% after the marketing team started using Midjourney and Bedrock APIs, need this figured out",vague,FinOps,0.75,0.75,0.75,0.75,0.5
+t3_007,we're trying to figure out if we should centralize our vector databases or let each team run their own on Pinecone,vague,Data Engineering,0.75,0.75,0.75,0.75,0.5
+t3_008,"Build a comprehensive compliance roadmap for deploying AWS Bedrock and Azure OpenAI across our EMEA entities, adhering to both the EU AI Act and GDPR requirements.",explicit,AI Governance,1.0,1.0,1.0,1.0,0.75
+t3_009,"Create a comparative cost specification for hosting a 70B parameter Llama model on-premises using NVIDIA H100s versus serverless endpoints on AWS Bedrock and GCP Vertex AI, modeled against FinOps Foundation standards.",explicit,FinOps,1.0,1.0,1.0,1.0,0.75
+t3_010,"We need a competitive market research document detailing the pricing models, performance benchmarks, and feature gaps of Databricks Model Serving against Snowflake Cortex AI to help us select our primary data platform.",explicit,Competitive Intelligence,1.0,1.0,1.0,1.0,0.75
+t3_011,"Design a multi-cloud data architecture specification that details active-active database replication between AWS Aurora and Google Cloud Spanner, highlighting latency mitigation and regional failover procedures.",explicit,Cloud Infrastructure,1.0,1.0,1.0,0.75,0.75
+t3_012,"Draft an incident response roadmap for securing a Kubernetes-based LLM application stack against OWASP Top 10 LLM vulnerabilities, integrating Prisma Cloud and AWS GuardDuty alerts.",explicit,Security,1.0,1.0,1.0,0.75,0.5
+t3_013,"Create an enterprise data strategy specification for a financial services company migrating from legacy Oracle Warehouses to a unified Lakehouse on AWS using Apache Iceberg, detailing data governance and ingestion patterns.",explicit,Data Engineering,1.0,1.0,1.0,0.5,0.75
+t3_014,Deliver a cross-regulatory compliance roadmap mapping our current AWS and Azure AI integrations to the requirements of the Singapore MAS TRM and SEC cyber-risk disclosure rules.,explicit,Regulatory Compliance,1.0,1.0,1.0,1.0,0.75
+t3_015,"Produce a technical architecture specification for an enterprise-wide cloud governance model spanning AWS, Azure, and GCP, detailing IAM federation, network perimeter design, and automated landing zone deployments.",explicit,Cloud Infrastructure,1.0,1.0,1.0,0.5,0.75
+t3_016,"Our engineering teams are deploying custom Copilot instances using internal codebases, and our security and IP teams are worried about trade secrets leaking into public training sets and licensing violations.",implicit,AI Governance,0.75,0.75,0.75,0.75,0.5
+t3_017,"We are hitting major API rate limits and runaway costs on Azure OpenAI across fifteen product lines, and we need a way to throttle usage, charge back individual business units, and optimize model routing dynamically.",implicit,FinOps,1.0,1.0,1.0,0.75,0.75
+t3_018,"Our leadership wants to know how Cohere, Anthropic, and OpenAI compare when it comes to enterprise-grade private deployments, data processing agreements, and customization capabilities.",implicit,Competitive Intelligence,0.75,0.75,0.75,1.0,0.5
+t3_019,"We are launching a financial advising application in Germany and the UK that runs on Azure OpenAI, and local regulators are demanding to know exactly how we prevent hallucinated advice, log user interactions, and handle GDPR delete requests.",implicit,Regulatory Compliance,1.0,1.0,1.0,1.0,0.5
+t3_020,"Our current setup is split between GCP BigQuery and AWS Snowflake, which is causing massive egress fees and inconsistent data views during our overnight batch syncs, and we have to solve this data fragmentation.",implicit,Cloud Infrastructure,0.75,0.75,0.75,0.75,0.5
+t3_021,"Our database administration team found out that our vector search database in Pinecone is exposed to the public internet and holds proprietary healthcare data, and we need to lock down network access without breaking our production apps.",implicit,Security,1.0,0.75,1.0,0.75,0.5
+t3_022,"We have data lakes sitting across AWS S3 and Azure ADLS Gen2 that we need to query simultaneously using Starburst Enterprise, but our metadata catalogs are out of sync and search queries are taking hours to return.",implicit,Data Engineering,0.75,0.75,0.75,0.75,0.5
+t3_023,"The executive committee is questioning our massive cloud spend increase on Databricks over the past three quarters and wants a clear picture of what drove the cost, whether it matches our business growth, and how we can bring it back in line.",implicit,General Enterprise,1.0,0.75,1.0,0.5,0.75
+t3_024,"We have internal developers building apps with consumer LLM APIs on their own credit cards because our corporate approval process is too slow, creating shadow IT and massive compliance exposure.",implicit,AI Governance,0.75,0.75,0.75,1.0,0.5
+t3_025,"Our FinOps team is struggle to allocate our shared Kubernetes cluster spend running GPU-heavy ML training workloads down to individual department budgets, leaving us with a $3M unallocated bucket.",implicit,FinOps,1.0,0.75,0.75,1.0,0.5
+t3_026,we need to figure out who is responsible if one of our developers pushes proprietary AWS code generated by Claude to a public repo,vague,AI Governance,0.75,0.75,0.75,0.75,0.25
+t3_027,management is worried that our new customer service bot is going to hallucinate pricing and commit us to contracts we can't fulfill,vague,AI Governance,0.75,0.75,0.75,0.75,0.25
+t3_028,why did our Snowflake usage charges double last month when the data science team started running those cluster jobs,vague,FinOps,0.75,0.75,0.75,0.75,0.25
+t3_029,we need to compare what we pay for vector search on Pinecone vs keeping it on self-managed Milvus before we expand,vague,FinOps,0.75,0.75,0.75,0.75,0.25
+t3_030,"sales is saying our AI pipeline features are losing deals to Databricks, we need to know where we're actually lagging",vague,Competitive Intelligence,0.75,0.75,0.75,0.75,0.25
+t3_031,how does Azure's current model catalog compare to Bedrock's when it comes to custom model hosting,vague,Competitive Intelligence,0.75,0.75,0.75,0.75,0.25
+t3_032,auditors are asking how we ensure our user data stays in Germany when we route prompts to OpenAI,vague,Regulatory Compliance,0.75,0.75,0.75,0.75,0.5
+t3_033,compliance wants to know if our credit scoring models are violating any fair lending laws since we added the new data streams,vague,Regulatory Compliance,0.75,0.75,0.75,0.75,0.5
+t3_034,we're getting crushed by egress fees when syncing our training data between S3 and our GCP Vertex cluster,vague,Cloud Infrastructure,0.75,0.75,0.75,0.75,0.5
+t3_035,how do we handle user authentication across AWS and Azure when both environments run separate microservices for our AI platform,vague,Cloud Infrastructure,0.75,0.75,0.75,0.75,0.5
+t3_036,someone just bypassed our system prompt using an injection attack and we need to patch our API before we get hacked,vague,Security,0.75,1.0,0.75,0.5,0.5
+t3_037,we need to lock down our API keys because several developers hardcoded them into their public git commits last week,vague,Security,0.75,1.0,0.75,0.75,0.5
+t3_038,our models are returning stale results because our vector embedding sync from PostgreSQL takes too long,vague,Data Engineering,0.75,0.75,0.75,0.75,0.5
+t3_039,should we build our own data pipeline with Kafka or just use AWS Managed Streaming to feed our real-time models,vague,Data Engineering,0.75,0.75,0.75,0.75,0.5
+t3_040,"We have employees uploading sensitive corporate files into external web interfaces of Gemini and ChatGPT, and we need to block these actions at the gateway level without impacting engineering research.",implicit,AI Governance,0.75,0.75,0.75,0.75,0.5
+t3_041,"Our marketing division bought a custom LLM fine-tuning service from a third-party startup without IT review, and now we need to figure out where our customer data is being stored and who has access.",implicit,AI Governance,0.75,0.75,0.75,1.0,0.5
+t3_042,"Our customer-facing LLM is starting to output toxic and brand-damaging language during long chat sessions, and we need to design an automated real-time moderation pipeline to intercept these generations before they hit user screens.",implicit,AI Governance,1.0,1.0,1.0,1.0,0.75
+t3_043,"Our engineering team spun up several multi-node GPU clusters on GCP for model training and forgot to turn them off over the weekend, resulting in a sudden billing spike that we need to attribute and prevent.",implicit,FinOps,0.75,0.75,0.75,0.75,0.5
+t3_044,We need to set up a system that dynamically routes model inference requests to the cheapest available provider between Azure OpenAI and AWS Bedrock depending on current token pricing and latency baselines.,implicit,FinOps,1.0,0.75,1.0,0.75,0.75
+t3_045,"Our cloud spend has grown exponentially since we launched our recommendation engine, and we need to attribute these dynamic API call costs directly back to the specific client applications driving the load.",implicit,FinOps,1.0,1.0,1.0,1.0,0.75
+t3_046,"We are losing major enterprise clients to competitors who offer built-in retrieval-augmented generation out of the box, and we need to evaluate the technical gaps in our existing search layer to catch up.",implicit,Competitive Intelligence,0.75,0.75,0.75,1.0,0.5
+t3_047,"Our sales leadership wants to understand how the feature sets, SLAs, and performance metrics of enterprise GitHub Copilot compare against GitLab Duo before we renew our multi-year license.",implicit,Competitive Intelligence,1.0,1.0,1.0,1.0,0.75
+t3_048,"Our healthcare application needs to process patient records using cloud-hosted LLMs, but we must guarantee that no data is retained by the hosting provider or used for model training under HIPAA guidelines.",implicit,Regulatory Compliance,0.75,0.75,0.75,1.0,0.5
+t3_049,We are launching a financial analytics platform in the European Union and must prove that our automated decision-making processes comply with the explainability standards mandated by regional regulators.,implicit,Regulatory Compliance,1.0,1.0,1.0,1.0,0.75
+t3_050,"We have our main applications running on Azure, but our machine learning pipelines are hosted on GCP Vertex AI, and we are experiencing massive latency and connection dropouts during model syncs.",implicit,Cloud Infrastructure,0.75,0.75,0.75,0.75,0.5
+t3_051,Our organization wants to avoid vendor lock-in by designing a system where our LLM application workloads can failover from AWS Bedrock to Azure OpenAI within seconds during regional outages.,implicit,Cloud Infrastructure,1.0,1.0,1.0,0.75,0.75
+t3_052,We discovered that our internal search engine can be manipulated via prompt injection to reveal restricted salary files and board meeting notes to low-level employees.,implicit,Security,0.75,0.75,0.75,0.75,0.5
+t3_053,"Our data science team is downloading pre-trained models from Hugging Face and running them locally on our corporate network, exposing us to potential supply chain exploits and malicious code execution.",implicit,Security,1.0,1.0,1.0,0.75,0.5
+t3_054,Our real-time recommendations are failing because our database takes several minutes to convert raw customer event streams into vector embeddings and index them.,implicit,Data Engineering,0.75,0.75,0.75,0.75,0.5
+t3_055,"We have high volumes of unstructured PDF data sitting in scattered S3 buckets that we need to clean, chunk, and index into a centralized vector database for enterprise-wide search.",implicit,Data Engineering,1.0,1.0,1.0,0.75,0.5
+t3_056,Our chief executive wants to know why our tech organization has spent millions on cloud GPU resources over the last year without producing a single production-ready application.,implicit,General Enterprise,0.75,0.75,0.75,0.75,0.5
+t3_057,Our business leads want to understand whether we should invest in building our own proprietary models or continue paying subscription fees for commercial foundational models.,implicit,General Enterprise,1.0,0.75,1.0,0.5,0.5
+t3_058,Our chief operating officer is demanding a clear explanation for why our engineering infrastructure costs increased by 150% while our active user base only grew by 10%.,implicit,General Enterprise,1.0,1.0,1.0,1.0,0.5
+t3_059,Our board needs to see a clear justification for our proposed multi-million dollar investment into data platform modernization before they approve next year's budget.,implicit,General Enterprise,1.0,1.0,1.0,1.0,0.5
+t3_060,"Create a formal compliance roadmap for establishing a GenAI steering committee, detailing audit guidelines for model risk management under NIST frameworks.",explicit,AI Governance,1.0,1.0,1.0,1.0,0.75
+t3_061,"Draft an enterprise architecture specification for a centralized AI gateway that enforces rate limiting, PII filtering, and cost tracking across all cloud providers.",explicit,AI Governance,1.0,1.0,1.0,0.75,0.75
+t3_062,Produce a technical compliance specification mapping AWS Bedrock deployment architectures to the regulatory guidelines of the EU AI Act.,explicit,AI Governance,1.0,0.75,1.0,0.75,0.75
+t3_063,Provide a comprehensive FinOps architecture roadmap for implementing real-time cost attribution and budget thresholds for GPU clusters on AWS.,explicit,FinOps,1.0,1.0,1.0,1.0,0.75
+t3_064,Create a cost optimization specification for migrating our embedding generation workloads from OpenAI APIs to self-hosted models on Amazon ECS.,explicit,FinOps,1.0,1.0,1.0,0.75,0.75
+t3_065,"Develop a market research document comparing the licensing, support, and resource cost specifications of enterprise Databricks against Snowflake data platforms.",explicit,FinOps,1.0,0.75,1.0,0.75,0.75
+t3_066,Deliver a comprehensive competitive research report analyzing the AI product roadmaps and platform capabilities of Microsoft Copilot Studio versus Salesforce Einstein 1.,explicit,Competitive Intelligence,1.0,1.0,1.0,1.0,0.75
+t3_067,Create an architecture specification comparing the retrieval-augmented generation capabilities of Snowflake Cortex against Databricks vector search.,explicit,Competitive Intelligence,1.0,1.0,1.0,0.75,0.75
+t3_068,Develop a detailed compliance roadmap outlining the steps required to certify our cloud-hosted LLM systems under the HIPAA security rule.,explicit,Regulatory Compliance,1.0,1.0,1.0,1.0,0.75
+t3_069,Provide a cross-regulatory compliance specification mapping GDPR data protection impact assessment requirements to our multi-cloud AI infrastructure.,explicit,Regulatory Compliance,1.0,1.0,1.0,0.75,0.75
+t3_070,"Design a multi-cloud network architecture specification for secure, low-latency replication of model training data across AWS S3 and Azure Blob storage.",explicit,Cloud Infrastructure,1.0,1.0,1.0,1.0,0.75
+t3_071,Draft a disaster recovery architecture specification detailing multi-region failover configurations for an enterprise RAG application deployed on GCP and AWS.,explicit,Cloud Infrastructure,1.0,0.75,1.0,0.75,0.75
+t3_072,Create an incident response roadmap for mitigating prompt injection and data extraction attacks on customer-facing vector search databases.,explicit,Security,1.0,1.0,0.75,0.5,0.5
+t3_073,"Deliver a security architecture specification for a private, VPC-isolated deployment of Llama 3 on AWS EKS, integrating IAM roles and network security policies.",explicit,Security,1.0,1.0,1.0,1.0,0.5
+t3_074,Draft an enterprise data strategy roadmap detailing the migration of legacy mainframe data to an AWS Apache Iceberg lakehouse platform.,explicit,Data Engineering,1.0,0.75,0.75,0.5,0.5
+t3_075,Provide a detailed technical architecture specification for a real-time data ingestion pipeline feeding Kafka streams into a centralized Milvus vector database.,explicit,Data Engineering,1.0,0.75,1.0,1.0,0.5
+t3_076,our factory PLCs are dropping telemetry tags during high-frequency cycles and we don't know why,vague,IoT & Smart Factory,0.75,0.75,0.75,0.75,0.25
+t3_077,some wind turbine modules in Texas are failing to apply the latest security patch because of file system space,vague,IoT & Smart Factory,0.75,0.75,0.75,0.75,0.25
+t3_078,the terraform state lock is stuck in dynamo and we can't deploy any services in production today,vague,DevOps,0.75,0.75,0.75,0.75,0.25
+t3_079,salesforce says our batch sync with SAP is hitting transactional locks and we're missing order updates,vague,System Integration,0.75,0.75,0.75,0.75,0.25
+t3_080,our github actions runners are taking forever to finish builds because the docker layers won't cache,vague,DevOps,0.75,0.75,0.75,0.75,0.5
+t3_081,the freight tracking pipeline keeps dropping customs codes and leaving cargo sitting at the docks,vague,Supply Chain,0.75,0.75,0.75,0.75,0.5
+t3_082,our facebook ads conversions are way off from what ga4 is tracking and it's messing with our bid numbers,vague,Marketing Tech,0.75,0.75,0.75,0.75,0.5
+t3_083,internal compliance says our resume matching algorithm is showing heavy bias against specific graduation years,vague,HR Tech,0.75,0.75,0.75,0.75,0.5
+t3_084,We have connected devices across three different regional power grids losing telemetry syncing every time a node switches cellular towers.,implicit,IoT & Smart Factory,0.75,0.75,0.75,0.75,0.5
+t3_085,Our industrial assembly line is overheating because our predictive temperature algorithms cannot process incoming high-frequency vibration streams fast enough to trigger safety valves.,implicit,IoT & Smart Factory,1.0,1.0,1.0,1.0,0.75
+t3_086,Our cloud configurations are drifting constantly because developers are bypassing our automated git pipelines to make manual hotfixes in the AWS console.,implicit,DevOps,0.75,0.75,0.75,0.75,0.5
+t3_087,"Our engineering teams are deploying Kubernetes containers with old base images that contain high-severity vulnerabilities, and we need to block these deployments at the cluster registry level.",implicit,DevOps,1.0,1.0,1.0,1.0,0.75
+t3_088,We are hitting major API rate limits and data sync issues when trying to update customer account status between Salesforce and SAP in real time.,implicit,System Integration,0.75,0.75,0.75,0.75,0.5
+t3_089,Our billing reconciliation process is failing because sales representatives are overriding standard discount terms in Salesforce without updating the underlying ERP billing tables.,implicit,System Integration,1.0,0.75,1.0,0.75,0.75
+t3_090,"We are experiencing port congestions across our international shipping lanes, and we need a system to dynamically calculate alternative delivery lanes based on carrier rates and arrival dates.",implicit,Supply Chain,0.75,0.75,0.75,0.75,0.5
+t3_091,Our cold chain tracking is failing because temperature sensors on our trucks are losing connection and failing to alert operators when cargo drops below freezing.,implicit,Supply Chain,1.0,1.0,1.0,1.0,0.75
+t3_092,We are losing tracking capabilities for our online marketing campaigns because web browsers are blocking our standard third-party tracking cookies.,implicit,Marketing Tech,0.75,0.75,0.75,0.75,0.5
+t3_093,Our customer database has millions of duplicate records because our offline sales data is not mapped properly to our online web tracking profiles.,implicit,Marketing Tech,1.0,1.0,1.0,1.0,0.5
+t3_094,We are seeing high rates of candidate drop-off because our job portal takes too long to extract information from uploaded files and autofill standard job application forms.,implicit,HR Tech,0.75,0.75,0.75,0.75,0.5
+t3_095,Our legal department is concerned that our automated payroll system is misclassifying contractors and exposing us to regulatory penalties under regional labor laws.,implicit,HR Tech,1.0,1.0,1.0,1.0,0.5
+t3_096,Design a secure IoT edge architecture specification for deploying over-the-air firmware updates to ten thousand connected devices on private networks.,explicit,IoT & Smart Factory,1.0,1.0,1.0,0.75,0.75
+t3_097,Create a CI/CD platform engineering roadmap detailing the migration of our legacy jenkins pipelines to containerized github actions runners on AWS.,explicit,DevOps,1.0,1.0,1.0,1.0,0.75
+t3_098,Provide a technical integration specification for real-time data sync between Salesforce and SAP S/4HANA using MuleSoft API gateways.,explicit,System Integration,1.0,1.0,1.0,0.75,0.75
+t3_099,Develop a detailed supply chain compliance roadmap to align our international logistics workflows with the new EU Import Control System guidelines.,explicit,Supply Chain,1.0,1.0,1.0,1.0,0.75
+t3_100,Produce a marketing technology architecture specification detailing the implementation of a server-side Google Analytics 4 tagging network on AWS.,explicit,Marketing Tech,1.0,0.75,0.75,0.5,0.5
+t3_101,Deliver an HR compliance roadmap detailing how our candidate screening algorithms meet the New York City Automated Employment Decision Tool law requirements.,explicit,HR Tech,1.0,1.0,1.0,1.0,0.75
+t3_102,Create an edge-computing network architecture specification mapping out safe data ingestion from factory PLCs using MQTT brokers and AWS IoT Core.,explicit,IoT & Smart Factory,1.0,1.0,1.0,0.75,0.75
+t3_103,Produce a secure platform engineering specification detailing the automated enforcement of Terraform policy-as-code using Open Policy Agent.,explicit,DevOps,1.0,1.0,1.0,0.75,0.75
+t3_104,Draft an ERP database migration compliance roadmap outlining the security controls needed to move legacy on-premises SAP databases to Microsoft Azure.,explicit,System Integration,1.0,0.75,0.75,0.75,0.5
+t3_105,Deliver an enterprise logistics architecture specification detailing real-time tracking of cold chain shipping assets using GPS telemetry networks.,explicit,Supply Chain,1.0,1.0,1.0,1.0,0.5
+v3_vt2_001,"factory sensors keep disconnecting every few hours and nobody can figure out why, production is slowing down",vague,IoT & Smart Factory,0.75,0.25,0.5,0.0,0.0
+v3_vt2_002,plc firmware updates are breaking our assembly line scripts and the integrator team is blaming our network,vague,IoT & Smart Factory,0.75,0.5,0.5,0.0,0.25
+v3_vt2_003,our edge gateway is maxing out cpu and we think its the mqtt broker but not sure,vague,IoT & Smart Factory,0.5,0.5,0.5,0.0,0.25
+v3_vt2_004,scada dashboard is showing stale readings for half the floor and the vendor says its our firewall rules,vague,IoT & Smart Factory,0.75,0.5,0.5,0.0,0.0
+v3_vt2_005,email deliverability tanked after we migrated to the new esp and open rates are in the gutter,vague,Marketing Tech,0.75,0.25,0.5,0.0,0.0
+v3_vt2_006,our attribution numbers dont match between google analytics and the crm and marketing cant figure out their real roas,vague,Marketing Tech,0.75,0.5,0.5,0.0,0.25
+v3_vt2_007,lead scoring in hubspot is all over the place and sales keeps getting garbage leads from the automated workflows,vague,Marketing Tech,0.5,0.5,0.5,0.0,0.25
+v3_vt2_008,utm tracking is completely broken after the website redesign and we have no idea which campaigns are actually working,vague,Marketing Tech,0.75,0.25,0.75,0.0,0.25
+v3_vt2_009,warehouse picking errors spiked this month and the wms team says its a slotting problem but ops disagrees,vague,Supply Chain,0.75,0.25,0.5,0.0,0.0
+v3_vt2_010,our demand forecasting model keeps overestimating for seasonal products and inventory is piling up in three warehouses,vague,Supply Chain,0.75,0.5,0.5,0.0,0.25
+v3_vt2_011,purchase orders are getting stuck between sap and the supplier portal and nobody knows which system is dropping them,vague,Supply Chain,0.5,0.5,0.5,0.0,0.25
+v3_vt2_012,freight invoices keep coming in wrong and our ap team is manually fixing hundreds of line items every week,vague,Supply Chain,0.75,0.25,0.5,0.0,0.25
+v3_vt2_013,container images are bloated and our registry is eating storage like crazy plus deploys are slow,vague,DevOps,0.75,0.25,0.5,0.0,0.0
+v3_vt2_014,test coverage keeps dropping every sprint and nobody owns the test infrastructure anymore,vague,DevOps,0.5,0.5,0.5,0.0,0.25
+v3_vt2_015,our monitoring stack is generating so many false positive alerts that the on-call team ignores everything now,vague,DevOps,0.75,0.5,0.5,0.0,0.0
+v3_vt2_016,dev environments are drifting from prod and we keep finding bugs that only show up after deploy,vague,DevOps,0.75,0.25,0.5,0.0,0.25
+v3_vt2_017,lambda cold starts are killing our api response times and the frontend team is complaining about timeouts,vague,Cloud Infrastructure,0.75,0.25,0.5,0.0,0.0
+v3_vt2_018,our vpc peering setup is a mess and traffic between services is hitting the public internet instead of staying internal,vague,Cloud Infrastructure,0.75,0.5,0.5,0.0,0.25
+v3_vt2_019,rds connection pool is maxing out during peak hours and the app just crashes,vague,Cloud Infrastructure,0.5,0.5,0.5,0.0,0.25
+v3_vt2_020,our multi-az setup doesnt seem to be working because the failover test took way too long last week,vague,Cloud Infrastructure,0.75,0.5,0.5,0.0,0.0
+v3_vt2_021,data transfer costs between regions are insane and we dont even know which services are causing it,vague,FinOps,0.75,0.25,0.5,0.0,0.0
+v3_vt2_022,reserved instances are expiring next month and nobody has a plan for whether to renew or switch to savings plans,vague,FinOps,0.75,0.5,0.5,0.0,0.25
+v3_vt2_023,dev team keeps spinning up expensive gpu instances for testing and forgetting to shut them down,vague,FinOps,0.5,0.5,0.5,0.0,0.25
+v3_vt2_024,our cloud tagging strategy is a disaster and cost allocation reports are useless for the finance team,vague,FinOps,0.75,0.25,0.75,0.0,0.25
+v3_vt2_025,access reviews are overdue and we have no idea who has admin access to what anymore,vague,Security,0.75,0.25,0.5,0.0,0.0
+v3_vt2_026,secrets are scattered across environment variables and config files and nobody has a central vault setup,vague,Security,0.75,0.5,0.5,0.0,0.25
+v3_vt2_027,our ssl certificates keep expiring without warning and production goes down every few months because of it,vague,Security,0.5,0.5,0.5,0.0,0.25
+v3_vt2_028,phishing emails are getting past our email gateway and employees keep clicking on them,vague,Security,0.75,0.25,0.5,0.0,0.0
+v3_vt2_029,our dbt models are taking forever to run and the warehouse costs are spiking every morning,vague,Data Engineering,0.75,0.25,0.5,0.0,0.0
+v3_vt2_030,data quality is terrible downstream because upstream sources keep changing schemas without telling anyone,vague,Data Engineering,0.75,0.5,0.5,0.0,0.25
+v3_vt2_031,spark jobs are failing randomly with out of memory errors and nobody wants to tune the cluster config,vague,Data Engineering,0.5,0.5,0.5,0.0,0.25
+v3_vt2_032,our etl pipeline missed its sla three times this week and the bi team is showing stale reports to executives,vague,Data Engineering,0.75,0.5,0.5,0.0,0.0
+v3_vt2_033,devs are using chatgpt to write code and pasting proprietary source code into it without any policy in place,vague,AI Governance,0.75,0.25,0.5,0.0,0.0
+v3_vt2_034,our recommendation engine is showing biased results and the product team doesnt know how to fix it,vague,AI Governance,0.75,0.5,0.5,0.0,0.25
+v3_vt2_035,salesforce and our erp are out of sync again and orders are falling through the cracks,vague,System Integration,0.5,0.5,0.5,0.0,0.25
+v3_vt2_036,api rate limits from our payment provider keep throttling our checkout flow during peak hours,vague,System Integration,0.75,0.25,0.5,0.0,0.0
+v3_vt2_037,onboarding workflow in workday is broken and new hires are waiting days to get their accounts provisioned,vague,HR Tech,0.5,0.5,0.5,0.0,0.25
+v3_vt2_038,performance review forms are a mess and managers are skipping calibration steps because the tool is confusing,vague,HR Tech,0.75,0.25,0.5,0.0,0.25
+v3_vt2_039,our internal wiki is completely outdated and teams are making decisions based on stale documentation,vague,General Enterprise,0.75,0.25,0.5,0.0,0.0
+v3_vt2_040,meeting room booking system is double-booking rooms and people keep showing up to occupied rooms,vague,General Enterprise,0.5,0.5,0.5,0.0,0.25
+v3_vt2_041,gdpr data deletion requests are piling up and we have no automated process to handle them,vague,Regulatory Compliance,0.75,0.25,0.5,0.0,0.25
+v3_vt2_042,our consent management platform is not syncing with the marketing database and we might be emailing opted-out users,vague,Regulatory Compliance,0.75,0.5,0.5,0.0,0.0
+v3_vt2_043,our internal reporting dashboards are showing completely different numbers than what finance is presenting to the board,vague,General Enterprise,0.75,0.5,0.5,0.0,0.25
+v3_vt2_044,customer churn rate jumped and nobody has analyzed why or what changed in the product,vague,Marketing Tech,0.75,0.25,0.75,0.0,0.0
+v3_vt2_045,our mobile app crash rate doubled after the last release and support tickets are flooding in,vague,DevOps,0.75,0.5,0.5,0.0,0.0
+v3_d5hi_001,"I have uploaded our current cloud architecture diagrams and vendor contracts. Build a comprehensive multi-cloud cost optimization proposal that includes an executive summary report, detailed cost modeling spreadsheets, a 3-year savings roadmap with milestones, a vendor negotiation playbook, and a governance policy document for ongoing cost control, all benchmarked against current market pricing from AWS, Azure and GCP",explicit,FinOps,1.0,1.0,1.0,1.0,1.0
+v3_d5hi_002,"Using our attached compliance audit findings and system architecture documentation, produce a full NIST 800-53 compliance remediation package including a gap analysis report, a prioritized remediation roadmap, updated security policy documents, technical runbooks for each control family, and a board-ready executive risk summary with current industry benchmark comparisons",explicit,Security,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_003,"Our data platform needs a complete overhaul. Based on the attached current architecture and data catalog, deliver an end-to-end data platform modernization blueprint that includes architecture diagrams, a migration runbook, data quality framework documentation, cost projections, and a phased implementation timeline with go/no-go criteria for each phase, comparing Snowflake vs Databricks vs BigQuery pricing",explicit,Data Engineering,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_004,"Using the attached HR system configurations and employee data schemas, create a global workforce analytics platform specification that includes system architecture documentation, integration specifications for Workday and SAP SuccessFactors, a data governance policy, dashboard wireframes with KPI definitions, and a regulatory compliance matrix covering GDPR and local labor laws across our 12 operating countries, referencing current vendor pricing models",explicit,HR Tech,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_005,"Based on the uploaded supply chain data and logistics contracts, develop a complete supply chain resilience program that includes a risk assessment report, alternative supplier evaluation matrix with current market pricing, logistics optimization models, a crisis response playbook, and a quarterly monitoring dashboard specification",explicit,Supply Chain,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_006,"We need a full enterprise AI governance framework. Deliver a comprehensive package that includes a corporate AI usage policy document, a technical risk assessment methodology, model evaluation checklists, a compliance mapping to EU AI Act and NIST AI RMF, incident response procedures for AI failures, and a training curriculum outline for engineering teams, referencing current industry best practices and competitor approaches",explicit,AI Governance,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_007,"Using the attached marketing analytics exports and campaign performance data, build a complete marketing technology consolidation proposal including a current state assessment report, a vendor comparison matrix with live pricing from Segment, Tealium and mParticle, an integration architecture blueprint, a data migration playbook, and an ROI projection model for the executive team",explicit,Marketing Tech,1.0,1.0,1.0,1.0,1.0
+v3_d5hi_008,"Create a comprehensive DevSecOps transformation program for our engineering organization including a maturity assessment report, a toolchain architecture with CI/CD pipeline specifications, security scanning integration guides, a developer training program outline, a compliance evidence collection framework for SOC 2, and a phased rollout timeline with success metrics",explicit,DevOps,1.0,1.0,0.75,0.5,1.0
+v3_d5hi_009,"Develop a full IoT platform modernization strategy including current state architecture documentation, a sensor integration specification covering MQTT and OPC-UA protocols, edge computing deployment guides, a data pipeline architecture from factory floor to cloud analytics, a security hardening playbook, and a cost-benefit analysis comparing major IoT platform vendors at current market rates",explicit,IoT & Smart Factory,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_010,"Based on the attached system integration inventory, deliver a complete enterprise integration platform proposal including an API gateway architecture design, message queue topology diagrams, a data transformation mapping document, error handling and retry specifications, a vendor evaluation comparing MuleSoft vs Boomi vs Azure Integration Services with current pricing, and a migration runbook from our legacy middleware",explicit,System Integration,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_011,"Our CISO wants a comprehensive cloud security posture assessment delivered as a complete package including a vulnerability assessment report, a compliance gap matrix against ISO 27001 and SOC 2, a cloud security architecture blueprint, hardening runbooks for AWS and Azure, an incident response playbook, and an executive risk dashboard specification with industry benchmarking data",implicit,Security,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_012,"The board wants a full digital transformation assessment. We need a current state maturity report, a target state architecture vision, a technology investment roadmap with vendor pricing analysis, a change management program outline, a governance framework document, and a financial model projecting ROI over five years across our AWS and Azure infrastructure",implicit,Cloud Infrastructure,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_013,"We are building an enterprise data mesh and need the complete deliverable set: a data domain ownership model, a self-serve data platform architecture, data product specifications, a federated governance policy, implementation guides for each domain team, and a cost projection model comparing implementation approaches using current Snowflake and Databricks pricing tiers",implicit,Data Engineering,1.0,1.0,0.75,0.75,1.0
+v3_d5hi_014,"Our legal team needs a complete AI vendor risk assessment package including due diligence questionnaires for each of our five LLM providers, a comparative analysis of their data processing agreements against GDPR requirements, technical security assessment reports, a risk scoring matrix, remediation recommendations, and a contract amendment playbook referencing current market terms and competitor vendor offerings",implicit,AI Governance,1.0,1.0,1.0,1.0,1.0
+v3_d5hi_015,"Build a complete global payroll system migration package for our expansion into 8 new countries including a regulatory compliance matrix for each jurisdiction, a system architecture design for Workday integration, data migration specifications, a testing and validation playbook, a parallel-run monitoring plan, and localized tax configuration guides referencing current tax authority requirements in each country",implicit,HR Tech,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_016,"We need to deliver a comprehensive FinOps maturity program to the CFO including a current state assessment with cloud spend benchmarking against industry peers, a showback and chargeback policy document, an optimization playbook covering reserved instances and savings plans across three clouds, an anomaly detection alerting specification, a FinOps team charter, and a quarterly business review template with KPIs",implicit,FinOps,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_017,"Create a full marketing attribution overhaul package including a current state audit report, a server-side tracking implementation guide for Google and Meta conversion APIs, a first-party data strategy document, a consent management integration specification, a dashboard redesign with multi-touch attribution models, and an executive presentation comparing our performance metrics against industry benchmarks",explicit,Marketing Tech,1.0,1.0,0.75,0.75,1.0
+v3_d5hi_018,"Produce a complete warehouse automation feasibility study including a current operations assessment, an automation technology comparison report with pricing from major robotics vendors, an ROI model, a facility layout redesign specification, an implementation timeline with resource requirements, and a risk mitigation plan covering operational continuity during the transition",explicit,Supply Chain,1.0,1.0,1.0,1.0,1.0
+v3_d5hi_019,"Develop a comprehensive zero-trust network architecture program including a current state security assessment, a network segmentation design document, identity and access management policy overhaul, microsegmentation implementation guides for both AWS and Azure environments, a monitoring and detection specification, and an executive compliance report mapping everything to NIST SP 800-207 with competitive benchmarking",explicit,Security,1.0,1.0,1.0,0.75,1.0
+v3_d5hi_020,"Create a complete platform engineering program blueprint including a developer experience assessment report, an internal developer platform architecture specification, infrastructure-as-code template libraries, a service catalog design, a golden path documentation framework, and an adoption metrics dashboard specification, referencing platform engineering best practices from industry leaders",explicit,DevOps,1.0,1.0,0.75,0.5,1.0
+v3_bt2_001,I have uploaded our current Terraform configurations for our AWS networking setup. We need to redesign our VPC architecture to support three isolated environments with proper security group rules and NAT gateway configurations while keeping inter-service communication efficient,explicit,Cloud Infrastructure,0.75,0.75,0.75,0.25,0.25
+v3_bt2_002,"Our Kubernetes cluster needs a complete resource governance overhaul. Write a namespace-level resource quota policy and implement pod disruption budgets across all production workloads using the deployment configs I uploaded, and include a monitoring setup for tracking resource utilization compliance",explicit,DevOps,0.75,0.75,0.75,0.25,0.5
+v3_bt2_003,"Based on the attached data pipeline architecture, design a comprehensive data quality framework that integrates with our dbt models and Snowflake warehouse. It needs to cover freshness checks, schema validation, volume anomaly detection, and automated alerting for our data engineering and analytics teams",explicit,Data Engineering,0.75,0.75,0.75,0.25,0.5
+v3_bt2_004,"I have uploaded our employee handbook and current leave policies. We need to restructure our global PTO policy to comply with labor regulations across our US, UK and Germany offices while maintaining equity for remote workers and establishing a self-service portal for leave requests",explicit,HR Tech,0.75,0.75,0.75,0.25,0.5
+v3_bt2_005,"Our marketing team needs a unified customer data pipeline. Using the attached CRM schema and analytics platform configuration, design a real-time event streaming architecture that captures user interactions from our web app and mobile app and feeds them into our segmentation engine for personalized campaigns",explicit,Marketing Tech,0.75,0.75,0.75,0.25,0.5
+v3_bt2_006,I have uploaded our current IAM policies and group membership exports. Perform a comprehensive access control audit and produce a least-privilege remediation plan that addresses the SOC 2 findings from our last assessment without disrupting developer productivity,explicit,Security,0.75,0.75,0.75,0.25,0.5
+v3_bt2_007,"Based on the uploaded cost allocation tags and department budget sheets, build a FinOps showback model that accurately attributes shared infrastructure costs to business units and provides monthly variance reports for the finance team",explicit,FinOps,0.75,0.75,0.75,0.25,0.25
+v3_bt2_008,"We need to integrate our Salesforce CPQ system with our legacy billing platform. Using the attached API documentation from both systems, design a bidirectional sync architecture that handles quote-to-cash workflow including error handling for price discrepancies and currency conversion edge cases",explicit,System Integration,0.75,0.75,0.75,0.25,0.5
+v3_bt2_009,"Our factory floor telemetry pipeline is dropping data during peak production hours. Using the attached sensor configuration and gateway logs, redesign the data collection architecture to handle burst traffic from 500 sensors with guaranteed delivery to our time-series database",implicit,IoT & Smart Factory,0.75,0.75,0.75,0.25,0.5
+v3_bt2_010,Our AI model serving infrastructure needs to support multiple model versions simultaneously with canary deployments. We're running on Kubernetes and need to handle traffic splitting between model versions with automated rollback based on prediction accuracy drift thresholds,implicit,AI Governance,0.75,0.75,0.75,0.25,0.25
+v3_bt2_011,"our snowflake costs are completely out of control and the business intelligence team is running massive unoptimized queries every morning that take two hours to complete, we need to fix the warehouse sizing and query optimization before next month's budget review",vague,FinOps,0.75,0.75,0.75,0.0,0.25
+v3_bt2_012,I have uploaded our current Apache Kafka configuration and consumer group metrics. Our event processing pipeline needs to be redesigned to handle exactly-once semantics across three microservices while maintaining partition ordering guarantees during broker rebalances,explicit,Data Engineering,0.75,0.75,0.75,0.25,0.5
+v3_bt2_013,"Our supply chain planning team needs a demand sensing capability that incorporates point-of-sale data from our retail partners. Using the attached EDI configuration and inventory management schema, design a near-real-time demand signal processing pipeline with safety stock recalculation logic",implicit,Supply Chain,0.75,0.75,0.75,0.25,0.5
+v3_bt2_014,"Based on our attached incident response procedures and the recent penetration test findings, develop a comprehensive security incident playbook that covers detection, containment, eradication and recovery phases with specific runbooks for ransomware and data exfiltration scenarios",explicit,Security,0.75,0.75,0.75,0.25,0.5
+v3_bt2_015,"We need to build an automated compliance evidence collection pipeline for our quarterly SOC 2 audits. Using the attached control matrix and system inventory, design an integration that pulls evidence from AWS CloudTrail, Okta logs, and GitHub audit logs into a centralized compliance repository",explicit,Security,0.75,0.75,0.75,0.25,0.5
+v3_bt3_001,"Based on the attached cloud spending reports, we need to compare our current AWS Reserved Instance portfolio against the latest Azure Reservation pricing and GCP Committed Use Discounts to find the optimal multi-cloud commitment strategy for the next fiscal year",explicit,FinOps,0.75,0.75,0.75,0.75,0.25
+v3_bt3_002,"Our operations team needs to evaluate whether to migrate our on-premise Elasticsearch cluster to AWS OpenSearch or a managed Elastic Cloud deployment. We need a comparison of current vendor pricing, performance benchmarks, and a migration risk assessment covering data residency compliance for our EU customers",implicit,Cloud Infrastructure,0.75,0.75,0.75,0.75,0.25
+v3_bt3_003,"I have uploaded our current DevOps toolchain inventory and the engineering team's feedback survey results. Evaluate whether we should consolidate onto GitLab Ultimate or maintain our current multi-vendor setup of GitHub, Jenkins and ArgoCD, comparing the latest subscription pricing and factoring in developer productivity metrics",implicit,DevOps,0.75,0.75,0.75,0.75,0.25
+v3_bt3_004,"Using the attached warehouse operations data and current 3PL contracts, evaluate whether we should bring fulfillment in-house for our three highest-volume distribution centers or renegotiate with our current logistics providers, comparing current market rates for warehousing and last-mile delivery in each region",implicit,Supply Chain,0.75,0.75,0.75,0.75,0.5
+v3_bt3_005,"We discovered that our customer support team has been using an unapproved AI writing tool that processes customer conversation data through external APIs. We need to assess our regulatory exposure under GDPR and our existing SOC 2 commitments, and determine what technical controls to implement to prevent future unauthorized AI tool usage while comparing approved vendor alternatives",implicit,AI Governance,0.75,0.75,0.75,0.75,0.25
+v3_bt3_006,Our manufacturing execution system data shows increasing quality defects correlated with a recent sensor firmware update. We need to cross-reference the sensor telemetry data with our quality management system records and the vendor's latest firmware release notes to determine whether to roll back or patch forward,implicit,IoT & Smart Factory,0.75,0.75,0.75,0.75,0.25
+v3_bt3_007,"Based on the attached candidate pipeline analytics and our current ATS configuration, evaluate whether our automated resume screening criteria are creating adverse impact against protected classes under EEOC guidelines, comparing our acceptance rates against industry benchmarks for similar roles",implicit,HR Tech,0.75,0.75,0.75,0.75,0.25
+v3_bt3_008,"the cto wants to know if we should build our own internal developer platform or buy one from backstage or cortex, need to figure out the total cost of ownership and what our competitors are doing about platform engineering",vague,DevOps,0.75,0.75,0.75,0.75,0.25
+v3_bt3_009,our marketing attribution is completely broken since the ios privacy changes and the cmo is asking how competitors are handling it and what the latest industry solutions look like,vague,Marketing Tech,0.75,0.75,0.75,0.75,0.25
+v3_bt3_010,"multiple teams are deploying ai models without any governance and legal is worried about eu ai act compliance, we need to figure out what the regulatory landscape looks like and what controls to put in place before the next board meeting",vague,AI Governance,1.0,0.75,0.75,0.5,0.25
+v3_bt3_011,"Using the attached network topology diagrams and firewall rule exports, perform a security architecture review and identify all east-west traffic paths that violate our zero-trust segmentation policy, referencing NIST SP 800-207 guidelines and comparing our posture against current industry maturity benchmarks",explicit,Security,0.75,0.75,0.75,0.75,0.5
+v3_bt3_012,"Our data lakehouse on Databricks is becoming prohibitively expensive as data volumes grow. We need to evaluate whether to restructure our medallion architecture, migrate hot data to a cheaper storage tier, or consider splitting workloads between Databricks and a managed Snowflake instance, comparing current pricing for each approach",implicit,Data Engineering,0.75,0.75,0.75,0.75,0.25
+v3_bt3_013,"The procurement team wants to consolidate our SaaS vendor portfolio. Based on the attached vendor inventory and contract terms, identify overlapping tools across departments and provide a rationalization recommendation that factors in current renewal pricing and switching costs, benchmarked against what comparable companies spend",implicit,General Enterprise,0.75,0.75,0.75,0.75,0.5
+v3_bt3_014,"Based on the uploaded Salesforce and HubSpot data schemas, we need to unify our customer data across both CRMs into a single golden record while handling duplicate resolution and ensuring GDPR-compliant data handling, comparing CDP vendor solutions at current market rates",implicit,System Integration,0.75,0.75,0.75,0.75,0.5
+v3_bt3_015,"Our last-mile delivery costs are spiraling and customer complaints about late deliveries have doubled. We need to analyze our routing efficiency against current fuel costs and competitor delivery SLAs, and determine whether to invest in route optimization software or switch to a different 3PL provider",implicit,Supply Chain,0.75,0.75,0.75,0.75,0.25
+v3_d4hi_001,"Conduct a comprehensive market research analysis comparing the latest enterprise LLM API pricing from OpenAI, Anthropic, Google and Cohere, and produce a vendor selection matrix that factors in data privacy certifications, throughput benchmarks, and total cost of ownership projections for our customer service automation use case",explicit,AI Governance,1.0,1.0,1.0,1.0,0.75
+v3_d4hi_002,"We need a competitive analysis of our cloud infrastructure costs against industry benchmarks published by Gartner and Flexera. Pull the latest cloud cost management survey data and compare our per-workload spending on compute, storage and networking against the median for companies in our revenue bracket",explicit,FinOps,0.75,0.75,0.75,1.0,0.5
+v3_d4hi_003,"Research the current pricing models and compliance certifications for the top five identity governance vendors including SailPoint, Saviynt, CyberArk and Okta Identity Governance, and produce a procurement recommendation that aligns with our NIST 800-53 access control requirements and our three-year security roadmap",explicit,Security,1.0,1.0,1.0,1.0,0.75
+v3_d4hi_004,"Our supply chain team needs a market research report on alternative raw material suppliers in Southeast Asia. Compare the current pricing, lead times, minimum order quantities and sustainability certifications of at least five potential suppliers against our existing contracts with our Chinese manufacturers",explicit,Supply Chain,0.75,1.0,0.75,1.0,0.75
+v3_d4hi_005,"Produce an industry trends analysis on the adoption of generative AI in enterprise customer support. Reference the latest analyst reports from Gartner, Forrester and McKinsey, compare vendor pricing for conversational AI platforms, and assess how our planned deployment compares against competitor implementations in our vertical",explicit,Competitive Intelligence,1.0,1.0,1.0,1.0,0.75
+v3_d4hi_006,"We need to evaluate the latest real-time pricing for GPU cloud instances across AWS, Azure, GCP and CoreWeave for our ML training workloads. Compare spot vs on-demand vs reserved pricing tiers, analyze regional price variations, and recommend an optimal multi-cloud GPU procurement strategy that minimizes cost while meeting our data residency requirements",explicit,FinOps,1.0,1.0,1.0,1.0,0.5
+v3_d4hi_007,"Research current market rates for cybersecurity insurance and produce a cost-benefit analysis for our organization. Compare policy terms from at least four major cyber insurance providers, factor in our current risk posture assessment, and determine the optimal coverage level given recent industry claims data and premium trends",implicit,Security,0.75,0.75,0.75,1.0,0.5
+v3_d4hi_008,"The HR director wants a competitive compensation benchmarking report for our engineering roles across three markets. Research current salary survey data from Radford, Levels.fyi and Glassdoor, compare our total compensation packages against FAANG and Series B-D startups, and produce recommendations for adjusting our pay bands to reduce attrition",implicit,HR Tech,0.75,1.0,0.75,1.0,0.75
+v3_d4hi_009,"our cfo wants to know how our cloud spend per employee compares against our direct competitors and industry averages, and whether we should be looking at different pricing models from the cloud vendors",vague,FinOps,0.75,0.75,0.75,1.0,0.25
+v3_d4hi_010,marketing wants to know what our competitors are spending on paid social and whether the latest industry benchmark reports show different channel allocation strategies we should consider,vague,Marketing Tech,0.75,0.75,0.75,1.0,0.25
+v3_d4hi_011,"Research the latest regulatory guidance on cross-border data transfers between the EU and US following the Data Privacy Framework adequacy decision. Analyze how this affects our current data processing architecture across AWS regions, compare compliance approaches used by competitors in our industry, and produce updated standard contractual clauses for our vendor agreements",explicit,Regulatory Compliance,1.0,1.0,1.0,1.0,0.75
+v3_d4hi_012,"We need a comprehensive market analysis of warehouse automation technologies. Research the current pricing and capabilities of autonomous mobile robots from vendors like Locus Robotics, 6 River Systems and Fetch Robotics, compare against traditional conveyor systems, and model the five-year total cost of ownership for our three largest distribution centers",explicit,Supply Chain,1.0,1.0,1.0,1.0,0.75
+v3_d4hi_013,"The CTO wants a technology radar assessment for our engineering organization. Survey the latest industry trends in platform engineering, AI-assisted development and cloud-native architecture, benchmark our technology stack maturity against industry peers, and produce a strategic investment recommendation for the next two fiscal years",implicit,DevOps,0.75,0.75,0.75,1.0,0.5
+v3_d4hi_014,"Analyze current market pricing for managed Kubernetes services across AWS EKS, Azure AKS and Google GKE including support tiers, add-on pricing and egress costs. Compare against self-managed alternatives and produce a five-year TCO projection for our microservices platform running 200 pods across three regions",explicit,Cloud Infrastructure,1.0,1.0,1.0,1.0,0.5
+v3_d4hi_015,"Research the latest industry best practices and vendor offerings for real-time fraud detection in payment processing. Compare pricing and detection accuracy benchmarks for Stripe Radar, Sift and Forter, evaluate their integration requirements with our current payment gateway, and recommend a solution that balances false positive rates against chargeback prevention",implicit,System Integration,0.75,1.0,0.75,1.0,0.5
+v3_t1_001,what is the difference between a docker image and a docker container,explicit,DevOps,0.25,0.5,0.25,0.0,0.0
+v3_t1_002,how do I create a read replica in aws rds,explicit,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+v3_t1_003,what is the maximum file size for a single s3 put request,explicit,Cloud Infrastructure,0.0,0.25,0.0,0.0,0.0
+v3_t1_004,explain what a kubernetes pod is in simple terms,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+v3_t1_005,how do I check the current utilization of an ec2 instance from the cli,explicit,Cloud Infrastructure,0.0,0.25,0.25,0.0,0.0
+v3_t1_006,what does the 429 http status code mean,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+v3_t1_007,how do I reset a forgotten admin password in our okta tenant,explicit,Security,0.0,0.25,0.0,0.0,0.0
+v3_t1_008,what is a materialized view in snowflake and when should I use one,explicit,Data Engineering,0.25,0.5,0.25,0.0,0.0
+v3_t1_009,our jenkins server ran out of disk space again,vague,DevOps,0.0,0.25,0.0,0.0,0.0
+v3_t1_010,what is the difference between symmetric and asymmetric encryption,explicit,Security,0.25,0.5,0.25,0.0,0.0
+v3_t1_011,how many vacation days do I have left this year,vague,General Enterprise,0.0,0.0,0.0,0.0,0.0
+v3_t1_012,what is the difference between etl and elt,explicit,Data Engineering,0.25,0.5,0.25,0.0,0.0
+v3_t1_013,"the attached terraform plan output is showing a destroy action on our production database, is this intentional",implicit,Cloud Infrastructure,0.0,0.5,0.0,0.25,0.25
+v3_t1_014,how do I add a new column to an existing table in bigquery without dropping the table,explicit,Data Engineering,0.0,0.25,0.0,0.0,0.0
+v3_t1_015,whats the standard process for submitting a purchase order in our sap system,vague,Supply Chain,0.0,0.25,0.0,0.0,0.0
+v3_t1_016,"looking at the error log I pasted, why is our airflow dag failing with a connection timeout to the postgres source",implicit,Data Engineering,0.0,0.5,0.0,0.25,0.25
+v3_t1_017,what does cpm stand for in digital advertising,vague,Marketing Tech,0.0,0.25,0.0,0.0,0.0
+v3_t1_018,how do I enable mfa for my aws root account,explicit,Security,0.0,0.25,0.0,0.0,0.0
+v3_t1_019,what is the difference between a load balancer and a reverse proxy,explicit,Cloud Infrastructure,0.25,0.5,0.25,0.0,0.0
+v3_t1_020,"the grafana dashboard is not showing any data for the last two hours, based on the screenshot I attached what could be wrong",implicit,DevOps,0.0,0.5,0.0,0.25,0.25
+v3_t2v_001,"Based on the attached network diagram and current firewall rules, design a DMZ architecture that isolates our public-facing web servers from our internal application tier while maintaining the API connectivity required for our mobile application backend",explicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.25
+v3_t2v_002,Our Airflow DAGs are failing because upstream source tables in Salesforce change their schemas without notice. We need to build a schema drift detection layer that alerts the data team and automatically adjusts our staging models before the downstream transforms break,implicit,Data Engineering,0.75,0.5,0.5,0.0,0.25
+v3_t2v_003,"Create a runbook for our on-call team that covers the top ten most common production incidents based on the attached PagerDuty incident history, including diagnosis steps, resolution procedures and escalation paths for each scenario",explicit,DevOps,0.5,0.5,0.5,0.25,0.5
+v3_t2v_004,"Using the attached employee engagement survey results, identify the key drivers of attrition in our engineering department and propose specific interventions for each problem area including concrete timeline and success metrics",implicit,HR Tech,0.75,0.75,0.5,0.0,0.25
+v3_t2v_005,Our Snowflake virtual warehouse auto-suspend is set too aggressively and queries are hitting cold start penalties every time. We need to optimize our warehouse sizing and scheduling to balance cost against the query performance SLAs the analytics team requires,implicit,FinOps,0.5,0.5,0.5,0.0,0.25
+v3_t2v_006,"Design a CI/CD pipeline for our monorepo that supports incremental builds across six microservices, with proper caching strategies and automated integration testing between dependent services using the GitHub Actions workflow structure I uploaded",explicit,DevOps,0.5,0.5,0.75,0.25,0.25
+v3_t2v_007,"Write a comprehensive API rate limiting and throttling strategy for our public REST API that handles 50000 requests per minute. Include token bucket configuration, customer-tier-based quotas, and graceful degradation behavior during traffic spikes",explicit,System Integration,0.5,0.5,0.5,0.0,0.25
+v3_t2v_008,"Our SCADA system needs to be segmented from our corporate IT network after the latest OT security assessment. Using the attached network topology and device inventory, design a Purdue model implementation that maintains necessary data flows from the factory floor to our cloud analytics platform",implicit,IoT & Smart Factory,0.75,0.75,0.75,0.25,0.25
+v3_t2v_009,"Based on the uploaded Google Analytics 4 configuration, redesign our event tracking taxonomy to properly capture the full e-commerce funnel from product view through checkout completion including custom dimensions for A/B test variants and user cohort segments",explicit,Marketing Tech,0.5,0.5,0.5,0.25,0.25
+v3_t2v_010,Our Terraform state files are getting corrupted during concurrent applies from multiple team members. We need to implement a proper state locking strategy with remote backends and establish a GitOps workflow that prevents conflicts while supporting our multi-environment deployment model,implicit,DevOps,0.75,0.5,0.5,0.0,0.25
+v3_t2v_011,I have uploaded our current AWS Lambda function configurations and CloudWatch metrics. Several functions are hitting timeout limits and memory constraints during month-end processing. We need to optimize the function architecture and determine which workloads should be moved to ECS Fargate for better resource control,implicit,Cloud Infrastructure,0.5,0.5,0.5,0.25,0.25
+v3_t2v_012,Design a data retention and archival policy for our data warehouse that balances regulatory requirements for seven-year record keeping against storage costs. Include automated lifecycle rules for moving cold data to cheaper tiers and a metadata catalog for archived datasets,explicit,Data Engineering,0.75,0.5,0.5,0.0,0.25
+v3_t2v_013,"Our inventory management system is not properly accounting for returns and the warehouse counts are drifting from the ERP records. Using the attached reconciliation reports, identify the root causes of the inventory discrepancy and design a corrective workflow that prevents future mismatches",implicit,Supply Chain,0.75,0.5,0.5,0.25,0.25
+v3_t2v_014,"Create a formal data classification policy for our organization that defines sensitivity levels, handling requirements and access controls for each classification tier, aligned with our upcoming SOC 2 Type II audit requirements and the data types documented in the attached data catalog",explicit,Security,0.75,0.75,0.5,0.25,0.25
+v3_t2v_015,"Our machine learning model retraining pipeline runs weekly but often produces worse models than the current production version. We need to implement an automated model evaluation gate that compares new model performance against the production baseline before promoting, including drift detection and A/B traffic splitting capabilities",implicit,AI Governance,0.75,0.5,0.5,0.0,0.25
