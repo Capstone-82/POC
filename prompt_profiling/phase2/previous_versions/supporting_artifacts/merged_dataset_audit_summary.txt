@@ -1,0 +1,47 @@
+Clean and merge audit summary
+================================
+Phase 2 cleaned output: prompt_example_classifier_phase2_cleaned.csv
+Merged output: prompt_classifier_phase1_phase2_merged_cleaned.csv
+
+Cleaned Phase 2 shape: 1447 rows x 24 columns
+Merged shape: 2273 rows x 24 columns
+
+Source counts:
+source
+phase2    1447
+phase1     826
+
+Tier counts:
+tier
+T1     942
+T2    1018
+T3     313
+
+Intent counts:
+intent
+ANALYTICAL    1306
+FACTUAL        413
+SYNTHETIC      380
+STRATEGIC      174
+
+Task type counts:
+task_type
+reasoning         1226
+generation         766
+summarisation      112
+classification      90
+coding              77
+formatting           2
+
+D-score coverage:
+d1: {0.0: 468, 0.25: 87, 0.5: 748, 0.75: 811, 1.0: 159} | missing=[]
+d2: {0.0: 120, 0.25: 140, 0.5: 1341, 0.75: 524, 1.0: 148} | missing=[]
+d3: {0.0: 298, 0.25: 103, 0.5: 1314, 0.75: 410, 1.0: 148} | missing=[]
+d4: {0.0: 1528, 0.25: 115, 0.5: 291, 0.75: 212, 1.0: 127} | missing=[]
+d5: {0.0: 1051, 0.25: 289, 0.5: 709, 0.75: 124, 1.0: 100} | missing=[]
+
+Low-confidence Phase 2 rows retained but flagged:
+36
+
+Original Phase 2 complexity mismatches preserved in original_complexity:
+740
