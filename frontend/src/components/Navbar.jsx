@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, Zap, BrainCircuit } from 'lucide-react'
+import { Activity, Zap, BrainCircuit, Cpu } from 'lucide-react'
 
 export default function Navbar() {
   return (
@@ -17,7 +17,7 @@ export default function Navbar() {
         <NavLink
           to="/training"
           className={({ isActive }) =>
-            `px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+            `px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
               isActive
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -30,7 +30,7 @@ export default function Navbar() {
         <NavLink
           to="/inference"
           className={({ isActive }) =>
-            `px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+            `px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
               isActive
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -43,7 +43,7 @@ export default function Navbar() {
         <NavLink
           to="/clarity"
           className={({ isActive }) =>
-            `px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+            `px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
               isActive
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -53,6 +53,19 @@ export default function Navbar() {
           <BrainCircuit className="w-4 h-4" />
           Clarity
         </NavLink>
+        <NavLink
+          to="/profiling"
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+              isActive
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`
+          }
+        >
+          <Cpu className="w-4 h-4" />
+          Profiling & Routing
+        </NavLink>
       </div>
       
       <div className="hidden md:flex items-center gap-4 text-xs font-medium text-gray-500 uppercase tracking-widest">
@@ -61,3 +74,4 @@ export default function Navbar() {
     </nav>
   )
 }
+

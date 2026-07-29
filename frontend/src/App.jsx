@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import Training from './pages/Training'
 import Inference from './pages/Inference'
 import ClarityLabeling from './pages/ClarityLabeling'
+import ProfilingRouting from './pages/ProfilingRouting'
 import { motion } from 'framer-motion'
 
 export default function App() {
@@ -61,9 +62,22 @@ export default function App() {
                 </motion.div>
               }
             />
+            <Route
+              path="/profiling"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ProfilingRouting />
+                </motion.div>
+              }
+            />
           </Routes>
         </main>
       </div>
     </BrowserRouter>
   )
 }
+

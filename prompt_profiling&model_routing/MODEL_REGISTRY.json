@@ -1,0 +1,585 @@
+{
+  "models": [
+    {
+      "model_id": "gpt-5.6-sol",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.005,
+        "price_per_1k_output_tokens": 0.03,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "functions, web_search, file_search, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "reasoning", "mathematical_problems", "classification", "extraction",
+          "short_summarization", "long_form_generation", "long_context_tasks",
+          "enterprise_applications", "governance", "compliance", "cloud_architecture",
+          "finops", "cybersecurity", "healthcare", "legal", "rag", "agentic_workflows",
+          "planning", "data_analysis", "report_writing", "json_generation",
+          "structured_outputs", "customer_support", "creative_writing", "general_chat"
+        ],
+        "moderate": [],
+        "weak": ["simple_FAQs", "low_budget_T1_requests"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Flagship frontier model for complex professional work with maximum reasoning; highest price point in the OpenAI lineup. Docs recommend it as the default starting point when unsure. Avoid for simple FAQs and low-budget T1 traffic. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "gpt-5.6-terra",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.0025,
+        "price_per_1k_output_tokens": 0.015,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "functions, web_search, file_search, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "reasoning", "mathematical_problems", "classification", "extraction",
+          "short_summarization", "long_form_generation", "long_context_tasks",
+          "enterprise_applications", "governance", "compliance", "cloud_architecture",
+          "finops", "cybersecurity", "healthcare", "legal", "rag", "agentic_workflows",
+          "planning", "data_analysis", "report_writing", "json_generation",
+          "structured_outputs", "customer_support", "creative_writing", "general_chat"
+        ],
+        "moderate": [],
+        "weak": ["ultra_low_budget_T1_requests"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Balances intelligence and cost; same 1.05M context, 128K output, and tool suite as Sol, with 'high' vs 'max' reasoning rating and lower price. Ideal default T3 choice alongside GPT-5.4. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "gpt-5.6-luna",
+      "cost_tier": {
+        "primary": "T2",
+        "soft_eligible": ["T1", "T3"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.001,
+        "price_per_1k_output_tokens": 0.006,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "functions, web_search, file_search, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "classification", "extraction", "summarization",
+          "json_generation", "structured_outputs", "general_chat",
+          "customer_support", "long_context_tasks"
+        ],
+        "moderate": ["ultra_complex_reasoning", "highly_regulated_domains"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.6,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": 4,
+        "disallowed_if_d4_score_gte": 4,
+        "disallowed_if_d3_score_gte": 5,
+        "disallowed_if_domain_specificity_gte": 4,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Optimized for cost-sensitive, high-volume workloads; same 1.05M context and 128K output as Sol/Terra, with reasoning slightly below Terra. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "gpt-5.4",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.0025,
+        "price_per_1k_output_tokens": 0.015,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1050000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "web_search, file_search, image_generation, code_interpreter, hosted_shell, skills, computer_use, mcp, tool_search",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "reasoning", "mathematical_problems", "classification", "extraction",
+          "short_summarization", "long_form_generation", "long_context_tasks",
+          "enterprise_applications", "governance", "compliance", "rag",
+          "agentic_workflows", "planning", "data_analysis", "report_writing",
+          "json_generation", "structured_outputs", "customer_support",
+          "creative_writing", "general_chat"
+        ],
+        "moderate": ["cutting_edge_reasoning_vs_gpt_5_6_sol"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Current default frontier model for coding and professional work; 'highest' reasoning rating, medium speed. Pricing documented as 'priced equivalently' to GPT-5.6 Terra rather than an independently quoted figure. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "claude-fable-5",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": [],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.01,
+        "price_per_1k_output_tokens": 0.05,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "web_search, web_fetch, code_execution, bash, text_editor, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "reasoning", "mathematical_problems", "planning", "agentic_workflows",
+          "long_context_tasks", "enterprise_applications", "governance", "compliance",
+          "rag", "data_analysis", "report_writing"
+        ],
+        "moderate": ["customer_support", "general_chat", "low_risk_creative_writing"],
+        "weak": ["low_cost_T1_T2_workloads"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Anthropic's most capable widely released model; next-generation intelligence for long-running agents. Comparative latency is 'slower' than other Claude models. Max output 128K standard, 300K via Message Batches with specific header. Documented as T3-exclusive with no soft-eligible lower tier. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "claude-opus-4-8",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.005,
+        "price_per_1k_output_tokens": 0.025,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "web_search, web_fetch, code_execution, bash, text_editor, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "complex_agentic_coding", "enterprise_reasoning", "planning", "compliance"
+        ],
+        "moderate": ["extremely_cost_sensitive_tasks"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "For complex agentic coding and enterprise work; moderate latency, slightly cheaper and faster than Claude Fable 5. Max output 128K standard, 300K via Message Batches header. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "claude-sonnet-5",
+      "cost_tier": {
+        "primary": "T2",
+        "soft_eligible": ["T3", "T1"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.002,
+        "price_per_1k_output_tokens": 0.01,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1000000,
+        "max_output_tokens": 128000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "web_search, web_fetch, code_execution, bash, text_editor, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "reasoning", "classification", "summarization", "long_context_tasks",
+          "enterprise_applications", "governance", "compliance", "cloud_architecture",
+          "finops", "cybersecurity", "healthcare", "legal", "rag", "planning",
+          "data_analysis", "report_writing", "json_generation", "customer_support",
+          "general_chat"
+        ],
+        "moderate": ["absolute_frontier_capability_required"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.6,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": 4,
+        "disallowed_if_d4_score_gte": 4,
+        "disallowed_if_d3_score_gte": 5,
+        "disallowed_if_domain_specificity_gte": 4,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Best combination of speed and intelligence; fast comparative latency. Pricing is introductory ($2/$10 per MTok) until Aug 31, 2026, reverting to $3/$15 per MTok thereafter; per-1k values here reflect the introductory rate. Max output 128K standard, 300K via Message Batches header. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "claude-haiku-4-5-20251001",
+      "cost_tier": {
+        "primary": "T1",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.001,
+        "price_per_1k_output_tokens": 0.005,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 200000,
+        "max_output_tokens": 64000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "web_search, web_fetch, code_execution, bash, text_editor, computer_use",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": false
+      },
+      "task_fit": {
+        "strong": [
+          "classification", "extraction", "short_summarization", "customer_support",
+          "creative_writing", "general_chat", "rag"
+        ],
+        "moderate": ["very_complex_reasoning", "deep_math", "long_context_1M"],
+        "weak": ["T3_strategic_prompts"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.75,
+        "disallowed_if_research_signals_present": true,
+        "disallowed_if_d5_score_gte": 3,
+        "disallowed_if_d4_score_gte": 3,
+        "disallowed_if_d3_score_gte": 4,
+        "disallowed_if_domain_specificity_gte": 3,
+        "disallowed_if_reasoning_required": true
+      },
+      "notes": "Fastest Claude model with near-frontier intelligence; fastest comparative latency; alias claude-haiku-4-5. Notably smaller context window (200K) and max output (64K) than other current Claude models. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "gemini-2.5-pro",
+      "cost_tier": {
+        "primary": "T3",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": null,
+        "price_per_1k_output_tokens": null,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 65536,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "caching, code_execution, file_search, function_calling, grounding_google_maps, search_grounding, structured_outputs, thinking, url_context",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "reasoning", "coding", "mathematical_problems", "long_context_tasks", "rag",
+          "data_analysis", "planning", "agentic_workflows", "multimodal_analytics"
+        ],
+        "moderate": ["ultra_low_latency_T1_use_cases"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.4,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": null,
+        "disallowed_if_d4_score_gte": null,
+        "disallowed_if_d3_score_gte": null,
+        "disallowed_if_domain_specificity_gte": null,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "State-of-the-art thinking model for complex reasoning, code, math, and large datasets/codebases. Supported inputs: audio, images, video, text, PDF; output: text. Per-token pricing not explicitly quantified in the source document; refer to the official Gemini API pricing page. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "gemini-2.5-flash",
+      "cost_tier": {
+        "primary": "T2",
+        "soft_eligible": ["T1", "T3"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": null,
+        "price_per_1k_output_tokens": null,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1048576,
+        "max_output_tokens": 65536,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "caching, code_execution, file_search, function_calling, search_grounding, structured_outputs, thinking, url_context",
+        "supports_function_calling": true,
+        "supports_web_search": true,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "classification", "extraction", "short_summarization",
+          "customer_support", "creative_writing", "general_chat", "long_context_tasks"
+        ],
+        "moderate": ["reasoning", "T3_level_strategic_problems"],
+        "weak": []
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.6,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": 4,
+        "disallowed_if_d4_score_gte": 4,
+        "disallowed_if_d3_score_gte": 5,
+        "disallowed_if_domain_specificity_gte": 4,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "Best price-performance for low-latency, high-volume tasks requiring thinking and agentic use cases. Supported inputs: text, images, video, audio; output: text. Per-token pricing not explicitly quantified in the source document; refer to the official Gemini API pricing page. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "deepseek-v4-flash",
+      "cost_tier": {
+        "primary": "T1",
+        "soft_eligible": ["T2"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.00014,
+        "price_per_1k_output_tokens": 0.00028,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1000000,
+        "max_output_tokens": 384000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "json_output, tool_calls, chat_prefix_completion, fim_completion_non_thinking_mode_only",
+        "supports_function_calling": true,
+        "supports_web_search": false,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "coding", "mathematical_problems", "classification", "extraction",
+          "short_summarization", "long_form_generation", "long_context_tasks",
+          "json_generation"
+        ],
+        "moderate": ["complex_enterprise_governance_compliance", "very_high_stakes_reasoning"],
+        "weak": ["vision_based_workflows"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.75,
+        "disallowed_if_research_signals_present": true,
+        "disallowed_if_d5_score_gte": 3,
+        "disallowed_if_d4_score_gte": 3,
+        "disallowed_if_d3_score_gte": 4,
+        "disallowed_if_domain_specificity_gte": 3,
+        "disallowed_if_reasoning_required": true
+      },
+      "notes": "General-purpose model for high-speed, low-cost workloads; supports both non-thinking and thinking (default) modes; high concurrency (2500 concurrent requests). Input price shown is cache-miss rate ($0.14/MTok); cache-hit rate is $0.0028/MTok. No officially documented vision support. deepseek-chat is being deprecated and mapped to this model's non-thinking mode. Throughput metrics not officially documented; requires benchmarking."
+    },
+    {
+      "model_id": "deepseek-v4-pro",
+      "cost_tier": {
+        "primary": "T2",
+        "soft_eligible": ["T3"],
+        "hard_eligible": []
+      },
+      "pricing": {
+        "price_per_1k_input_tokens": 0.000435,
+        "price_per_1k_output_tokens": 0.00087,
+        "currency": "USD"
+      },
+      "context": {
+        "max_input_tokens": 1000000,
+        "max_output_tokens": 384000,
+        "recommended_input_ceiling": null
+      },
+      "throughput": {
+        "avg_ttft_ms": null,
+        "avg_tokens_per_sec": null
+      },
+      "capabilities": {
+        "reasoning_mode": true,
+        "tool_support": "json_output, tool_calls, chat_prefix_completion, fim_completion_non_thinking_mode_only",
+        "supports_function_calling": true,
+        "supports_web_search": false,
+        "long_document_synthesis": true
+      },
+      "task_fit": {
+        "strong": [
+          "reasoning", "coding", "mathematical_problems", "data_analysis", "planning",
+          "long_form_generation"
+        ],
+        "moderate": ["enterprise_readiness_vs_openai_anthropic_google"],
+        "weak": ["vision_based_workflows"]
+      },
+      "eligibility_rules": {
+        "min_confidence_required": 0.6,
+        "disallowed_if_research_signals_present": false,
+        "disallowed_if_d5_score_gte": 4,
+        "disallowed_if_d4_score_gte": 4,
+        "disallowed_if_d3_score_gte": 5,
+        "disallowed_if_domain_specificity_gte": 4,
+        "disallowed_if_reasoning_required": false
+      },
+      "notes": "More capable reasoning model supporting thinking mode; stronger reasoning than V4 Flash at higher but still low cost. Input price shown is cache-miss rate ($0.435/MTok); cache-hit rate is $0.003625/MTok. No officially documented vision support. deepseek-reasoner is being deprecated and mapped to this model's thinking mode. Throughput metrics not officially documented; requires benchmarking."
+    }
+  ]
+}

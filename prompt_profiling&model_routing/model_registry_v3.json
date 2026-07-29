@@ -1,0 +1,737 @@
+{
+  "registry_metadata": {
+    "version": "3.0.0",
+    "rebuilt_from": "model_registry_full.json v2.0.0",
+    "last_updated": "2026-07-29",
+    "currency": "USD",
+    "pricing_unit": "per_1M_tokens",
+    "shape_note": "Numeric/enum fields only. No prose (no 'notes', no 'task_fit.weak', no conflict warnings). Built for route_model() to consume directly -- no manual judgment at request time.",
+    "source_note": "Pricing/context/throughput values carried over unchanged from model_registry_full.json, which was itself sourced from official provider pages and cross-checked trackers as of 2026-07-29. pricing_confidence retained per model -- 'estimate' means re-verify before using in a billing-sensitive path.",
+    "known_scheduled_changes": [
+      {
+        "model_id": "claude-sonnet-5",
+        "change": "introductory $2/$10 pricing expires 2026-08-31, standard $3/$15 begins 2026-09-01"
+      },
+      {
+        "model_id": "gemini-2.5-flash-lite",
+        "change": "scheduled for retirement 2026-10-16"
+      },
+      {
+        "model_id": "deepseek-v3.2 / deepseek-r1 (aliases)",
+        "change": "retired 2026-07-24, now route to deepseek-v4-flash/pro -- kept in this file only as legacy history, not for new routing"
+      }
+    ]
+  },
+  "tiers": {
+    "T1": {
+      "label": "Simple",
+      "d1_max": 0.25,
+      "d2_max": 0.5,
+      "d3_max": 0.25,
+      "threshold_status": "placeholder -- not derived from a benchmark index, plain informed judgment per session notes. Revisit once real routing logs exist.",
+      "threshold_basis": "Set to bound the two T1 worked examples in Prompt_Profiling.docx section 3.4 (d1/d2/d3 of 0.25/0.50/0.25 and 0.00/0.50/0.25) with no headroom into T2 worked-example territory."
+    },
+    "T2": {
+      "label": "Medium",
+      "d1_max": 0.5,
+      "d2_max": 0.75,
+      "d3_max": 0.75,
+      "threshold_status": "placeholder -- same caveat as T1.",
+      "threshold_basis": "Set to bound the two T2 worked examples (d1/d2/d3 of 0.50/0.75/0.75 both) with no headroom into T3 worked-example territory."
+    },
+    "T3": {
+      "label": "Complex",
+      "d1_max": 1.0,
+      "d2_max": 1.0,
+      "d3_max": 1.0,
+      "threshold_status": "ceiling tier -- catches anything T1/T2 can't, no upper bound needed.",
+      "threshold_basis": "n/a"
+    }
+  },
+  "confidence_handling": {
+    "high": {
+      "min_confidence": 0.75,
+      "action": "use_predicted_tier"
+    },
+    "medium": {
+      "min_confidence": 0.5,
+      "max_confidence": 0.75,
+      "action": "escalate_one_tier"
+    },
+    "low": {
+      "max_confidence": 0.5,
+      "action": "escalate_one_tier_and_flag_for_review"
+    },
+    "rule": "never_downgrade_on_low_confidence",
+    "boundary_buffer": 0.04,
+    "boundary_buffer_note": "scores within 0.04 of the 0.40/0.70 composite-score cutoffs are treated as the higher tier"
+  },
+  "models": [
+    {
+      "model_id": "claude-haiku-4-5-20251001",
+      "provider": "anthropic",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 1.0,
+      "cost_out": 5.0,
+      "max_input_tokens": 200000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": 94,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "factual_lookup",
+        "extraction",
+        "short_summarisation"
+      ]
+    },
+    {
+      "model_id": "claude-sonnet-5",
+      "provider": "anthropic",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 2.0,
+      "cost_out": 10.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 65536,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": 43,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "requirements_document",
+        "coding",
+        "agentic_workflows",
+        "structured_analysis"
+      ]
+    },
+    {
+      "model_id": "claude-opus-5",
+      "provider": "anthropic",
+      "generation": "current",
+      "tier": "T3",
+      "cost_in": 5.0,
+      "cost_out": 25.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 65536,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "system_design",
+        "reasoning",
+        "regulatory_analysis",
+        "complex_coding"
+      ]
+    },
+    {
+      "model_id": "claude-fable-5",
+      "provider": "anthropic",
+      "generation": "current",
+      "tier": "T3",
+      "cost_in": 10.0,
+      "cost_out": 50.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 65536,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "highest_stakes_reasoning",
+        "novel_synthesis"
+      ],
+      "manual_escalation_only": true
+    },
+    {
+      "model_id": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "generation": "previous",
+      "tier": "T2",
+      "cost_in": 3.0,
+      "cost_out": 15.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 128000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": 43,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "coding",
+        "structured_analysis"
+      ]
+    },
+    {
+      "model_id": "claude-opus-4-7",
+      "provider": "anthropic",
+      "generation": "previous",
+      "tier": "T3",
+      "cost_in": 5.0,
+      "cost_out": 25.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 65536,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "vision",
+        "long_horizon_agents"
+      ]
+    },
+    {
+      "model_id": "claude-haiku-3-5",
+      "provider": "anthropic",
+      "generation": "legacy",
+      "tier": "T1",
+      "cost_in": 0.8,
+      "cost_out": 4.0,
+      "max_input_tokens": 200000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "extraction"
+      ]
+    },
+    {
+      "model_id": "claude-3-haiku",
+      "provider": "anthropic",
+      "generation": "legacy",
+      "tier": "T1",
+      "cost_in": 0.25,
+      "cost_out": 1.25,
+      "max_input_tokens": 200000,
+      "max_output_tokens": 4096,
+      "tool_tier": 1,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "high_volume_classification",
+        "simple_extraction"
+      ]
+    },
+    {
+      "model_id": "claude-opus-4-1",
+      "provider": "anthropic",
+      "generation": "legacy",
+      "tier": "T3",
+      "cost_in": 15.0,
+      "cost_out": 75.0,
+      "max_input_tokens": 200000,
+      "max_output_tokens": 32000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": []
+    },
+    {
+      "model_id": "gpt-5.6-sol",
+      "provider": "openai",
+      "generation": "current",
+      "tier": "T3",
+      "cost_in": 5.0,
+      "cost_out": 30.0,
+      "max_input_tokens": 1050000,
+      "max_output_tokens": 128000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "agentic_coding",
+        "complex_reasoning"
+      ]
+    },
+    {
+      "model_id": "gpt-5.6-terra",
+      "provider": "openai",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 2.5,
+      "cost_out": 15.0,
+      "max_input_tokens": 1050000,
+      "max_output_tokens": 128000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "production_rag",
+        "chatbots",
+        "standard_apis"
+      ]
+    },
+    {
+      "model_id": "gpt-5.6-luna",
+      "provider": "openai",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 1.0,
+      "cost_out": 6.0,
+      "max_input_tokens": 1050000,
+      "max_output_tokens": 128000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": 204,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "intent_routing",
+        "moderation",
+        "simple_summarisation"
+      ]
+    },
+    {
+      "model_id": "gpt-5.4",
+      "provider": "openai",
+      "generation": "previous",
+      "tier": "T2",
+      "cost_in": 2.5,
+      "cost_out": 15.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 128000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "production_workhorse"
+      ]
+    },
+    {
+      "model_id": "gpt-5.4-mini",
+      "provider": "openai",
+      "generation": "previous",
+      "tier": "T1",
+      "cost_in": 0.75,
+      "cost_out": 4.5,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 128000,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "faq_style_support",
+        "troubleshooting"
+      ]
+    },
+    {
+      "model_id": "gpt-5.4-nano",
+      "provider": "openai",
+      "generation": "previous",
+      "tier": "T1",
+      "cost_in": 0.2,
+      "cost_out": 1.25,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 128000,
+      "tool_tier": 1,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "structured_reporting",
+        "high_volume_simple_tasks"
+      ]
+    },
+    {
+      "model_id": "gpt-5-mini",
+      "provider": "openai",
+      "generation": "legacy",
+      "tier": "T1",
+      "cost_in": 0.125,
+      "cost_out": 1.0,
+      "max_input_tokens": 400000,
+      "max_output_tokens": 128000,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": 101,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "high_volume_simple_tasks"
+      ]
+    },
+    {
+      "model_id": "gpt-4o",
+      "provider": "openai",
+      "generation": "legacy",
+      "tier": "T2",
+      "cost_in": 2.5,
+      "cost_out": 10.0,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 16384,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "general_purpose_legacy"
+      ]
+    },
+    {
+      "model_id": "gpt-4o-mini",
+      "provider": "openai",
+      "generation": "legacy",
+      "tier": "T1",
+      "cost_in": 0.15,
+      "cost_out": 0.6,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 16384,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "legacy_high_volume"
+      ]
+    },
+    {
+      "model_id": "gemini-3.1-pro",
+      "provider": "google",
+      "generation": "current",
+      "tier": "T3",
+      "cost_in": 2.0,
+      "cost_out": 12.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 64000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "agentic_coding",
+        "native_multimodal"
+      ]
+    },
+    {
+      "model_id": "gemini-3.6-flash",
+      "provider": "google",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 1.5,
+      "cost_out": 7.5,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 64000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "coding",
+        "price_performance_default"
+      ]
+    },
+    {
+      "model_id": "gemini-3.5-flash-lite",
+      "provider": "google",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.3,
+      "cost_out": 2.5,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 64000,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "routing"
+      ]
+    },
+    {
+      "model_id": "gemini-2.5-flash-lite",
+      "provider": "google",
+      "generation": "legacy",
+      "tier": "T1",
+      "cost_in": 0.1,
+      "cost_out": 0.4,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 64000,
+      "tool_tier": 1,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "cheapest_available_option",
+        "high_volume_simple_tasks"
+      ]
+    },
+    {
+      "model_id": "gemini-2.5-pro",
+      "provider": "google",
+      "generation": "legacy",
+      "tier": "T2",
+      "cost_in": 1.25,
+      "cost_out": 10.0,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 64000,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "legacy_reasoning"
+      ]
+    },
+    {
+      "model_id": "llama-4-scout",
+      "provider": "meta",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.1,
+      "cost_out": 0.3,
+      "max_input_tokens": 10000000,
+      "max_output_tokens": 16384,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": 98,
+      "pricing_confidence": "estimate_host_dependent",
+      "domain_strengths": [
+        "extremely_long_context_reading",
+        "cheap_high_volume"
+      ]
+    },
+    {
+      "model_id": "llama-4-maverick",
+      "provider": "meta",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.2,
+      "cost_out": 0.6,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 16384,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": 116,
+      "pricing_confidence": "estimate_host_dependent",
+      "domain_strengths": [
+        "general_purpose_budget",
+        "vision"
+      ]
+    },
+    {
+      "model_id": "llama-3.3-70b",
+      "provider": "meta",
+      "generation": "previous",
+      "tier": "T1",
+      "cost_in": 0.72,
+      "cost_out": 0.72,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "conflicting_sources",
+      "domain_strengths": [
+        "legacy_compatibility"
+      ]
+    },
+    {
+      "model_id": "llama-3.1-405b",
+      "provider": "meta",
+      "generation": "legacy",
+      "tier": "T2",
+      "cost_in": 0.65,
+      "cost_out": 0.8,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 4096,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "conflicting_sources",
+      "domain_strengths": [
+        "legacy_large_dense_model"
+      ]
+    },
+    {
+      "model_id": "mistral-large-3",
+      "provider": "mistral",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 2.0,
+      "cost_out": 6.0,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "conflicting_sources",
+      "domain_strengths": [
+        "output_heavy_tasks",
+        "EU_data_residency"
+      ]
+    },
+    {
+      "model_id": "mistral-small",
+      "provider": "mistral",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.1,
+      "cost_out": 0.3,
+      "max_input_tokens": 32000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": 140,
+      "pricing_confidence": "estimate",
+      "domain_strengths": [
+        "classification",
+        "extraction",
+        "budget_generation"
+      ]
+    },
+    {
+      "model_id": "codestral",
+      "provider": "mistral",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.3,
+      "cost_out": 0.9,
+      "max_input_tokens": 256000,
+      "max_output_tokens": 8192,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "code_completion",
+        "fill_in_the_middle"
+      ]
+    },
+    {
+      "model_id": "deepseek-v4-flash",
+      "provider": "deepseek",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.14,
+      "cost_out": 0.28,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 384000,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "cheapest_frontier_class_option",
+        "high_volume"
+      ]
+    },
+    {
+      "model_id": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 1.74,
+      "cost_out": 3.48,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 384000,
+      "tool_tier": 2,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "estimate",
+      "domain_strengths": [
+        "reasoning_at_low_cost"
+      ]
+    },
+    {
+      "model_id": "grok-4.5",
+      "provider": "xai",
+      "generation": "current",
+      "tier": "T2",
+      "cost_in": 2.0,
+      "cost_out": 6.0,
+      "max_input_tokens": 500000,
+      "max_output_tokens": 16384,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "cost_efficient_reasoning"
+      ]
+    },
+    {
+      "model_id": "grok-4.3",
+      "provider": "xai",
+      "generation": "previous",
+      "tier": "T1",
+      "cost_in": 1.25,
+      "cost_out": 2.5,
+      "max_input_tokens": 1000000,
+      "max_output_tokens": 16384,
+      "tool_tier": 3,
+      "reasoning_mode": true,
+      "speed_tokens_per_sec": 119,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "cheap_reasoning_with_large_context"
+      ]
+    },
+    {
+      "model_id": "grok-4-fast",
+      "provider": "xai",
+      "generation": "previous",
+      "tier": "T1",
+      "cost_in": 0.2,
+      "cost_out": 0.5,
+      "max_input_tokens": 2000000,
+      "max_output_tokens": 16384,
+      "tool_tier": 2,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "huge_context_cheap"
+      ]
+    },
+    {
+      "model_id": "amazon-nova-micro",
+      "provider": "amazon",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.035,
+      "cost_out": 0.14,
+      "max_input_tokens": 128000,
+      "max_output_tokens": 5000,
+      "tool_tier": 1,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "routing",
+        "extraction",
+        "extreme_high_volume"
+      ]
+    },
+    {
+      "model_id": "amazon-nova-lite",
+      "provider": "amazon",
+      "generation": "current",
+      "tier": "T1",
+      "cost_in": 0.06,
+      "cost_out": 0.24,
+      "max_input_tokens": 300000,
+      "max_output_tokens": 5000,
+      "tool_tier": 1,
+      "reasoning_mode": false,
+      "speed_tokens_per_sec": null,
+      "pricing_confidence": "verified",
+      "domain_strengths": [
+        "classification",
+        "simple_generation",
+        "high_volume"
+      ]
+    }
+  ]
+}
