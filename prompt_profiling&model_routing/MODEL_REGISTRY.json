@@ -400,8 +400,8 @@
         "hard_eligible": []
       },
       "pricing": {
-        "price_per_1k_input_tokens": null,
-        "price_per_1k_output_tokens": null,
+        "price_per_1k_input_tokens": 0.00125,
+        "price_per_1k_output_tokens": 0.010,
         "currency": "USD"
       },
       "context": {
@@ -447,8 +447,8 @@
         "hard_eligible": []
       },
       "pricing": {
-        "price_per_1k_input_tokens": null,
-        "price_per_1k_output_tokens": null,
+        "price_per_1k_input_tokens": 0.000075,
+        "price_per_1k_output_tokens": 0.00030,
         "currency": "USD"
       },
       "context": {

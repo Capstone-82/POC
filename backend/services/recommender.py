@@ -933,7 +933,7 @@ async def build_knn_recommendation(
         FALLBACK_SIMILARITY,
         search_neighbors,
     )
-    from services.model_registry import get_model_ids_for_use_case
+    from services.model_registry import get_model_ids_for_use_case, models_match
     from services.supabase_client import supabase
 
     vector, prompt_hash, was_cached = await get_or_compute_embedding(prompt, supabase)
@@ -969,7 +969,7 @@ async def build_knn_recommendation(
         return {
             model_id: signals
             for model_id, signals in aggregate_knn_signals_v2(rows, use_case=use_case, win_rates=win_rates).items()
-            if model_id in allowed_models
+            if any(models_match(model_id, allowed) for allowed in allowed_models)
         }
 
     knn_signals = aggregate_allowed(neighbors)

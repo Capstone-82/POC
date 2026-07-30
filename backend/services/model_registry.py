@@ -8,10 +8,18 @@ Models not listed under a use case will NOT be called for that use case.
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+import re
+from pathlib import Path
 from typing import Iterable
 
+# ─── Static Fallbacks & Registry Paths ──────────────────────────
+SERVICES_DIR = Path(__file__).parent.resolve()
+POC_DIR = SERVICES_DIR.parent.parent
+REGISTRY_PATH = POC_DIR / "prompt_profiling&model_routing" / "model_registry_v3.json"
 
-TEXT_GENERATION_MODELS = {
+STATIC_TEXT_GENERATION_MODELS = {
     "llama4-scout",
     "llama4-maverick",
     "llama3-3-70b",
@@ -25,7 +33,7 @@ TEXT_GENERATION_MODELS = {
     "pixtral-large-2",
 }
 
-CODE_GENERATION_MODELS = {
+STATIC_CODE_GENERATION_MODELS = {
     "devstral-2",
     "llama4-maverick",
     "llama3-3-70b",
@@ -38,7 +46,7 @@ CODE_GENERATION_MODELS = {
     "ministral-3-8b",
 }
 
-REASONING_MODELS = {
+STATIC_REASONING_MODELS = {
     "deepseek-r1",
     "magistral-small",
     "nova-premier",
@@ -49,13 +57,7 @@ REASONING_MODELS = {
     "nova-pro",
 }
 
-USE_CASE_MODELS = {
-    "text-generation": TEXT_GENERATION_MODELS,
-    "code-generation": CODE_GENERATION_MODELS,
-    "reasoning": REASONING_MODELS,
-}
-
-MODEL_PROVIDER = {
+STATIC_MODEL_PROVIDER = {
     "llama4-scout": "Meta",
     "llama4-maverick": "Meta",
     "llama3-3-70b": "Meta",
@@ -80,6 +82,167 @@ DEFAULT_ROTATION_TARGET = {
 }
 
 
+def normalize_model_id(name: str) -> str:
+    """Normalize model ID by stripping common prefixes, replacing dots, and formatting llama."""
+    name = name.lower().replace("_", "-").replace(" ", "-").strip()
+    for prefix in ["amazon-", "google-", "meta-", "anthropic-", "openai-", "mistral-"]:
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+    name = name.replace(".", "-")
+    name = re.sub(r'^llama-(\d+)', r'llama\1', name)
+    return name
+
+
+def models_match(id1: str, id2: str) -> bool:
+    """Check if two model IDs match under normalization."""
+    n1 = normalize_model_id(id1)
+    n2 = normalize_model_id(id2)
+    return n1 == n2 or n1.startswith(n2) or n2.startswith(n1)
+
+
+class DynamicModelRegistry:
+    def __init__(self):
+        self.last_loaded = 0.0
+        self.providers = dict(STATIC_MODEL_PROVIDER)
+        self.use_cases = {
+            "text-generation": set(STATIC_TEXT_GENERATION_MODELS),
+            "code-generation": set(STATIC_CODE_GENERATION_MODELS),
+            "reasoning": set(STATIC_REASONING_MODELS),
+        }
+
+    def _reload_if_needed(self):
+        if not REGISTRY_PATH.exists():
+            return
+        try:
+            mtime = os.path.getmtime(REGISTRY_PATH)
+            if mtime <= self.last_loaded:
+                return
+        except Exception:
+            return
+
+        try:
+            with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            dyn_text_gen = set()
+            dyn_code_gen = set()
+            dyn_reasoning = set()
+            dyn_providers = {}
+
+            for m in data.get("models", []):
+                model_id = m["model_id"]
+                provider = m.get("provider", "unknown")
+                domain_strengths = [s.lower() for s in m.get("domain_strengths", [])]
+                reasoning_mode = bool(m.get("reasoning_mode", False))
+
+                # Normalize model_id
+                norm_id = normalize_model_id(model_id)
+
+                # Store provider names
+                dyn_providers[norm_id] = provider
+                dyn_providers[model_id] = provider
+
+                # Categorize based on strengths & capabilities
+                is_coding = any(
+                    s in domain_strengths
+                    for s in ["coding", "complex_coding", "agentic_coding", "code_completion", "fill_in_the_middle"]
+                )
+                is_reasoning = reasoning_mode or any(
+                    s in domain_strengths
+                    for s in [
+                        "reasoning",
+                        "complex_reasoning",
+                        "strategic_reasoning",
+                        "highest_stakes_reasoning",
+                        "cost_efficient_reasoning",
+                        "cheap_reasoning_with_large_context",
+                    ]
+                )
+
+                # All models support text generation
+                dyn_text_gen.add(norm_id)
+                dyn_text_gen.add(model_id)
+
+                if is_coding:
+                    dyn_code_gen.add(norm_id)
+                    dyn_code_gen.add(model_id)
+                if is_reasoning:
+                    dyn_reasoning.add(norm_id)
+                    dyn_reasoning.add(model_id)
+
+            # Update cache
+            self.providers = dict(STATIC_MODEL_PROVIDER)
+            self.providers.update(dyn_providers)
+
+            self.use_cases["text-generation"] = STATIC_TEXT_GENERATION_MODELS.union(dyn_text_gen)
+            self.use_cases["code-generation"] = STATIC_CODE_GENERATION_MODELS.union(dyn_code_gen)
+            self.use_cases["reasoning"] = STATIC_REASONING_MODELS.union(dyn_reasoning)
+
+            self.last_loaded = mtime
+            print(f"[REGISTRY] Loaded {len(dyn_providers) // 2} models dynamically from {REGISTRY_PATH}")
+        except Exception as e:
+            print(f"[REGISTRY ERROR] Failed to reload dynamic model registry: {e}")
+
+    def get_model_ids_for_use_case(self, use_case: str) -> set[str]:
+        self._reload_if_needed()
+        return self.use_cases.get(use_case, set())
+
+    def get_provider(self, model_id: str) -> str:
+        self._reload_if_needed()
+        norm_id = normalize_model_id(model_id)
+        if norm_id in self.providers:
+            return self.providers[norm_id]
+        return self.providers.get(model_id, "unknown")
+
+
+# Instantiate global dynamic registry
+_registry_instance = DynamicModelRegistry()
+
+
+# ─── Dict Proxies for Backward Compatibility ────────────────────
+class ProviderProxy(dict):
+    def get(self, key, default=None):
+        val = _registry_instance.get_provider(key)
+        return val if val != "unknown" else default
+
+    def __getitem__(self, key):
+        val = _registry_instance.get_provider(key)
+        if val == "unknown":
+            raise KeyError(key)
+        return val
+
+    def __contains__(self, key):
+        return _registry_instance.get_provider(key) != "unknown"
+
+
+class UseCaseModelsProxy(dict):
+    def get(self, key, default=None):
+        val = _registry_instance.get_model_ids_for_use_case(key)
+        return val if val else default
+
+    def __getitem__(self, key):
+        val = _registry_instance.get_model_ids_for_use_case(key)
+        if not val:
+            raise KeyError(key)
+        return val
+
+    def __contains__(self, key):
+        return len(_registry_instance.get_model_ids_for_use_case(key)) > 0
+
+    def keys(self):
+        return ["text-generation", "code-generation", "reasoning"]
+
+
+MODEL_PROVIDER = ProviderProxy()
+USE_CASE_MODELS = UseCaseModelsProxy()
+
+# Dummy collections to prevent import issues in other scripts
+TEXT_GENERATION_MODELS = _registry_instance.get_model_ids_for_use_case("text-generation")
+CODE_GENERATION_MODELS = _registry_instance.get_model_ids_for_use_case("code-generation")
+REASONING_MODELS = _registry_instance.get_model_ids_for_use_case("reasoning")
+
+
+# ─── Stable Seed Selection helpers ──────────────────────────────
 def _stable_int(seed_text: str) -> int:
     digest = hashlib.sha256(seed_text.encode("utf-8")).hexdigest()
     return int(digest[:16], 16)
@@ -93,13 +256,13 @@ def _rotate(items: list[str], start: int) -> list[str]:
 
 
 def get_ordered_model_ids_for_use_case(use_case: str) -> list[str]:
-    models = USE_CASE_MODELS.get(use_case)
-    if models is None:
+    models = _registry_instance.get_model_ids_for_use_case(use_case)
+    if not models:
         raise ValueError(
-            f"Unknown use_case '{use_case}'. "
+            f"Unknown use_case '{use_case}' or no models loaded. "
             f"Must be one of: {', '.join(USE_CASE_MODELS.keys())}"
         )
-    return sorted(models, key=lambda model_id: (MODEL_PROVIDER.get(model_id, "zzz"), model_id))
+    return sorted(models, key=lambda model_id: (_registry_instance.get_provider(model_id), model_id))
 
 
 def _round_robin_by_provider(model_ids: Iterable[str], start_seed: int) -> list[str]:
@@ -133,14 +296,7 @@ def select_rotating_models_for_prompt(
     min_models: int = 3,
     max_models: int = 5,
 ) -> list[str]:
-    """
-    Deterministically select a balanced subset of models for a prompt.
-
-    The seed uses prompt metadata so:
-    - repeated runs are reproducible
-    - neighboring prompts do not always hit the same model subset
-    - provider diversity is preserved when possible
-    """
+    """Deterministically select a balanced subset of models for a prompt."""
     ordered = get_ordered_model_ids_for_use_case(use_case)
     if not ordered:
         return []
@@ -162,4 +318,4 @@ def select_rotating_models_for_prompt(
 
 def get_model_ids_for_use_case(use_case: str) -> set[str]:
     """Return the set of short_ids that should be invoked for a given use case."""
-    return set(get_ordered_model_ids_for_use_case(use_case))
+    return _registry_instance.get_model_ids_for_use_case(use_case)

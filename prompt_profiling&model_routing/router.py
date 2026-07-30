@@ -202,6 +202,15 @@ class ModelRegistry:
         self.confidence_handling = data.get("confidence_handling", {
             "boundary_buffer": 0.04,
         })
+        self.quality_first_routing = data.get("quality_first_routing", {
+            "enabled": True,
+            "quality_target_model": "claude-opus-5",
+            "min_d1_threshold": 0.75,
+            "strategic_intent_only": True,
+            "high_dependency_dimensions": ["d4", "d5"],
+            "min_dependency_score": 1.0,
+            "require_reasoning_chain": True
+        })
 
         self.models: List[ModelCandidate] = []
         for m in data.get("models", []):
@@ -210,8 +219,8 @@ class ModelRegistry:
                 provider=m.get("provider", "unknown"),
                 generation=m.get("generation", "current"),
                 tier=m["tier"],
-                cost_in=float(m.get("cost_in", 0.0)),
-                cost_out=float(m.get("cost_out", 0.0)),
+                cost_in=float(m.get("cost_in") if m.get("cost_in") is not None else 0.0),
+                cost_out=float(m.get("cost_out") if m.get("cost_out") is not None else 0.0),
                 max_input_tokens=int(m.get("max_input_tokens", 128000)),
                 max_output_tokens=int(m.get("max_output_tokens", 4096)),
                 tool_tier=int(m.get("tool_tier", 1)),
@@ -326,12 +335,47 @@ class ModelRouter:
 
         return sum(1 for s in model.domain_strengths if s.lower() in match_terms)
 
-    def _sort_by_cost(self, survivors: List[ModelCandidate], profile: PromptProfile) -> List[ModelCandidate]:
+    def _is_quality_first(self, profile: PromptProfile, resolved_tier: str) -> bool:
+        rules = self.registry.quality_first_routing
+        if not rules.get("enabled", False):
+            return False
+
+        # Quality routing only applies to high-complexity T3 requests
+        if resolved_tier != "T3":
+            return False
+
+        # Condition 1: Strategic intent (d1 == 1.0)
+        if rules.get("strategic_intent_only", False) and profile.d1 >= 1.0:
+            return True
+
+        # Condition 2: Reasoning chain detected and d1 >= min_d1_threshold
+        if rules.get("require_reasoning_chain", False) and profile.reasoning_chain_detected:
+            if profile.d1 >= rules.get("min_d1_threshold", 0.75):
+                return True
+
+        # Condition 3: Any of the high dependency dimensions is >= min_dependency_score
+        high_dims = rules.get("high_dependency_dimensions", [])
+        min_score = rules.get("min_dependency_score", 1.0)
+        for dim in high_dims:
+            if getattr(profile, dim, 0.0) >= min_score:
+                return True
+
+        return False
+
+    def _sort_by_cost(self, survivors: List[ModelCandidate], profile: PromptProfile, quality_first: bool = False) -> List[ModelCandidate]:
+        target_model = self.registry.quality_first_routing.get("quality_target_model", "claude-opus-5")
+        
         def sort_key(m: ModelCandidate):
             cost = self._estimate_cost(m, profile)
             domain_match = self._count_domain_match(m, profile)
             speed = m.speed_tokens_per_sec if m.speed_tokens_per_sec is not None else 0.0
-            return (cost, -domain_match, -speed)
+            
+            if quality_first:
+                # Prioritize quality target model (e.g. claude-opus-5) first, then domain match, then cost
+                is_target = 0 if m.model_id == target_model else 1
+                return (is_target, -domain_match, cost, -speed)
+            else:
+                return (cost, -domain_match, -speed)
 
         return sorted(survivors, key=sort_key)
 
@@ -363,10 +407,17 @@ class ModelRouter:
         profile = self.profiler.profile(prompt, max_tokens=max_tokens)
         resolved_tier, escalated, escalation_reason = self._resolve_tier(profile)
         survivors, rejections = self._filter(profile, resolved_tier, include_legacy)
-        ranked = self._sort_by_cost(survivors, profile)
+        
+        quality_first = self._is_quality_first(profile, resolved_tier)
+        ranked = self._sort_by_cost(survivors, profile, quality_first=quality_first)
 
         recommendations = []
+        target_model = self.registry.quality_first_routing.get("quality_target_model", "claude-opus-5")
         for i, model in enumerate(ranked[:top_n]):
+            reasons = self._build_reasons(model, profile, resolved_tier)
+            if quality_first and model.model_id == target_model:
+                reasons.insert(0, f"Quality-first routing triggered: prioritized {model.model_id} for high-complexity/strategic reasoning task")
+            
             recommendations.append(
                 ModelRecommendation(
                     rank=i + 1,
@@ -375,18 +426,22 @@ class ModelRouter:
                     tier=model.tier,
                     estimated_cost_usd=self._estimate_cost(model, profile),
                     domain_match_count=self._count_domain_match(model, profile),
-                    reasons=self._build_reasons(model, profile, resolved_tier),
+                    reasons=reasons,
                 )
             )
+
+        warnings = self._collect_warnings(profile, survivors)
+        if quality_first:
+            warnings.append(f"Quality-first routing active. Prioritizing {target_model} due to strategic intent or high reasoning complexity.")
 
         return RoutingResult(
             prompt_profile=profile,
             resolved_tier=resolved_tier,
             recommendations=recommendations,
             rejections=rejections,
-            tier_escalated=escalated,
-            escalation_reason=escalation_reason,
-            warnings=self._collect_warnings(profile, survivors),
+            tier_escalated=escalated or quality_first,
+            escalation_reason=escalation_reason or ("Quality-first bypass triggered" if quality_first else None),
+            warnings=warnings,
         )
 
 
