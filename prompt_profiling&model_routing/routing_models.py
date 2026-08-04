@@ -34,6 +34,13 @@ class ModelCandidate:
     speed_tokens_per_sec: Optional[float]
     domain_strengths: List[str]
     manual_escalation_only: bool = False
+    total_context_tokens: Optional[int] = None
+    api_model_id: Optional[str] = None
+    lifecycle_status: str = "active"
+    verification_status: str = "Needs Manual Verification"
+    capability_tags: List[str] = field(default_factory=list)
+    latency_slo_ms: Optional[int] = None
+    availability_status: str = "unknown"
 
 @dataclass
 class ModelRecommendation:
@@ -44,6 +51,8 @@ class ModelRecommendation:
     estimated_cost_usd: float
     domain_match_count: int
     reasons: List[str]              # Human-readable: why this model
+    routing_score: Optional[float] = None
+    score_breakdown: Dict[str, float] = field(default_factory=dict)
 
 @dataclass
 class RoutingResult:

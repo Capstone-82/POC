@@ -43,6 +43,8 @@ class ProfileAndRouteRequest(BaseModel):
     max_tokens: Optional[int] = None
     include_legacy: Optional[bool] = False
     top_n: Optional[int] = 3
+    enterprise_criticality: Optional[str] = "standard"
+    required_capabilities: Optional[List[str]] = None
 
 
 @router.post("/route")
@@ -57,6 +59,8 @@ def profile_and_route(req: ProfileAndRouteRequest) -> Dict[str, Any]:
             max_tokens=req.max_tokens,
             include_legacy=req.include_legacy if req.include_legacy is not None else False,
             top_n=req.top_n if req.top_n is not None else 3,
+            enterprise_criticality=req.enterprise_criticality or "standard",
+            required_capabilities=req.required_capabilities or [],
         )
         return asdict(result)
     except Exception as e:

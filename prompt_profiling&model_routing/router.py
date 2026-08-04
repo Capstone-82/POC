@@ -17,7 +17,7 @@ import pickle
 import torch
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Tuple, Optional
+from typing import Any, List, Dict, Tuple, Optional
 from xgboost import XGBClassifier
 from sentence_transformers import SentenceTransformer
 
@@ -50,6 +50,19 @@ OUTPUT_TOKEN_ESTIMATE = {
 
 TIER_RANK = {"T1": 0, "T2": 1, "T3": 2}
 RANK_TIER = {0: "T1", 1: "T2", 2: "T3"}
+
+DEFAULT_WEIGHTED_ROUTING = {
+    "weights": {
+        "T1": {"quality": 25, "capability": 25, "context": 10, "reliability": 10, "latency": 15, "cost": 15},
+        "T2": {"quality": 35, "capability": 25, "context": 10, "reliability": 15, "latency": 10, "cost": 5},
+        "T3": {"quality": 45, "capability": 25, "context": 10, "reliability": 15, "latency": 0, "cost": 5},
+        "T3_critical": {"quality": 50, "capability": 25, "context": 10, "reliability": 15, "latency": 0, "cost": 0},
+    },
+    "quality_floors": {"T1": 60, "T2": 70, "T3": 80, "T3_critical": 88},
+    "context_safety_margin": 0.15,
+    "near_tie_points": 3.0,
+    "low_confidence_threshold": 0.50,
+}
 
 
 def count_input_tokens(prompt: str) -> int:
@@ -211,6 +224,8 @@ class ModelRegistry:
             "min_dependency_score": 1.0,
             "require_reasoning_chain": True
         })
+        self.weighted_routing = data.get("weighted_routing", DEFAULT_WEIGHTED_ROUTING)
+        self.provider_metadata = data.get("providers", {})
 
         self.models: List[ModelCandidate] = []
         for m in data.get("models", []):
@@ -228,6 +243,15 @@ class ModelRegistry:
                 speed_tokens_per_sec=float(m["speed_tokens_per_sec"]) if m.get("speed_tokens_per_sec") is not None else None,
                 domain_strengths=m.get("domain_strengths", []),
                 manual_escalation_only=bool(m.get("manual_escalation_only", False)),
+                total_context_tokens=int(m.get("total_context_tokens", m.get("max_input_tokens", 128000))),
+                api_model_id=m.get("api_model_id"),
+                lifecycle_status=m.get("lifecycle", {}).get(
+                    "status", "deprecated" if m.get("generation") == "legacy" else "active"
+                ),
+                verification_status=m.get("verification_status", "Needs Manual Verification"),
+                capability_tags=m.get("capability_tags", m.get("domain_strengths", [])),
+                latency_slo_ms=m.get("latency_slo_ms"),
+                availability_status=m.get("availability_status", "unknown"),
             )
             self.models.append(candidate)
 
@@ -269,13 +293,24 @@ class ModelRouter:
             reason = f"confidence {profile.confidence:.4f} < 0.50 — escalated {base_tier} -> {new_tier}, flagged for review"
             return new_tier, True, reason
 
-    def _filter(self, profile: PromptProfile, resolved_tier: str, include_legacy: bool) -> Tuple[List[ModelCandidate], Dict[str, str]]:
+    def _filter(
+        self,
+        profile: PromptProfile,
+        resolved_tier: str,
+        include_legacy: bool,
+        required_capabilities: List[str],
+    ) -> Tuple[List[ModelCandidate], Dict[str, str]]:
         rejections = {}
         survivors = []
-        input_with_margin = int(profile.input_token_count * 1.15)
+        margin = float(self.registry.weighted_routing.get("context_safety_margin", 0.15))
+        input_with_margin = int(profile.input_token_count * (1 + margin))
+        total_request_tokens = input_with_margin + profile.est_output_tokens
 
         for model in self.registry.get_models():
-            # Filter 1: Generation gate
+            # Lifecycle is authoritative when present; generation remains a compatibility fallback.
+            if model.lifecycle_status in {"deprecated", "retired", "disabled"}:
+                rejections[model.model_id] = f"lifecycle.status={model.lifecycle_status}"
+                continue
             if not include_legacy and model.generation == "legacy":
                 rejections[model.model_id] = "generation=legacy excluded by default"
                 continue
@@ -283,6 +318,10 @@ class ModelRouter:
             # Filter 2: Manual escalation gate
             if model.manual_escalation_only:
                 rejections[model.model_id] = "manual_escalation_only=true"
+                continue
+
+            if model.availability_status in {"unavailable", "degraded"}:
+                rejections[model.model_id] = f"availability_status={model.availability_status}"
                 continue
 
             # Filter 3: Resolved tier rank check
@@ -312,6 +351,27 @@ class ModelRouter:
                 )
                 continue
 
+            if profile.est_output_tokens > model.max_output_tokens:
+                rejections[model.model_id] = (
+                    f"requested output {profile.est_output_tokens:,} > max_output_tokens {model.max_output_tokens:,}"
+                )
+                continue
+
+            if total_request_tokens > (model.total_context_tokens or model.max_input_tokens):
+                rejections[model.model_id] = (
+                    f"total request {total_request_tokens:,} > total_context_tokens "
+                    f"{(model.total_context_tokens or model.max_input_tokens):,}"
+                )
+                continue
+
+            missing_capabilities = [
+                capability for capability in required_capabilities
+                if capability.lower() not in {tag.lower() for tag in model.capability_tags}
+            ]
+            if missing_capabilities:
+                rejections[model.model_id] = f"missing required capabilities: {', '.join(missing_capabilities)}"
+                continue
+
             # Filter 6: Reasoning gate
             if profile.reasoning_chain_detected and not model.reasoning_mode:
                 rejections[model.model_id] = "reasoning_chain_detected=true but reasoning_mode=false"
@@ -335,51 +395,85 @@ class ModelRouter:
 
         return sum(1 for s in model.domain_strengths if s.lower() in match_terms)
 
-    def _is_quality_first(self, profile: PromptProfile, resolved_tier: str) -> bool:
-        rules = self.registry.quality_first_routing
-        if not rules.get("enabled", False):
-            return False
+    def _score_candidate(
+        self,
+        model: ModelCandidate,
+        profile: PromptProfile,
+        resolved_tier: str,
+        enterprise_criticality: str,
+        costs: List[float],
+    ) -> Dict[str, float]:
+        """Produce an explainable 0-100 weighted score after hard feasibility gates."""
+        critical = enterprise_criticality.lower() in {"high", "critical", "regulated", "safety_critical"}
+        policy_key = "T3_critical" if resolved_tier == "T3" and critical else resolved_tier
+        weights = self.registry.weighted_routing.get("weights", DEFAULT_WEIGHTED_ROUTING["weights"]).get(
+            policy_key, DEFAULT_WEIGHTED_ROUTING["weights"][policy_key]
+        )
 
-        # Quality routing only applies to high-complexity T3 requests
-        if resolved_tier != "T3":
-            return False
+        tier_fit = 80.0 if model.tier == resolved_tier else 92.0
+        reasoning_fit = 15.0 if profile.reasoning_chain_detected and model.reasoning_mode else 0.0
+        complexity_fit = 5.0 * sum(1 for value in [profile.d1, profile.d2, profile.d3, profile.d4, profile.d5] if value >= 0.75)
+        quality = min(100.0, tier_fit + reasoning_fit + complexity_fit)
 
-        # Condition 1: Strategic intent (d1 == 1.0)
-        if rules.get("strategic_intent_only", False) and profile.d1 >= 1.0:
-            return True
+        domain_match = self._count_domain_match(model, profile)
+        capability_terms = {tag.lower() for tag in model.capability_tags}
+        signal_bonus = 0.0
+        if profile.d4 >= 0.75 and any("research" in tag or "ground" in tag for tag in capability_terms):
+            signal_bonus += 10.0
+        if profile.d5 >= 0.75 and any("context" in tag for tag in capability_terms):
+            signal_bonus += 10.0
+        if profile.intent.lower() in capability_terms:
+            signal_bonus += 10.0
+        capability = min(100.0, 55.0 + domain_match * 15.0 + signal_bonus + (10.0 if profile.reasoning_chain_detected and model.reasoning_mode else 0.0))
 
-        # Condition 2: Reasoning chain detected and d1 >= min_d1_threshold
-        if rules.get("require_reasoning_chain", False) and profile.reasoning_chain_detected:
-            if profile.d1 >= rules.get("min_d1_threshold", 0.75):
-                return True
+        total_context = model.total_context_tokens or model.max_input_tokens
+        request_tokens = int(profile.input_token_count * (1 + float(self.registry.weighted_routing.get("context_safety_margin", 0.15)))) + profile.est_output_tokens
+        context = max(0.0, min(100.0, 100.0 * (total_context - request_tokens) / max(1, total_context)))
+        reliability = 100.0 if model.availability_status == "available" else 70.0
+        latency = 60.0 if model.speed_tokens_per_sec is None else min(100.0, model.speed_tokens_per_sec / 2.0)
 
-        # Condition 3: Any of the high dependency dimensions is >= min_dependency_score
-        high_dims = rules.get("high_dependency_dimensions", [])
-        min_score = rules.get("min_dependency_score", 1.0)
-        for dim in high_dims:
-            if getattr(profile, dim, 0.0) >= min_score:
-                return True
+        cost = self._estimate_cost(model, profile)
+        low, high = min(costs), max(costs)
+        cost_efficiency = 50.0 if high == low else 100.0 * (high - cost) / (high - low)
 
-        return False
+        components = {
+            "quality": quality,
+            "capability": capability,
+            "context": context,
+            "reliability": reliability,
+            "latency": latency,
+            "cost": cost_efficiency,
+        }
+        weighted = sum(components[name] * float(weights.get(name, 0)) / 100.0 for name in components)
+        components["routing_score"] = round(weighted, 2)
+        components["quality_floor"] = float(self.registry.weighted_routing.get("quality_floors", DEFAULT_WEIGHTED_ROUTING["quality_floors"]).get(policy_key, 0))
+        return components
 
-    def _sort_by_cost(self, survivors: List[ModelCandidate], profile: PromptProfile, quality_first: bool = False) -> List[ModelCandidate]:
-        target_model = self.registry.quality_first_routing.get("quality_target_model", "claude-opus-5")
-        
-        def sort_key(m: ModelCandidate):
-            cost = self._estimate_cost(m, profile)
-            domain_match = self._count_domain_match(m, profile)
-            speed = m.speed_tokens_per_sec if m.speed_tokens_per_sec is not None else 0.0
-            
-            if quality_first:
-                # Prioritize quality target model (e.g. claude-opus-5) first, then domain match, then cost
-                is_target = 0 if m.model_id == target_model else 1
-                return (is_target, -domain_match, cost, -speed)
-            else:
-                return (cost, -domain_match, -speed)
+    def _rank_weighted(
+        self,
+        survivors: List[ModelCandidate],
+        profile: PromptProfile,
+        resolved_tier: str,
+        enterprise_criticality: str,
+    ) -> List[Tuple[ModelCandidate, Dict[str, float]]]:
+        costs = [self._estimate_cost(model, profile) for model in survivors]
+        scored = [
+            (model, self._score_candidate(model, profile, resolved_tier, enterprise_criticality, costs))
+            for model in survivors
+        ]
+        eligible = [(model, score) for model, score in scored if score["quality"] >= score["quality_floor"]]
+        candidates = eligible or scored
+        return sorted(
+            candidates,
+            key=lambda item: (
+                -item[1]["routing_score"], -item[1]["quality"], -item[1]["reliability"],
+                -item[1]["context"], -item[1]["latency"], self._estimate_cost(item[0], profile), item[0].model_id,
+            ),
+        )
 
-        return sorted(survivors, key=sort_key)
-
-    def _build_reasons(self, model: ModelCandidate, profile: PromptProfile, resolved_tier: str) -> List[str]:
+    def _build_reasons(
+        self, model: ModelCandidate, profile: PromptProfile, resolved_tier: str, score: Optional[Dict[str, float]] = None
+    ) -> List[str]:
         reasons = []
         if model.tier == resolved_tier:
             reasons.append(f"Direct tier match ({model.tier})")
@@ -393,31 +487,42 @@ class ModelRouter:
         if match_count > 0:
             reasons.append(f"Matched {match_count} domain strength tag(s)")
 
+        if score is not None:
+            reasons.append(
+                f"Weighted routing score {score['routing_score']:.2f} "
+                f"(quality {score['quality']:.0f}, capability {score['capability']:.0f}, "
+                f"context {score['context']:.0f}, reliability {score['reliability']:.0f})"
+            )
+
         return reasons
 
     def _collect_warnings(self, profile: PromptProfile, survivors: List[ModelCandidate]) -> List[str]:
         warnings = []
         if not survivors:
             warnings.append("No models passed all filters for this prompt.")
-        if profile.confidence < 0.50:
+        if profile.confidence < float(self.registry.weighted_routing.get("low_confidence_threshold", 0.50)):
             warnings.append(f"Low confidence profile ({profile.confidence:.4f}). Flagged for manual review.")
         return warnings
 
-    def route(self, prompt: str, max_tokens: Optional[int] = None, include_legacy: bool = False, top_n: int = 3) -> RoutingResult:
+    def route(
+        self,
+        prompt: str,
+        max_tokens: Optional[int] = None,
+        include_legacy: bool = False,
+        top_n: int = 3,
+        enterprise_criticality: str = "standard",
+        required_capabilities: Optional[List[str]] = None,
+    ) -> RoutingResult:
         profile = self.profiler.profile(prompt, max_tokens=max_tokens)
         resolved_tier, escalated, escalation_reason = self._resolve_tier(profile)
-        survivors, rejections = self._filter(profile, resolved_tier, include_legacy)
-        
-        quality_first = self._is_quality_first(profile, resolved_tier)
-        ranked = self._sort_by_cost(survivors, profile, quality_first=quality_first)
+        survivors, rejections = self._filter(
+            profile, resolved_tier, include_legacy, required_capabilities or []
+        )
+        ranked = self._rank_weighted(survivors, profile, resolved_tier, enterprise_criticality) if survivors else []
 
         recommendations = []
-        target_model = self.registry.quality_first_routing.get("quality_target_model", "claude-opus-5")
-        for i, model in enumerate(ranked[:top_n]):
-            reasons = self._build_reasons(model, profile, resolved_tier)
-            if quality_first and model.model_id == target_model:
-                reasons.insert(0, f"Quality-first routing triggered: prioritized {model.model_id} for high-complexity/strategic reasoning task")
-            
+        for i, (model, score) in enumerate(ranked[:top_n]):
+            reasons = self._build_reasons(model, profile, resolved_tier, score)
             recommendations.append(
                 ModelRecommendation(
                     rank=i + 1,
@@ -427,20 +532,26 @@ class ModelRouter:
                     estimated_cost_usd=self._estimate_cost(model, profile),
                     domain_match_count=self._count_domain_match(model, profile),
                     reasons=reasons,
+                    routing_score=score["routing_score"],
+                    score_breakdown=score,
                 )
             )
 
         warnings = self._collect_warnings(profile, survivors)
-        if quality_first:
-            warnings.append(f"Quality-first routing active. Prioritizing {target_model} due to strategic intent or high reasoning complexity.")
+        if profile.confidence < float(self.registry.weighted_routing.get("low_confidence_threshold", 0.50)):
+            warnings.append("Conservative tier escalation applied because profile confidence is low.")
+        if len(ranked) > 1:
+            margin = float(self.registry.weighted_routing.get("near_tie_points", 3.0))
+            if ranked[0][1]["routing_score"] - ranked[1][1]["routing_score"] <= margin:
+                warnings.append("Top candidates are near-tied; deterministic quality, reliability, context, latency, and cost tie-breakers applied.")
 
         return RoutingResult(
             prompt_profile=profile,
             resolved_tier=resolved_tier,
             recommendations=recommendations,
             rejections=rejections,
-            tier_escalated=escalated or quality_first,
-            escalation_reason=escalation_reason or ("Quality-first bypass triggered" if quality_first else None),
+            tier_escalated=escalated,
+            escalation_reason=escalation_reason,
             warnings=warnings,
         )
 
@@ -452,9 +563,14 @@ def route_model(
     registry_path: str = "model_registry_v3.json",
     include_legacy: bool = False,
     top_n: int = 3,
+    enterprise_criticality: str = "standard",
+    required_capabilities: Optional[List[str]] = None,
 ) -> RoutingResult:
     """One-shot convenience routing function."""
     profiler = PromptProfiler(pkl_path)
     registry = ModelRegistry(registry_path)
     router = ModelRouter(profiler, registry)
-    return router.route(prompt, max_tokens=max_tokens, include_legacy=include_legacy, top_n=top_n)
+    return router.route(
+        prompt, max_tokens=max_tokens, include_legacy=include_legacy, top_n=top_n,
+        enterprise_criticality=enterprise_criticality, required_capabilities=required_capabilities,
+    )
