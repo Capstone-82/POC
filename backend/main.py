@@ -6,7 +6,7 @@ import uvicorn
 
 load_dotenv()
 
-from routers import clarity, inference, test_models, training, profiling
+from routers import clarity, inference, test_models, training, profiling, model_routing
 
 app = FastAPI(title="LLM Recommender API")
 
@@ -22,6 +22,7 @@ app.include_router(inference.router, prefix="/api/inference")
 app.include_router(test_models.router, prefix="/api/test")
 app.include_router(clarity.router, prefix="/api/clarity")
 app.include_router(profiling.router, prefix="/api/profiling")
+app.include_router(model_routing.router, prefix="/api/model-routing")
 
 
 @app.get("/health")

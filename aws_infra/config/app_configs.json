@@ -1,0 +1,72 @@
+{
+  "apps": [
+    {
+      "app_id": "modelmatrix",
+      "env": "dev",
+      "allowed_models": [
+        "llama4-scout",
+        "llama4-maverick",
+        "nova-lite",
+        "nova-pro",
+        "gemini-3-1-flash-lite",
+        "mistral-small"
+      ],
+      "context_limits": {
+        "max_input_tokens": 4000,
+        "max_output_tokens": 2048,
+        "max_total_tokens": 6000
+      },
+      "throttle": {
+        "rate_limit": 10,
+        "burst_limit": 20,
+        "quota_per_day": 1000
+      }
+    },
+    {
+      "app_id": "modelmatrix",
+      "env": "prod",
+      "allowed_models": [
+        "llama4-scout",
+        "llama4-maverick",
+        "llama3-3-70b",
+        "nova-lite",
+        "nova-pro",
+        "nova-premier",
+        "gemini-3-1-flash-lite",
+        "gemini-3.1-pro",
+        "deepseek-r1",
+        "mistral-large",
+        "mistral-small",
+        "magistral-small"
+      ],
+      "context_limits": {
+        "max_input_tokens": 8000,
+        "max_output_tokens": 4096,
+        "max_total_tokens": 10000
+      },
+      "throttle": {
+        "rate_limit": 100,
+        "burst_limit": 200,
+        "quota_per_day": 10000
+      }
+    },
+    {
+      "app_id": "external-partner",
+      "env": "prod",
+      "allowed_models": [
+        "nova-lite",
+        "mistral-small"
+      ],
+      "context_limits": {
+        "max_input_tokens": 2000,
+        "max_output_tokens": 1024,
+        "max_total_tokens": 3000
+      },
+      "throttle": {
+        "rate_limit": 20,
+        "burst_limit": 30,
+        "quota_per_day": 500
+      }
+    }
+  ]
+}

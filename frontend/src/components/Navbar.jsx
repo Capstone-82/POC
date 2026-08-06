@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, Zap, BrainCircuit, Cpu } from 'lucide-react'
+import { Activity, Zap, BrainCircuit, Cpu, Shield } from 'lucide-react'
 
 export default function Navbar() {
   return (
@@ -65,6 +65,19 @@ export default function Navbar() {
         >
           <Cpu className="w-4 h-4" />
           Profiling & Routing
+        </NavLink>
+        <NavLink
+          to="/model-routing"
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+              isActive
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`
+          }
+        >
+          <Shield className="w-4 h-4" />
+          AWS Routing
         </NavLink>
       </div>
       
